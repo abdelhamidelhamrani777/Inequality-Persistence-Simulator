@@ -93,7 +93,7 @@ Every change recomputes the simulation immediately and reuses the same random sh
 | Labor cap, Capital cap | Allocation tab | 10 to 5000 units | Total units of each source. Changing a cap rescales the allocation |
 | Enter as | Allocation tab | Units, Percent | Enter holdings in units, or as a percentage of each cap and of total income |
 | Allocation cells | Allocation tab | Up to the cap | Starting holdings. An entry above what is left is clipped, and rows re-sort by total when you leave the table |
-| Profile presets | Allocation tab | Five shapes | Sets the allocation and resets parameters to $`\beta = (1-\phi) \times \text{start}`$, trend 0 and $`\sigma = \text{start}/10`$ |
+| Profile presets | Allocation tab | Five shapes | Five economies with the same period-0 incomes (24, 44, 72, 110, 150 with caps of 200), hence the same Lorenz curve and Gini coefficient (0.318), differing only in the split between labor and capital. Sets the allocation and resets parameters to $`\beta = (1-\phi) \times \text{start}`$, trend 0 and $`\sigma = \text{start}/10`$ |
 | Period bar | Top of the figure board | 0 to $`T`$ | Selects the period shown in the In figures strip, Figure 2 and Figure 5 |
 | View | Figure 3 | One person, Compare | One person's equations and incomes, or several people's series on one chart |
 | Name chips | Figures 3 and 4 | On or off | Shows or hides a person. Both figures share the same selection |
@@ -163,10 +163,11 @@ Each experiment starts from **Reset** (seed 20251008, $`T = 110`$, 200 samples).
 | --- | --- | --- | --- | --- |
 | Default | None | Inverted U | 0.588 (Violette) to 0.831 (Bjørn) | 8 of 110 |
 | Longer sample | Periods set to 2000 | Inverted U | 0.636 to 0.877, each within 0.006 of the theory line | 198 of 2000 |
-| Decreasing preset | Allocation tab, Decreasing | Decreasing | 0.834 (Violette) to 0.719 (George) | 10 of 110 |
-| Increasing preset | Allocation tab, Increasing | Increasing | 0.615 (Violette) to 0.810 (George) | 6 of 110 |
-| Flat preset | Allocation tab, Flat | Flat | 0.745 to 0.766 | 4 of 110 |
-| U-shaped preset | Allocation tab, U-shaped | U-shaped | 0.643 (Bjørn) to 0.830 (Violette) | 0 of 110 |
+| Decreasing preset | Allocation tab, Decreasing | Decreasing | 0.834 (Violette) to 0.664 (George) | 4 of 110 |
+| Increasing preset | Allocation tab, Increasing | Increasing | 0.607 (Violette) to 0.817 (George) | 20 of 110 |
+| Flat preset | Allocation tab, Flat | Flat | 0.745 to 0.766, theory 0.819 for everyone | 6 of 110 |
+| U-shaped preset | Allocation tab, U-shaped | U-shaped | 0.626 (Bjørn) to 0.839 (Violette) | 12 of 110 |
+| Inverted U preset | Allocation tab, Inverted U | Inverted U | 0.575 (Violette) to 0.831 (Bjørn) | 12 of 110 |
 | Equal shocks | Parameters tab, every $`\sigma`$ set to 4 | Flat | 0.747 to 0.764, theory 0.819 for everyone | 2 of 110 |
 | Reversed persistence | $`\phi_L = 0.50`$, $`\phi_K = 0.90`$ | U-shaped | 0.540 (Bjørn) to 0.821 (Violette) | 20 of 110 |
 | Larger shocks | Parameters tab, every $`\sigma`$ multiplied by 3 | Inverted U | 0.581 to 0.820 | 64 of 110 |
@@ -174,7 +175,7 @@ Each experiment starts from **Reset** (seed 20251008, $`T = 110`$, 200 samples).
 What the experiments suggest:
 
 - **Sample length.** At $`T = 110`$ the simulated values sit below the theory line, the usual downward small-sample bias of the autocorrelation. At $`T = 2000`$ the two nearly coincide.
-- **Composition.** The presets differ only in how labor and capital are split across people, yet each produces its own profile. Reversing which source is more persistent turns the default inverted U into a U shape. Choosing the Inverted U preset afterwards restores it, because presets give the pattern to whichever source is currently more persistent.
+- **Composition.** The presets keep every person's period-0 income, and therefore the Lorenz curve and the Gini coefficient (0.318), and differ only in how labor and capital are split across people; yet each produces its own profile, while the mean Gini coefficient over the path stays between 0.317 and 0.322. Reversing which source is more persistent turns the default inverted U into a U shape. Choosing the Inverted U preset afterwards restores an inverted U (0.580 to 0.833), because presets give the pattern to whichever source is currently more persistent.
 - **Control case.** When every shock has the same size, a person's mix of sources no longer changes how their share moves, and the profile is flat.
 - **Ranks.** Tripling every shock leaves the profile almost unchanged, since persistence does not depend on the scale of proportional shocks, while rank changes rise from 8 to 64 periods.
 

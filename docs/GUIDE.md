@@ -1,125 +1,166 @@
 # Inequality Persistence Simulator: User Guide
 
-**How to use the simulator to understand the dynamics of inequality, with guided experiments and worked examples.**
+**The analytical framework of the simulator, its controls and figures, and twelve controlled experiments on the persistence of income shares.**
 
-This guide walks you through every part of the simulator, explains what each figure shows, and then runs twelve experiments that each isolate one mechanism behind the dynamics of inequality. Every number and screenshot in this guide comes from the simulator itself, at its default seed (20251008) unless stated otherwise, so you can reproduce each result exactly.
+The guide has three parts. Sections 1 to 3 set out the research question, the framework and the simulated economy. Sections 4 and 5 document the interface. Sections 6 to 8 report controlled experiments, relate them to empirical work on income shares and propose exercises. Every number and screenshot comes from the simulator at its default seed (20251008), so each result can be reproduced exactly.
 
-You need nothing but a browser. Open [`index.html`](../index.html) from this repository, or use the online version at [https://abdelhamidelhamrani777.github.io/Inequality-Persistence-Simulator/](https://abdelhamidelhamrani777.github.io/Inequality-Persistence-Simulator/). A first reading takes about an hour; each experiment takes five to ten minutes.
+The simulator runs in any recent browser: open [`index.html`](../index.html) from this repository, or use the [online version](https://abdelhamidelhamrani777.github.io/Inequality-Persistence-Simulator/). Technical details on the implementation are collected in the [technical reference](TECHNICAL.md).
 
 ## Contents
 
-1. [Why this simulator](#1-why-this-simulator)
-2. [Key ideas in ten minutes](#2-key-ideas-in-ten-minutes)
-3. [Getting started](#3-getting-started)
-4. [The controls in detail](#4-the-controls-in-detail)
-5. [Reading the results](#5-reading-the-results)
-6. [Guided experiments](#6-guided-experiments)
-7. [From the simulator to real data](#7-from-the-simulator-to-real-data)
+1. [Research question](#1-research-question)
+2. [Analytical framework](#2-analytical-framework)
+3. [The simulated economy](#3-the-simulated-economy)
+4. [Interface and controls](#4-interface-and-controls)
+5. [Reading the figures](#5-reading-the-figures)
+6. [Controlled experiments](#6-controlled-experiments)
+7. [From the simulator to income-share data](#7-from-the-simulator-to-income-share-data)
 8. [Exercises](#8-exercises)
-9. [Troubleshooting and frequently asked questions](#9-troubleshooting-and-frequently-asked-questions)
-10. [Glossary](#10-glossary)
+9. [Frequently asked questions](#9-frequently-asked-questions)
+10. [Notation](#10-notation)
 11. [Limits of the model](#11-limits-of-the-model)
-12. [Credits](#12-credits)
+12. [References](#12-references)
+13. [Credits](#13-credits)
 
 ---
 
-## 1. Why this simulator
+## 1. Research question
 
-Inequality has two dimensions.
+Long-run studies of inequality in rich countries document diverging movements of income shares: the bottom groups have lost ground, the shares of the middle classes have declined and the share of the top percentile has risen since 1980 (Piketty and Saez, 2003; Piketty, Saez and Zucman, 2018; Alvaredo et al., 2018). These movements suggest that income shares at different points of the distribution follow different data-generating processes. Diverging trends alone do not establish it, since shares that sum to one must move in opposite directions. The question is whether the *stochastic* part of each share, what remains once its long-run path is removed, also differs across the distribution.
 
-- **Its level**: how unequally income is shared at a given moment. The Lorenz curve and the Gini coefficient measure it.
-- **Its dynamics**: how the distribution moves over time. When one group's share of income rises above its usual level, does it fall back the next year, or does the gap last? How large are the swings? Do people change places?
+The feature of that stochastic part studied here is **persistence**: the extent to which a deviation of a share from its long-run path in one period is carried into the next. Persistence describes how a change in the distribution of income is propagated over time.
 
-Most public discussion is about the first dimension. This simulator is about the second, and about one mechanism in particular: **the persistence of an income share depends on the mix of income sources behind it**. Labor income (wages and salaries) and capital income (dividends, interest, rents, capital gains) do not behave alike. Wages tend to move slowly, anchored by contracts, institutions and careers. Capital income tends to move fast, driven by asset prices and the timing of payouts. A group that lives mostly on wages will therefore see its share of income move slowly; a group that lives mostly on capital will see its share jump around and revert quickly.
+- A **flat** persistence profile means that low and high income shares have the same inertia.
+- An **inverted-U** profile, for instance 0.5 at the bottom, 0.8 in the middle and 0.4 at the top, means that deviations persist in the middle and fade at the extremes. When inequality changes, the year-to-year adjustment then falls on the extremes, while the middle carries deviations forward for several years.
+- A **U-shaped** profile implies the opposite: adjustments occur more often in the middle than in the lower and upper shares.
 
-The simulator results from a research effort carried out within master's theses at the Faculty of Governance, Economics and Social Sciences (FGSES) of Mohammed VI Polytechnic University (UM6P), under the supervision of Professor Ramses Abul Naga, on how income shares move over time along the distribution. It lets you build that mechanism from first principles, then break it, reverse it and test it.
+The working hypothesis is that persistence depends on the **composition of income by source**. Wages dominate the middle of the distribution, social insurance is a major source at the bottom and business income dominates the very top (Gomez, 2025). Labor income is set by contracts, wage schedules and institutions that change slowly. Capital income follows profits, asset prices and the timing of realizations, and transfers respond to eligibility rules and to the business cycle. If each source has its own dynamics, each income share inherits a different process. The statistical core of the argument is that a sum of autoregressive components with different coefficients does not have the persistence of any single component (Granger and Morris, 1976).
 
-It is a laboratory with five hypothetical people: **Violette, Meryem, Bjørn, Alfred and George**. It illustrates mechanisms; it does not estimate anything from data.
+The simulator isolates this mechanism. It builds an economy in which composition is the only source of heterogeneity across individuals, and measures the persistence of each income share, the Lorenz curve and the Gini coefficient. It results from a research effort carried out within master's theses at the Faculty of Governance, Economics and Social Sciences (FGSES) of Mohammed VI Polytechnic University (UM6P), under the supervision of Professor Ramses Abul Naga.
 
-## 2. Key ideas in ten minutes
+## 2. Analytical framework
 
-### 2.1 Income shares
+### 2.1 Income shares, the Lorenz curve and the Gini coefficient
 
-A person's **income share** is their income divided by the total income of the economy. If George earns 150 units and the five people together earn 400, George's share is 37.5%. Shares remove the overall size of the economy and keep only how it is divided. Inequality statistics such as "the top 10% income share" are shares.
-
-### 2.2 The Lorenz curve and the Gini coefficient
-
-Line people up from the poorest to the richest. The **Lorenz curve** plots the cumulative share of the population (horizontal axis) against the cumulative share of income they hold (vertical axis). If everyone earned the same, the curve would be the diagonal, the line of perfect equality. The further the curve sags below the diagonal, the more unequal the distribution.
-
-The **Gini coefficient**, written $`G`$, is twice the area between the diagonal and the Lorenz curve. It is 0 when everyone has the same income. With five people, it cannot exceed 0.8, which is reached when one person holds everything.
-
-### 2.3 Persistence
-
-In the simulator, each source of income follows an **autoregressive process of order one**, or AR(1): this period's value is a constant, plus a fraction $`\phi`$ of last period's value, plus a random shock.
+With $`N = 5`$ individuals, the income share of individual $`i`$ in period $`t`$ is
 
 ```math
-w_t = \beta + \phi\, w_{t-1} + u_t
+S_{i,t} = \frac{y_{i,t}}{\sum_{j=1}^{N} y_{j,t}} .
 ```
 
-The coefficient $`\phi`$ (phi) is the **persistence** of the source, between −1 and 1.
+Ranking individuals by income in period $`t`$, the Lorenz curve is the set of points $`(k/N,\, L_t(k/N))`$, where $`L_t(k/N)`$ is the sum of the $`k`$ smallest shares. The Gini coefficient is twice the area between the diagonal and the Lorenz curve,
 
-- Near 1, a shock fades slowly: income that rises above its usual level stays high for a long time.
-- Near 0, a shock disappears at once: each period is almost independent of the last.
-- Below 0, income overshoots: a high period tends to be followed by a low one.
-- At exactly 1 or −1, a shock never fades. This is a **unit root**.
+```math
+G_t = 1 - \frac{1}{N}\sum_{k=1}^{N}\left[L_t\!\left(\tfrac{k}{N}\right) + L_t\!\left(\tfrac{k-1}{N}\right)\right],
+```
 
-A convenient way to read $`\phi`$ is the **half-life** of a shock, the number of periods it takes for half of the shock to disappear, $`\ln 0.5 / \ln \phi`$:
+and its maximum with five individuals is $`1 - 1/N = 0.8`$. Because each ordinate of the Lorenz curve is a sum of shares, its deviations are sums of the deviations of the shares below it, and their persistence is a variance-weighted combination of the persistence of those shares (section 2.7).
+
+### 2.2 Persistence of an income source
+
+Each source of income follows an autoregressive process of order one, augmented with a constant and a linear trend:
+
+```math
+x_t = \beta + \beta_{trend}\, t + \phi\, x_{t-1} + e_t, \qquad e_t \sim N(0, \sigma^2).
+```
+
+The coefficient $`\phi`$ is the fraction of this period's deviation that is still present next period. The process is stationary around its deterministic path when $`|\phi| < 1`$; without trend it then settles at the long-run level $`\beta/(1-\phi)`$, and with a trend on a line whose slope is $`\beta_{trend}/(1-\phi)`$. At $`\phi = 1`$ (a unit root) shocks never fade, and for $`\phi < 0`$ the process overshoots, a high period being followed by a low one. The half-life of a deviation, $`\ln 0.5/\ln\phi`$ for $`0 < \phi < 1`$, translates $`\phi`$ into periods:
 
 | $`\phi`$ | 0.50 | 0.70 | 0.80 | 0.90 | 0.95 | 0.99 |
 | --- | --- | --- | --- | --- | --- | --- |
 | Half-life (periods) | 1.0 | 1.9 | 3.1 | 6.6 | 13.5 | 69.0 |
 
-The persistence of an **income share** is measured by its first-order autocorrelation, $`\hat\rho(1)`$: the correlation between the share's deviation from its usual path in one period and its deviation in the next. This is the number Figure 1 plots.
+### 2.3 Persistence of an income share
 
-### 2.4 Why composition drives the persistence of a share
+The persistence of a share is measured by the first-order autocorrelation of its **deviation from the deterministic path**, that is, from the share the model would produce with every shock set to zero (the *no-shock path*). For each simulated sample,
 
-A person's income is the sum of two sources with different persistence, so the persistence of their share is a blend of the two. The blend is weighted by how much each source contributes to the **fluctuations** of the share, not by how much it contributes to the level of income. A source that is small but very volatile can dominate the movements of a share.
+```math
+\hat\rho_i(1) = \frac{\sum_{t=1}^{T} \left(d_{i,t}-\bar d_i\right)\left(d_{i,t-1}-\bar d_i\right)}{\sum_{t=0}^{T} \left(d_{i,t}-\bar d_i\right)^2}, \qquad d_{i,t} = S_{i,t} - S^{0}_{i,t},
+```
 
-At the default settings, labor has persistence 0.90 and capital 0.50. The table below shows, for each person, the share of their own income variance that comes from labor, and the persistence of their share measured by the simulator:
+where $`S^{0}_{i,t}`$ is the no-shock share. Figure 1 reports the mean of $`\hat\rho_i(1)`$ over the simulated samples and its 5th and 95th percentiles. Removing the deterministic component prevents a trend, or the slow adjustment from the starting allocation to the long-run levels, from being counted as persistence, in the same way that unmodelled trends and breaks bias the persistence of observed series upward (Perron, 1989; Lamoureux and Lastrapes, 1990).
 
-| Person | Capital share of income at period 0 | Labor's share of income variance | Simulated persistence of the share |
+### 2.4 The composition mechanism
+
+A first-order linearization of each share around the long-run levels $`m = \beta/(1-\phi)`$ gives the persistence of a share as a variance-weighted average of $`\phi_L`$ and $`\phi_K`$:
+
+```math
+\rho_i(1) \approx \frac{\sum_{j} c_{ij}^{2}\left(\phi_{L}\,\gamma_{L,j} + \phi_{K}\,\gamma_{K,j}\right)}{\sum_{j} c_{ij}^{2}\left(\gamma_{L,j} + \gamma_{K,j}\right)}, \qquad c_{ij} = \frac{\mathbf{1}[i=j] - s_i}{M},
+```
+
+where $`\gamma = \sigma^2/(1-\phi^2)`$ is the stationary variance of each source, $`s_i`$ the long-run share of individual $`i`$ and $`M`$ total long-run income. Three implications follow.
+
+1. **Every share lies between $`\phi_K`$ and $`\phi_L`$.** An individual whose fluctuations come mainly from labor income inherits a persistence close to $`\phi_L`$; one whose fluctuations come mainly from capital income inherits a persistence close to $`\phi_K`$.
+2. **The weights are contributions to fluctuations, not to the level of income.** A source that is small in level but volatile can dominate the movements of a share.
+3. **A share depends on everyone's income.** The terms $`j \neq i`$ enter because a share also moves when the total moves, so no share reaches $`\phi_L`$ exactly, and a change in one individual's process affects every share (experiments 6.9 and 6.12).
+
+At the default settings ($`\phi_L = 0.90`$, $`\phi_K = 0.50`$, shocks proportional to holdings), the ranking of persistence is exactly the ranking of the share of each individual's income variance that comes from labor:
+
+| Individual | Capital share of income, period 0 | Labor's share of income variance | Simulated $`\hat\rho(1)`$ of the share |
 | --- | --- | --- | --- |
-| Bjørn | 19% | 98.5% | 0.831 |
-| Alfred | 40% | 89.9% | 0.787 |
-| Meryem | 41% | 89.2% | 0.773 |
-| George | 69% | 43.6% | 0.688 |
-| Violette | 83% | 13.6% | 0.588 |
+| Bjørn | 0.19 | 98.5% | 0.831 |
+| Alfred | 0.40 | 89.9% | 0.787 |
+| Meryem | 0.41 | 89.2% | 0.773 |
+| George | 0.69 | 43.6% | 0.688 |
+| Violette | 0.83 | 13.6% | 0.588 |
 
-The ranking is exact: the more a person's fluctuations come from persistent labor income, the more persistent their share. Bjørn lives almost entirely on wages and has the most persistent share; Violette lives mostly on capital income and has the least persistent one. A share also moves when *other* people's incomes move, because the total changes, which is why no share reaches exactly 0.90.
+The linearization is defined for fixed individuals when every $`|\phi|`$ is below 1, every trend is zero and total long-run income is positive. The simulator draws it as the *theory line*.
 
-### 2.5 Persistence, volatility and mobility are different things
+### 2.5 Persistence, volatility and mobility
 
-| Concept | Question it answers | Where to see it |
+Persistence is distinct from volatility (Engle, 2001). The former describes how long a deviation lasts; the latter measures its size. Both are distinct from mobility, the frequency with which individuals change rank.
+
+| Dimension | Question | Where it appears |
 | --- | --- | --- |
 | Persistence | How long does a deviation last? | Figure 1 |
-| Volatility | How large are the swings? | Figures 3 and 4, the Gini path in Figure 2 |
-| Mobility | Do people change places in the ranking? | Rank changes in the In figures strip and Figure 4 |
+| Volatility | How large are the deviations? | Figures 3 and 4; the Gini path of Figure 2 |
+| Mobility | How often do individuals change rank? | In figures strip; crossings in Figure 4 |
 
-Experiment 6.5 shows that you can triple volatility, leave persistence almost unchanged, and multiply mobility by eight.
+Persistence is invariant to a common rescaling of the shocks, whereas volatility scales with them and mobility depends on the size of shocks relative to the gaps between incomes. Experiment 6.5 separates the three.
 
-## 3. Getting started
+### 2.6 Individuals and rank positions
 
-### 3.1 The screen
+Inequality statistics such as top income shares follow rank positions, not the same people over time. The persistence measured on a quantile group is the persistence of a group's claim on national income, which combines the dynamics of its members' incomes with entries into and exits from the group. Work on individual earnings dynamics (Gottschalk and Moffitt, 2009; Kopczuk, Saez and Song, 2010) studies individuals followed over time and therefore addresses a different object. The **Rank slots** mode of the simulator re-sorts individuals by income every period and measures the persistence of positions (experiment 6.6).
 
-![The interface, annotated](images/interface-annotated.png)
+### 2.7 What static measures do not reveal
 
-| # | Area | What it holds |
-| --- | --- | --- |
-| 1 | Run settings | Number of periods, units (individuals or rank slots), random seed with **New draw**, **Reset**, and the **EN / FR** language switch |
-| 2 | Persistence | $`\phi_L`$ for labor and $`\phi_K`$ for capital, shared by everyone or set by person |
-| 3 | Tabs | Switch the lower left panel between **Parameters** and **Allocation** |
-| 4 | Parameters by person | Constant, trend, shock size and persistence of each person's labor and capital income |
-| 5 | Period bar | Moves through time; it controls the In figures strip, Figure 2 and Figure 5 |
-| 6 | In figures | The key numbers at the selected period |
-| 7 | The model | The equations, with the current numbers for each person |
+A Lorenz curve and a Gini coefficient summarise how income is divided at a point in time. They are silent on how long a change in that division will last and on where in the distribution it will last. Two economies with the same Lorenz curve can differ in whether a shock to the middle fades within a period or persists for several. The Lorenz curve itself can change shape at different speeds along its length: with an inverted-U profile, its lower part inherits the fast-fading deviations of the bottom shares, while the ordinates around the median carry the persistent deviations of the middle. Experiment 6.4 constructs five such economies. Persistence, alongside the level of inequality and the volatility of the shares, is therefore a separate dimension of a distributional assessment.
 
-Below the model come Figures 1 to 5 and a Notes panel. Everything recomputes as soon as you change a value.
+## 3. The simulated economy
 
-### 3.2 The default economy
+### 3.1 Model
 
-At start-up the five people hold 400 units of income at period 0: 200 units of labor income and 200 of capital income, split as follows.
+Five individuals, Violette, Meryem, Bjørn, Alfred and George, earn labor income $`w`$ and capital income $`f`$. Each source follows its own autoregressive process, and total income $`y`$ is their sum:
 
-| Person | Labor | Capital | Total | Capital share |
+```math
+\begin{aligned}
+w_{i,t} &= \beta_{W,i} + \beta_{W,trend,i}\, t + \phi_L\, w_{i,t-1} + u_{i,t}, & u_{i,t} &\sim N\!\left(0,\sigma_{L,i}^2\right) &\quad (1)\\
+f_{i,t} &= \beta_{F,i} + \beta_{F,trend,i}\, t + \phi_K\, f_{i,t-1} + v_{i,t}, & v_{i,t} &\sim N\!\left(0,\sigma_{K,i}^2\right) &\quad (2)\\
+y_{i,t} &= w_{i,t} + f_{i,t}, & i &= 1,\dots,5, \quad t = 1,\dots,T &\quad (3)
+\end{aligned}
+```
+
+Recursive substitution back to period 0 gives the closed form
+
+```math
+y_{i,t} = \phi_L^{t}\, w_{i,0} + \sum_{s=1}^{t} \phi_L^{t-s}\left(\beta_{W,i} + \beta_{W,trend,i}\, s + u_{i,s}\right) + \phi_K^{t}\, f_{i,0} + \sum_{s=1}^{t} \phi_K^{t-s}\left(\beta_{F,i} + \beta_{F,trend,i}\, s + v_{i,s}\right). \qquad (4)
+```
+
+Income in period $`t`$ is the starting value discounted by $`\phi^t`$ plus every past shock discounted by $`\phi^{t-s}`$, separately for each source. Shocks are independent across individuals, sources and periods. The persistence parameters can be common to all individuals or set by individual.
+
+### 3.2 Calibration
+
+| Element | Default |
+| --- | --- |
+| Persistence | $`\phi_L = 0.90`$, $`\phi_K = 0.50`$: labor more persistent than capital |
+| Period-0 allocation | 200 units of labor and 200 units of capital (table below) |
+| Constants | $`\beta = (1-\phi)\times`$ start, so that each income fluctuates around its own starting value |
+| Trends | 0 |
+| Shocks | $`\sigma = `$ start / 10, so shocks are proportional to holdings |
+| Sample | $`T = 110`$ periods, the length of a century of annual data; 200 simulated samples |
+| Random numbers | Seed 20251008; a separate stream for each individual, source and sample |
+
+| Individual | Labor | Capital | Total | Capital share |
 | --- | --- | --- | --- | --- |
 | Violette | 4 | 20 | 24 | 0.83 |
 | Meryem | 26 | 18 | 44 | 0.41 |
@@ -127,139 +168,128 @@ At start-up the five people hold 400 units of income at period 0: 200 units of l
 | Alfred | 66 | 44 | 110 | 0.40 |
 | George | 46 | 104 | 150 | 0.69 |
 
-Labor persistence is 0.90 and capital persistence 0.50. Each income fluctuates around its own starting value, with a shock whose standard deviation is a tenth of that value. The allocation is capital-heavy at the bottom and at the top, and labor-heavy in the middle; section 6.1 shows what that produces.
+The starting economy is labor-intensive in the middle and capital-intensive at both ends. Its Lorenz curve gives the poorest 40% 17.0% of income, and its Gini coefficient is 0.318. The five profile presets (section 4.4) keep these period-0 incomes and change only the split between labor and capital.
 
-### 3.3 Three rules to know before experimenting
+### 3.3 Working rules
 
-These three rules explain almost every surprise you may meet.
+Four properties of the implementation govern how experiments should be set up.
 
-1. **Changing $`\phi`$ does not change $`\beta`$.** The constant $`\beta`$ was set so that each income settles at its starting value, given the current $`\phi`$. If you change $`\phi`$, the long-run level $`\beta/(1-\phi)`$ moves, and incomes drift toward a new level. Watch the **Long run** column of the Parameters tab.
-2. **The allocation only sets period 0.** Editing the Allocation table changes where incomes start, not where they settle. If you do not change $`\beta`$ too, incomes return to their old long-run levels at a speed set by $`\phi`$ (experiment 6.11 uses this).
-3. **Presets re-anchor everything.** A profile preset sets a new allocation and resets every person's parameters so that each income fluctuates around its new start: $`\beta = (1-\phi)\times`$ start, trend 0, $`\sigma = `$ start/10.
+1. **Common random numbers.** Every change of parameters reuses the same shocks, so differences between two settings come from the parameters alone. **New draw** changes the seed; **Reset** restores every setting, including the seed. Every experiment below starts from Reset.
+2. **Changing $`\phi`$ does not change $`\beta`$.** The long-run level $`\beta/(1-\phi)`$ therefore moves, and incomes drift towards it. To keep an income around its start, set $`\beta = (1-\phi)\times`$ start.
+3. **The allocation sets period 0 only.** Editing the allocation changes starting values, not long-run levels; incomes return to their previous levels at the rate $`\phi`$ unless $`\beta`$ is changed as well (experiment 6.11).
+4. **Presets re-anchor every parameter.** A profile preset sets the allocation and resets $`\beta = (1-\phi)\times`$ start, trend 0 and $`\sigma = `$ start / 10 for every income.
 
-Two more facts help:
+## 4. Interface and controls
 
-- Every change reuses **the same random shocks**, so a difference between two settings comes from the parameters alone. **New draw** changes the shocks.
-- **Reset** returns every setting, including the seed, to its starting value. Every experiment below starts from Reset.
+![The interface, annotated](images/interface-annotated.png)
 
-## 4. The controls in detail
+| # | Area | Content |
+| --- | --- | --- |
+| 1 | Run settings | Number of periods, units of analysis (individuals or rank slots), seed with **New draw**, **Reset**, and the **EN / FR** language switch |
+| 2 | Persistence | $`\phi_L`$ and $`\phi_K`$, common to all or set by individual, with a stationarity tag for each source |
+| 3 | Tabs | **Parameters** or **Allocation** in the lower left panel |
+| 4 | Parameters by individual | Start, $`\phi`$, $`\beta`$, trend, $`\sigma`$ and long-run level of each income |
+| 5 | Period bar | Selects the period $`t`$ used by the In figures strip and Figures 2 and 5 |
+| 6 | In figures | Key statistics at period $`t`$ |
+| 7 | The model | Equations (1) to (4) with the current values, and one card per individual |
+
+Every change recomputes all figures immediately.
 
 ### 4.1 Run settings
 
-- **Periods**: 110, 500 or 2000. Figure 1 averages over 200, 60 or 20 simulated samples respectively. 110 periods matches the length of a century of annual data.
-- **Units**: *Individuals* follows the same five people over time. *Rank slots* re-sorts people by income every period and follows positions instead: the poorest, the second poorest, and so on (see experiment 6.6).
-- **Seed** and **New draw**: the seed fixes the random shocks; New draw picks a new one.
-- **Reset**: back to the defaults.
-- **Language**: **EN** or **FR** switches every label, title and reading between English and French, without changing the settings or the results. The simulator remembers the choice, and the address `…/Inequality-Persistence-Simulator/?lang=fr` opens it directly in French. In French, numbers use a decimal comma.
+- **Periods**: 110, 500 or 2000. Figure 1 averages over 200, 60 or 20 simulated samples respectively.
+- **Units**: *Individuals* follows the same five people; *Rank slots* re-sorts them by total income every period and follows positions (section 2.6).
+- **Seed** and **New draw**: the seed fixes the shocks; New draw draws a new seed.
+- **Reset**: restores the default settings.
+- **Language**: **EN** or **FR** switches every label, title and reading between English and French without changing settings or results. The choice is remembered, and the address `…/Inequality-Persistence-Simulator/?lang=fr` opens the French version. In French, numbers use a decimal comma.
 
 ### 4.2 Persistence
 
 <img src="images/guide/persistence-card.png" alt="The Persistence card" width="410">
 
-- **Shared**: one $`\phi_L`$ and one $`\phi_K`$ for everyone, set with the sliders or typed in the fields.
-- **By person**: each person gets their own $`\phi_L`$ and $`\phi_K`$, typed in the Parameters tab. The sliders are paused. When you switch to By person, everyone starts from the shared values.
-- The tag under each slider says **Stationary** when $`|\phi| < 1`$ and **Unit root** at 1 or −1.
+- **Shared**: one $`\phi_L`$ and one $`\phi_K`$ for all individuals, set with the sliders or typed in the fields.
+- **By person**: individual values of $`\phi_L`$ and $`\phi_K`$, entered in the Parameters tab; the sliders are then inactive. Switching to By person copies the shared values to every individual.
+- The tag under each slider reads **Stationary** when $`|\phi| < 1`$ and **Unit root** when $`|\phi| = 1`$.
 
-### 4.3 Parameters by person
+### 4.3 Parameters by individual
 
 <img src="images/guide/parameters-card.png" alt="The Parameters tab" width="410">
 
-Each person has two rows: **w** for labor and **f** for capital.
+Each individual has a **w** row (labor) and an **f** row (capital).
 
-| Column | Meaning |
+| Column | Content |
 | --- | --- |
-| Start | Starting value, from the allocation (read only) |
-| $`\phi`$ | Persistence; editable only when persistence is set By person |
-| $`\beta`$ | Constant added each period |
-| Trend | Coefficient on time $`t`$; the income drifts by trend / $`(1-\phi)`$ per period |
-| $`\sigma`$ | Standard deviation of the shock; flagged in ochre when larger than the long-run level |
-| Long run | The level the income settles at without shocks, $`\beta/(1-\phi)`$ (at $`t=0`$ when there is a trend) |
+| Start | Period-0 value, from the allocation (read only) |
+| $`\phi`$ | Persistence; editable when persistence is set By person |
+| $`\beta`$ | Constant |
+| Trend | Coefficient on $`t`$; the income drifts by trend / $`(1-\phi)`$ per period |
+| $`\sigma`$ | Standard deviation of the shock; flagged when larger than the long-run level |
+| Long run | $`\beta/(1-\phi)`$, the level reached without shocks (at $`t = 0`$ when there is a trend) |
 
-To enter a value, type it and press Enter, or select a field and turn the mouse wheel; hold Shift for steps ten times larger. A field reacts to the wheel only once it is selected, so scrolling the panel never changes a value by accident. Negative values are allowed. Clicking a name opens that person's series in Figure 3.
+Values are typed and confirmed with Enter, or changed with the mouse wheel once a field is selected (Shift for steps ten times larger). Negative values are allowed. Selecting a name opens that individual's series in Figure 3.
 
 ### 4.4 Allocation and presets
 
 <img src="images/guide/allocation-increasing.png" alt="The Allocation tab after choosing the Increasing preset" width="410">
 
-- **Labor cap** and **Capital cap** set the total units of each source (200 by default). Changing a cap rescales the allocation.
-- **Units** or **Percent**: enter holdings as units, or as a percentage of each cap. In Percent mode, the Total % column sets a person's share of all income, and the others are rescaled to keep each source at its cap.
-- Each source is capped: an entry larger than what is left is clipped. To move units from one person to another, **lower the donor first**, then raise the recipient.
-- Rows re-sort by total income when you leave the table or press Enter, so the bottom row is always the richest at period 0.
-- **Profile presets** set an allocation that produces each of the five profile shapes, and re-anchor all parameters (rule 3). The more persistent source receives the pattern the shape needs, so presets work whichever source you make more persistent.
+- **Labor cap** and **Capital cap** set the total units of each source (200 by default); changing a cap rescales the allocation.
+- **Units** or **Percent**: holdings are entered in units or as a percentage of each cap. In Percent mode, the Total % column sets an individual's share of all income and rescales the others.
+- Each source is capped: an entry above the remaining units is clipped. To move units between individuals, lower the donor first.
+- Rows re-sort by total income when the table is left or Enter is pressed, so that the table always runs from the poorest to the richest at period 0.
+- **Profile presets** reproduce five economies in which every individual keeps the same period-0 income (24, 44, 72, 110 and 150 units with equal caps of 200), and therefore the same Lorenz curve and Gini coefficient, 0.318. Only the split between labor and capital differs. The more persistent source receives the pattern the shape requires, so the presets work whichever source is more persistent. The Inverted U preset is more polarized than the starting allocation.
 
-### 4.5 Moving through time
+### 4.5 Time
 
-The period bar sets the period $`t`$ shown in the In figures strip, Figure 2 and Figure 5, and marks it on Figures 3 and 4. Use the buttons, drag the slider, or click any time chart. On the figure board, the left and right arrow keys step one period (Shift for ten), Home and End jump to the ends, and Space plays or pauses.
+The period bar selects the period $`t`$ shown in the In figures strip and in Figures 2 and 5, and marks it on Figures 3 and 4. On the figure board, the left and right arrow keys step one period (Shift for ten), Home and End jump to the first and last periods, and Space plays or pauses.
 
-## 5. Reading the results
+## 5. Reading the figures
 
-Each figure follows the same grammar: a title that states the result at the current settings and updates as you change them, a subtitle that ends with the unit, a source line, the chart with its key values written on it, and a **Reading** line that puts the result into words. Hover over any chart to see exact values.
+Each figure has a title that states the result at the current settings, a subtitle that gives the unit, a source line, the chart with its key values, and a **Reading** line that states the result in words. Hovering over a chart shows exact values.
 
 ### 5.1 In figures
 
 ![The In figures strip](images/guide/in-figures.png)
 
-Five numbers at the selected period: the Gini coefficient (in red outline) with its change since period 0; the labor share of total income; total income; the shape of the persistence profile; and the number of periods in which at least one person changed rank, with the person who moved most often.
+At the selected period: the Gini coefficient and its change since period 0, the labor share of total income, total income, the shape of the persistence profile, and the number of periods in which at least one individual changed rank, with the individual who changed most often.
 
-### 5.2 The model
+### 5.2 The model panel
 
 ![The model panel](images/guide/model.png)
 
-Four blocks give the equations of the model:
+Equations (1) to (4) in four blocks (labor income, capital income, total income, closed form), with the current values of the persistence parameters. Below them, one card per individual gives the same equations with that individual's parameters and starting values; selecting a card opens the individual's series in Figure 3.
 
-```math
-\begin{aligned}
-w_{i,t} &= \beta_{W,i} + \beta_{W,trend,i}\, t + \phi_L\, w_{i,t-1} + u_{i,t}, & u_{i,t} &\sim N\!\left(0,\sigma_{L,i}^2\right) \\
-f_{i,t} &= \beta_{F,i} + \beta_{F,trend,i}\, t + \phi_K\, f_{i,t-1} + v_{i,t}, & v_{i,t} &\sim N\!\left(0,\sigma_{K,i}^2\right) \\
-y_{i,t} &= w_{i,t} + f_{i,t}
-\end{aligned}
-```
-
-and the **closed form**, obtained by substituting each recursion back to period 0:
-
-```math
-y_{i,t} = \phi_L^{t}\, w_{i,0} + \sum_{s=1}^{t} \phi_L^{t-s}\left(\beta_{W,i} + \beta_{W,trend,i}\, s + u_{i,s}\right) + \phi_K^{t}\, f_{i,0} + \sum_{s=1}^{t} \phi_K^{t-s}\left(\beta_{F,i} + \beta_{F,trend,i}\, s + v_{i,s}\right)
-```
-
-The closed form says that income today is the sum of two fading memories: the starting value, discounted by $`\phi^t`$, and every past shock, discounted by $`\phi^{t-s}`$. The higher $`\phi`$, the longer the memory. Below the equations, one card per person shows the same equations with that person's numbers; selecting a card opens their series in Figure 3.
-
-### 5.3 Figure 1: the persistence profile
+### 5.3 Figure 1: persistence profile
 
 <img src="images/guide/fig1.png" alt="Figure 1 at the default settings" width="543">
 
-The central figure. For each person, from the poorest at period 0 (left) to the richest (right):
+For each individual, ordered from the poorest to the richest at period 0:
 
-- **Red line and dots**: the simulated persistence $`\hat\rho(1)`$ of the person's share, averaged over the simulated samples, with its value written beside each dot.
-- **Grey whiskers**: the 5th to 95th percentiles across samples, a measure of how precisely 110 periods pin down persistence.
-- **Grey dashed line with hollow diamonds**: the linearized theory, a formula that predicts persistence from the parameters. It is shown for fixed individuals when every $`|\phi|`$ is below 1 and every trend is zero.
-- **Blue and ochre dashed lines**: $`\phi_L`$ and $`\phi_K`$, when persistence is shared. Every share's persistence lies between them.
+- **Red line and dots**: mean of $`\hat\rho(1)`$ over the simulated samples, with its value.
+- **Grey whiskers**: 5th to 95th percentiles across samples, a measure of the sampling dispersion of $`\hat\rho(1)`$ with $`T`$ periods.
+- **Grey dashed line with hollow diamonds**: the linearized theory of section 2.4.
+- **Blue and ochre dashed lines**: $`\phi_L`$ and $`\phi_K`$, when persistence is shared.
 
-The title names the shape: *peaks in the middle* (inverted U), *lowest in the middle* (U-shaped), *rises* or *falls from the bottom to the top*, *about the same for everyone* (flat, a range below 0.03), or *no simple pattern* (mixed). Under the chart, **Values by person** opens a table with each person's share and capital ratio at period 0, the simulated mean, the percentile band and the theory value.
+The title classifies the profile as increasing, decreasing, flat (range below 0.03), U-shaped, inverted U or mixed. **Values by person** gives each individual's share and capital ratio at period 0, the simulated mean, the percentile band and the theoretical value.
 
 ### 5.4 Figure 2: Lorenz curve and Gini coefficient
 
 <img src="images/guide/fig2.png" alt="Figure 2 at the default settings" width="543">
 
-- The **red curve** is the Lorenz curve at the selected period, with people re-ranked by income in that period; the numbers at each point are cumulative shares in %.
-- The **grey dashed curve** is period 0; the **grey band** is the 5th to 95th percentile of each point over the whole path.
-- $`G`$ is the Gini coefficient at the selected period, with its period-0 value beneath.
-- The small chart traces $`G`$ over all periods, with a dashed line at its period-0 value. It is the quickest way to see whether inequality drifts, cycles or stays put.
-
-At the defaults, the Gini coefficient is 0.318 at period 0 and 0.335 at period 110, and moves between 0.276 and 0.380 along the path. The poorest 40% (Violette and Meryem) hold 17.0% of income at period 0 and 18.1% at period 110.
+The red curve is the Lorenz curve at period $`t`$, with individuals re-ranked in that period and cumulative shares in percent at each point. The grey dashed curve is the period-0 curve, and the grey band the 5th to 95th percentile of each ordinate over the path. $`G`$ is the Gini coefficient at $`t`$; the lower chart traces it over all periods, with a dashed line at its period-0 value. At the defaults, $`G`$ is 0.318 at period 0 and 0.335 at period 110 and ranges from 0.276 to 0.380 along the path; the poorest 40% hold 17.0% of income at period 0 and 18.1% at period 110.
 
 ### 5.5 Figure 3: individual series
 
-**One person** shows the chosen person's equations, in four blocks, then their incomes over time.
+**One person** gives the selected individual's equations in four blocks, with the long-run level and the half-life of a shock for each source, the rank and capital share at period 0, and the closed form with the individual's own values.
 
 ![Figure 3, equations for George](images/guide/fig3-equations.png)
 
-The Labor and Capital blocks give the equation, the shock law and the starting value, then the long-run level and the half-life of a shock. The Total block gives the person's rank and capital share at period 0, and the Closed form block writes the person's closed form with their own numbers.
+The chart below draws total income (red), labor income (blue), capital income (ochre) and the no-shock path of total income (grey, dashed).
 
 ![Figure 3, George's incomes](images/guide/fig3-chart.png)
 
-Total income is red, labor blue, capital ochre, and the grey dashed line is total income with every shock set to zero. Each line is named at its right end with its last value. George's labor income wanders in long swings; his capital income jitters around 104. This is persistence made visible.
+George's labor income moves in long swings around its level and his capital income fluctuates rapidly around 104: the two persistence parameters are visible in the series themselves.
 
-**Compare** draws several people on one chart. Choose who appears with the name chips, which series to compare (total, labor, capital or share), and whether to add the no-shock paths. A table gives each person's persistence parameters, value at $`t`$, mean, standard deviation, range, rank and rank changes.
+**Compare** draws one series (total, labor, capital or share) for several individuals, with their no-shock paths if selected. The table reports each individual's $`\phi_L`$ and $`\phi_K`$, value at $`t`$, mean, standard deviation, range, rank, number of rank changes and $`\hat\rho(1)`$ of the share.
 
 ![Figure 3, Compare view: capital income of Violette and George](images/guide/fig3-compare.png)
 
@@ -267,141 +297,131 @@ Total income is red, labor blue, capital ochre, and the grey dashed line is tota
 
 ![Figure 4 at the default settings](images/guide/fig4.png)
 
-Every person's share of total income along the displayed path, named at the right end with the final share. The title follows the person who starts at the top. The name chips hide or show people and are shared with the Compare view of Figure 3. Where two lines cross, two people swap ranks; at the defaults, Meryem and Bjørn cross five times.
+The share of each individual along the displayed sample path. Crossings are rank changes; at the defaults, Meryem and Bjørn cross five times. In rank-slot mode each line is a position. The name chips are shared with the Compare view of Figure 3.
 
-### 5.7 Figure 5: income by person
+### 5.7 Figure 5: income by individual
 
 <img src="images/guide/fig5.png" alt="Figure 5 at period 110" width="543">
 
-Stacked bars of labor (blue) and capital (ochre) income at the selected period, from the lowest to the highest total, so people swap places when their incomes cross. The black tick marks each person's total at period 0. The value above each bar is total income. Move the period bar to watch people overtake each other.
+Labor (blue) and capital (ochre) income at period $`t`$, ordered by total income, with a black tick at each individual's period-0 total.
 
 ---
 
-## 6. Guided experiments
+## 6. Controlled experiments
 
-Each experiment starts from **Reset**, changes one thing, and reports what the simulator shows. The numbers are those of the default seed; with another seed, they move slightly, but the conclusions hold.
+Each experiment starts from **Reset** and changes one element of the calibration. Results are those of the default seed; another seed moves the numbers slightly without changing the conclusions.
 
-| # | Experiment | The lesson in one line |
+| # | Experiment | Result |
 | --- | --- | --- |
-| 6.1 | The default economy | Persistence follows the income mix |
-| 6.2 | Swap which source is persistent | The profile flips |
-| 6.3 | Same persistence for both sources | Composition no longer matters |
-| 6.4 | Five compositions, five profiles | Who holds what decides the shape |
-| 6.5 | Bigger shocks | Volatility and mobility rise; persistence does not |
-| 6.6 | People or positions | Rank-based data blur the profile when people move |
-| 6.7 | Diverging trends | Trends change the level of inequality, not its persistence |
-| 6.8 | Shocks that never fade | With a unit root, inequality has no anchor |
-| 6.9 | Overshooting capital | Negative persistence makes a share jump back and forth |
-| 6.10 | How much data you need | Short samples understate persistence |
-| 6.11 | Redistribution: one-off or permanent | A transfer lasts as long as the income it touches |
-| 6.12 | A volatile top | Volatile capital at the top lowers top persistence and spills over |
+| 6.1 | Starting economy | Persistence follows the composition of income |
+| 6.2 | Reversed source persistence | The profile reverses |
+| 6.3 | Equal source persistence | Composition becomes irrelevant |
+| 6.4 | Five economies with identical incomes | Composition generates every shape; the Lorenz curve and the Gini coefficient do not register it |
+| 6.5 | Larger shocks | Volatility and mobility rise; persistence does not |
+| 6.6 | Rank positions | High mobility compresses the persistence of positions |
+| 6.7 | Deterministic trends | Trends move the level of inequality, not its persistence |
+| 6.8 | Unit root | Deviations become permanent |
+| 6.9 | Negative persistence | Overshooting in one source lowers every share's persistence |
+| 6.10 | Sample length | Short samples bias persistence downward but preserve the ordering |
+| 6.11 | One-off and permanent redistribution | A transfer lasts as long as the income it targets |
+| 6.12 | A volatile top | Volatile, fast-reverting top income lowers top persistence and spills over |
 
-### 6.1 The default economy: persistence peaks in the middle
+### 6.1 Starting economy
 
-**Question.** With labor more persistent than capital, whose income share is the most persistent?
-
-**Steps.** Click **Reset** and read Figure 1.
+**Design.** Default settings: $`\phi_L = 0.90`$, $`\phi_K = 0.50`$, the allocation of section 3.2.
 
 <img src="images/guide/fig1.png" alt="Persistence peaks in the middle" width="543">
 
-**What you see.** An inverted U. From the bottom to the top, the simulated persistence of each share is:
+**Result.** The profile is an inverted U.
 
 | | Violette | Meryem | Bjørn | Alfred | George |
 | --- | --- | --- | --- | --- | --- |
 | Simulated $`\hat\rho(1)`$ | 0.588 | 0.773 | 0.831 | 0.787 | 0.688 |
 | Linearized theory | 0.635 | 0.844 | 0.878 | 0.840 | 0.753 |
 
-**Why.** Figure 5 at period 0 shows the composition behind it: Bjørn, in the middle, holds 58 units of labor and 14 of capital; George, at the top, holds 104 units of capital; Violette, at the bottom, holds 20 units of capital and only 4 of labor.
+The composition behind it is visible in Figure 5 at period 0: Bjørn, in the middle, holds 58 units of labor and 14 of capital; George, at the top, 104 units of capital; Violette, at the bottom, 20 units of capital and 4 of labor.
 
 <img src="images/guide/fig5-t0.png" alt="Figure 5 at period 0" width="543">
 
-As section 2.4 showed, the ranking of persistence follows exactly the share of each person's fluctuations that comes from labor. The middle is anchored by wages; the bottom and the top are exposed to fast-reverting capital income.
+**Interpretation.** The ranking of persistence is the ranking of labor's contribution to each individual's fluctuations (section 2.4). The middle, where labor income dominates, carries deviations forward; the bottom and the top, exposed to fast-reverting income, adjust quickly. A top share that moves rapidly is therefore not evidence of random top incomes; it is consistent with top incomes being made of fast-reverting sources.
 
-**What it tells us about inequality.** The shape of the profile reflects the income composition behind it. A top share that moves quickly, rising in one year and falling the next, is not evidence that top incomes are random. It may simply reflect that top incomes are made of capital. This is the mechanism the simulator was built to illustrate.
+### 6.2 Reversed source persistence
 
-### 6.2 Swap which source is persistent
+**Design.** Set $`\phi_L = 0.50`$ and $`\phi_K = 0.90`$.
 
-**Question.** What if capital, not labor, were the slow-moving source?
+<img src="images/guide/swap.png" alt="The profile reverses" width="543">
 
-**Steps.** Reset. In the Persistence card, type **0.50** for $`\phi_L`$ and **0.90** for $`\phi_K`$.
+**Result.** The profile becomes U-shaped, from 0.540 for Bjørn to 0.821 for Violette, with George at 0.761. Because the constants were not changed (rule 2), the long-run levels move: labor incomes settle at a fifth of their start ($`0.1/(1-0.5) = 0.2`$) and capital incomes at five times their start ($`0.5/(1-0.9) = 5`$). Total income rises from 400 to 1,070, the labor share falls from 50% to 3%, and negative components appear in 22 of 111 periods.
 
-<img src="images/guide/swap.png" alt="The profile flips" width="543">
+To keep each income around its start, set $`\beta = (1-\phi)\times`$ start in every row:
 
-**What you see.** The title now reads *Persistence is lowest in the middle of the distribution*. The profile is U-shaped, from 0.540 for Bjørn to 0.821 for Violette, with George at 0.761. The capital-heavy bottom and top are now the most persistent.
-
-You will also notice a warning: *Negative components appear in 22 of 111 periods*. This is rule 1 at work. The constants $`\beta`$ were set for the old persistence, so the long-run levels have moved: labor incomes now settle at a fifth of their start ($`0.1/(1-0.5) = 0.2`$) and capital incomes at five times their start ($`0.5/(1-0.9) = 5`$). Total income climbs from 400 to 1,070 and the labor share falls from 50% to 3%. Look at the Long run column to see it.
-
-**The clean version.** To keep every income around its starting level, also type $`\beta = (1-\phi)\times`$ start in each row of the Parameters tab:
-
-| β to type | Violette | Meryem | Bjørn | Alfred | George |
+| $`\beta`$ | Violette | Meryem | Bjørn | Alfred | George |
 | --- | --- | --- | --- | --- | --- |
 | w row (0.5 × start) | 2.00 | 13.00 | 29.00 | 33.00 | 23.00 |
 | f row (0.1 × start) | 2.00 | 1.80 | 1.40 | 4.40 | 10.40 |
 
-<img src="images/guide/swap-anchored.png" alt="The clean version of the swap" width="543">
+<img src="images/guide/swap-anchored.png" alt="The reversal with re-anchored constants" width="543">
 
-The profile is still U-shaped, now from 0.635 for Bjørn to 0.844 for Violette, the mirror image of the default. No incomes turn negative, and ranks change in only 6 periods.
+The profile remains U-shaped, from 0.635 for Bjørn to 0.844 for Violette, the mirror image of the default; no income turns negative and ranks change in 6 periods.
 
-**What it tells us.** Composition alone does not fix the profile; it is the interaction between who holds what and how persistent each source is. The same allocation produces opposite profiles under opposite persistence.
+**Interpretation.** Composition determines the profile only in interaction with the ordering of source persistence. The same allocation produces opposite profiles under opposite orderings.
 
-### 6.3 Same persistence for both sources
+### 6.3 Equal source persistence
 
-**Question.** Does composition still matter if labor and capital are equally persistent?
-
-**Steps.** Reset. Type **0.70** for both $`\phi_L`$ and $`\phi_K`$.
+**Design.** Set $`\phi_L = \phi_K = 0.70`$.
 
 <img src="images/guide/equal-persistence.png" alt="The profile is flat" width="543">
 
-**What you see.** The title reads *Persistence is about the same for everyone*. Every share sits between 0.649 and 0.671, and the theory line is flat at exactly 0.700 for everyone. (The levels drift as in 6.2; re-anchoring $`\beta`$ to 0.3 × start gives the same flat profile, from 0.650 to 0.672.)
+**Result.** The profile is flat: every share lies between 0.649 and 0.671, and the theory line equals 0.700 for every individual. Re-anchoring $`\beta`$ at 0.3 × start gives 0.650 to 0.672.
 
-**What it tells us.** This is the control case. When both sources have the same persistence, every blend of them has that persistence too, and income composition becomes irrelevant for dynamics. Differences in persistence along the distribution are therefore evidence that the income sources differ in persistence.
+**Interpretation.** This is the control case. With $`\phi_L = \phi_K = \phi`$, formula (2.4) reduces to $`\phi`$ for every individual, whatever the weights. Differences in persistence along the distribution are therefore informative about differences in persistence across sources.
 
-### 6.4 Five compositions, five profiles
+### 6.4 Five economies with identical incomes
 
-**Question.** How much can composition alone change the profile, holding persistence fixed at 0.90 for labor and 0.50 for capital?
+**Design.** Holding $`\phi_L = 0.90`$ and $`\phi_K = 0.50`$, open the **Allocation** tab and select each preset in turn. The five economies give every individual the same period-0 income (24, 44, 72, 110 and 150 units), hence the same Lorenz curve and the same Gini coefficient, 0.318, and differ only in the split between labor and capital.
 
-**Steps.** Reset. Open the **Allocation** tab and click each preset in turn.
+| Economy | Labor units, individuals 1 to 5 | Capital units, individuals 1 to 5 |
+| --- | --- | --- |
+| Decreasing | 21, 39, 43, 53, 44 | 3, 5, 29, 57, 106 |
+| Increasing | 3, 10, 24, 50, 113 | 21, 34, 48, 60, 37 |
+| Flat | 12, 22, 36, 55, 75 | 12, 22, 36, 55, 75 |
+| U-shaped | 21, 13, 8, 28, 130 | 3, 31, 64, 82, 20 |
+| Inverted U | 3, 39, 64, 79, 15 | 21, 5, 8, 31, 135 |
 
 <table>
 <tr>
-<td><img src="images/guide/preset-decreasing.png" alt="Decreasing preset"></td>
-<td><img src="images/guide/preset-increasing.png" alt="Increasing preset"></td>
+<td><img src="images/guide/preset-decreasing.png" alt="Decreasing economy"></td>
+<td><img src="images/guide/preset-increasing.png" alt="Increasing economy"></td>
 </tr>
 <tr>
-<td><img src="images/guide/preset-flat.png" alt="Flat preset"></td>
-<td><img src="images/guide/preset-u-shaped.png" alt="U-shaped preset"></td>
+<td><img src="images/guide/preset-flat.png" alt="Flat economy"></td>
+<td><img src="images/guide/preset-u-shaped.png" alt="U-shaped economy"></td>
 </tr>
 <tr>
-<td><img src="images/guide/preset-inverted-u.png" alt="Inverted U preset"></td>
+<td><img src="images/guide/preset-inverted-u.png" alt="Inverted-U economy"></td>
 <td></td>
 </tr>
 </table>
 
-**What you see.**
+**Result.** Each economy produces the profile it is named after.
 
-| Preset | Labor, from bottom to top | Capital, from bottom to top | Persistence, bottom to top | Gini at period 0 |
-| --- | --- | --- | --- | --- |
-| Decreasing | 20, 28, 40, 52, 60 | 4, 16, 36, 60, 84 | 0.834 falling to 0.719 | 0.308 |
-| Increasing | 4, 10, 20, 46, 120 | 28, 36, 40, 44, 52 | 0.615 rising to 0.810 | 0.324 |
-| Flat | 16, 24, 36, 50, 74 | 16, 24, 36, 50, 74 | 0.745 to 0.766 | 0.284 |
-| U-shaped | 18, 12, 12, 38, 120 | 6, 28, 48, 60, 58 | 0.830, 0.672, 0.643, 0.738, 0.798 | 0.366 |
-| Inverted U | 4, 26, 58, 66, 46 | 20, 18, 14, 44, 104 | 0.588, 0.773, 0.831, 0.787, 0.688 | 0.318 |
+| Economy | Simulated $`\hat\rho(1)`$, individuals 1 to 5 | Theory, range | Gini, period 0 | Gini, mean over the path | Gini, 5th–95th percentile | Gini, period 110 | Periods with a rank change |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Decreasing | 0.834, 0.824, 0.784, 0.740, 0.664 | 0.73–0.89 | 0.318 | 0.320 | 0.289–0.356 | 0.308 | 4 |
+| Increasing | 0.607, 0.641, 0.704, 0.766, 0.817 | 0.65–0.87 | 0.318 | 0.317 | 0.276–0.352 | 0.317 | 20 |
+| Flat | 0.761, 0.745, 0.762, 0.766, 0.758 | 0.82 | 0.318 | 0.319 | 0.289–0.348 | 0.314 | 6 |
+| U-shaped | 0.839, 0.677, 0.626, 0.693, 0.819 | 0.68–0.89 | 0.318 | 0.317 | 0.275–0.357 | 0.290 | 12 |
+| Inverted U | 0.575, 0.819, 0.831, 0.799, 0.631 | 0.62–0.88 | 0.318 | 0.322 | 0.281–0.364 | 0.343 | 12 |
 
-**Why.** In each case, the people with the most capital relative to labor have the least persistent shares.
+Each shape follows the labor share across individuals. In the inverted-U economy, the poorest and the richest hold mostly capital (12.5% and 10% labor), while the three individuals in the middle hold 72% to 89% labor. When every individual holds labor and capital in equal proportions, the profile is flat at the theoretical value of 0.82. Simulated means lie about 0.05 to 0.07 below the theory line, the downward small-sample bias of the autocorrelation (experiment 6.10). Persistence is measured for fixed individuals; the difference with rank positions is small here, since ranks change in only 4 to 20 of the 110 periods.
 
-- *Decreasing*: the capital ratio rises with income, from 0.17 for Violette to 0.58 for George, so persistence falls from bottom to top. This resembles an economy where the rich own the capital.
-- *Increasing*: the reverse; the bottom lives mainly on capital income and the top mainly on wages.
-- *Flat*: everyone has exactly half labor and half capital. Incomes are still unequal (Gini 0.284), yet every share has the same persistence: the theory line sits at 0.819 for everyone.
+**Interpretation.** The five economies share the same Lorenz curve at period 0, their mean Gini coefficients over 110 periods lie between 0.317 and 0.322, and their 5th–95th percentile ranges overlap almost entirely. At period 110 the Gini coefficient differs across economies, from 0.290 to 0.343, but this spread is smaller than the range each economy covers over time. Yet the linearized persistence of individual shares ranges from 0.62 to 0.88 in the inverted-U economy and is uniform at 0.82 in the flat one. The Lorenz curve and the Gini coefficient do not register this heterogeneity (section 2.7).
 
-**What it tells us.** The level of inequality and its dynamics are separate. The five presets have similar Gini coefficients (0.28 to 0.37) but completely different persistence profiles. Two countries with the same Gini can therefore have very different inequality dynamics, depending on who earns what kind of income.
+### 6.5 Larger shocks: volatility, persistence and mobility
 
-### 6.5 Bigger shocks: volatility, persistence and mobility
+**Design.** Multiply every $`\sigma`$ by 3 in the Parameters tab.
 
-**Question.** If every income became three times more volatile, would inequality become less persistent?
-
-**Steps.** Reset. In the Parameters tab, multiply every $`\sigma`$ by 3:
-
-| σ to type | Violette | Meryem | Bjørn | Alfred | George |
+| $`\sigma`$ | Violette | Meryem | Bjørn | Alfred | George |
 | --- | --- | --- | --- | --- | --- |
 | w row | 1.20 | 7.80 | 17.40 | 19.80 | 13.80 |
 | f row | 6.00 | 5.40 | 4.20 | 13.20 | 31.20 |
@@ -415,101 +435,81 @@ The profile is still U-shaped, now from 0.635 for Bjørn to 0.844 for Violette, 
 </tr>
 </table>
 
-**What you see.** Figure 4 changes dramatically: the shares swing three times wider, and the lines cross constantly. Ranks change in **64** periods instead of 8, and Bjørn alone changes rank 47 times. The Gini coefficient now moves between 0.237 and 0.662, instead of 0.276 to 0.380. Yet Figure 1 barely moves:
+**Result.** The shares swing three times wider and cross repeatedly: ranks change in 64 periods instead of 8, Bjørn's alone 47 times, and the Gini coefficient ranges from 0.237 to 0.662 instead of 0.276 to 0.380. The persistence profile is essentially unchanged, an inverted U from 0.581 to 0.820 against 0.588 to 0.831, and the theory line is identical. Incomes turn negative in 27 periods.
 
 <img src="images/guide/shocks-profile.png" alt="Figure 1 with shocks multiplied by 3" width="543">
 
-The profile is still an inverted U, from 0.581 to 0.820 (against 0.588 to 0.831), and the theory line is identical.
+**Interpretation.** A common rescaling of the shocks rescales every deviation but leaves its rate of decay unchanged; mobility, which depends on shocks relative to income gaps, rises sharply. A distribution can be highly volatile and mobile while each deviation lasts exactly as long as before, so the three dimensions must be measured separately.
 
-**Why.** Persistence measures how long a deviation lasts relative to its size. Scaling every shock by the same factor scales every deviation, but does not change how fast it fades. Mobility, by contrast, depends on the size of shocks relative to the gaps between people: bigger shocks make people overtake each other more often.
+### 6.6 Rank positions
 
-**What it tells us.** Volatile inequality is not the same as transient inequality. A distribution can be very volatile, with large year-to-year swings and frequent rank reversals, while each deviation lasts exactly as long as before. Measuring one dimension tells you nothing about the others. With shocks this large, some incomes also turn negative (the note under Figure 1 counts 27 periods), a reminder that large shocks on small incomes are not realistic.
-
-### 6.6 People or positions: rank slots
-
-**Question.** Real inequality data, such as top income shares, follow positions in the distribution (the top 1%, the bottom 50%), not the same people over time. Does that change what we measure?
-
-**Steps.** Keep the shocks from 6.5 (or redo them). In the top bar, set **Units** to **Rank slots**.
+**Design.** Keep the shocks of 6.5 and set **Units** to **Rank slots**.
 
 <img src="images/guide/rank-profile.png" alt="Figure 1 in rank slots, with large shocks" width="543">
 
-**What you see.** Figure 1 now plots ranks 1 to 5 instead of names. The profile becomes *Mixed*, with every slot between 0.560 and 0.638, much flatter and lower than the 0.581 to 0.820 of the same people. The theory line disappears, because it describes fixed people.
+**Result.** Figure 1 now plots rank positions 1 to 5. The profile becomes *mixed*, with every position between 0.560 and 0.638, flatter and lower than the 0.581 to 0.820 of the same individuals. The theory line is not shown, since it describes fixed individuals. At the default shocks (Reset, then Rank slots), the position profile is an inverted U from 0.587 to 0.821, close to the individual profile, because ranks change in only 8 periods.
 
 ![Figure 4 in rank slots](images/guide/rank-series.png)
 
-Now go back to the default shocks (Reset, then Rank slots again): the slot profile is an inverted U from 0.587 to 0.821, almost identical to the individual one, because ranks change in only 8 periods.
+**Interpretation.** A rank position holds whoever occupies it. When mobility is low, a position is effectively an individual and its persistence reveals that individual's composition. When mobility is high, a position inherits a blend of everyone's sources and differences across positions are compressed. The persistence of quantile-group shares is a property of positions, and its interpretation requires information on entries into and exits from each group.
 
-**Why.** A rank slot holds whoever occupies that position. When people rarely move, a slot is effectively a person. When people move often, the share of the third slot is Bjørn's one year and Alfred's the next, so the slot inherits a blend of everyone's income sources and the differences between slots wash out.
+### 6.7 Deterministic trends
 
-**What it tells us.** Persistence measured on quantile groups is a property of positions, not of people. When mobility is low, it reveals the income composition of each group; when mobility is high, it understates the differences between groups. Reading the persistence of top income shares requires knowing how often people enter and leave the top.
-
-### 6.7 Diverging trends: capital at the top, wages at the bottom
-
-**Question.** What happens to inequality when one income source grows faster than the others?
-
-**Steps, part A.** Reset. In George's **f** row, set **Trend** to **0.300**. George's capital income now grows by 0.3 / (1 − 0.5) = 0.6 units per period.
+**Design A.** In George's **f** row, set the trend to **0.300**: his capital income grows by $`0.3/(1-0.5) = 0.6`$ units per period.
 
 <img src="images/guide/trend-top-lorenz.png" alt="Figure 2 with a capital trend at the top" width="543">
 
-**What you see.** The Gini path climbs steadily, from 0.318 to 0.400 at period 110. George's share rises from 37.5% to 47.2%, the labor share of income falls from 50.0% to 42.0%, and total income grows from 400 to 468.5. The In figures strip summarizes it:
+**Result A.** The Gini coefficient rises from 0.318 to 0.400 at period 110, George's share from 37.5% to 47.2%, and total income from 400 to 468.5, while the labor share falls from 50.0% to 42.0%.
 
 ![In figures with a capital trend at the top](images/guide/trend-top-figures.png)
 
 ![Figure 4 with a capital trend at the top](images/guide/trend-top-series.png)
 
-**Steps, part B.** Reset. In Violette's and Meryem's **w** rows, set **Trend** to **0.030**. Their labor incomes now grow by 0.03 / (1 − 0.9) = 0.3 units per period.
+**Design B.** Reset; in Violette's and Meryem's **w** rows, set the trend to **0.030** (0.3 units per period).
 
 <img src="images/guide/trend-bottom-lorenz.png" alt="Figure 2 with wage growth at the bottom" width="543">
 
-**What you see.** Inequality falls: the Gini coefficient drops from 0.318 to 0.242 at period 110. Violette's share rises from 6.0% to 11.6%, Meryem's from 11.0% to 17.6%, and the labor share rises from 50.0% to 55.5%. Because the two catch up with Bjørn, ranks now change in 23 periods.
+**Result B.** The Gini coefficient falls from 0.318 to 0.242 at period 110; Violette's share rises from 6.0% to 11.6%, Meryem's from 11.0% to 17.6%, and the labor share from 50.0% to 55.5%. Ranks change in 23 periods as both catch up with Bjørn.
 
-In both cases, Figure 1 keeps its inverted U (0.580 to 0.833 in part A), and the theory line is hidden: it assumes stable long-run levels, which a trend rules out.
+In both cases the profile remains an inverted U (0.580 to 0.833 in design A), and the theory line is not shown because it assumes constant long-run levels.
 
-**What it tells us.** Trends and persistence act on different dimensions. A trend changes where inequality is heading; persistence governs how deviations around that path behave. When capital income at the top grows faster than the rest of the economy, the top share and the Gini coefficient rise and the labor share falls, a stylized version of the dynamics discussed in the literature on top incomes. Wage growth at the bottom does the opposite.
+**Interpretation.** Trends and persistence act on different dimensions: a trend determines where the distribution is heading, persistence how deviations around that path behave. Capital income growing faster at the top raises the top share and the Gini coefficient and lowers the labor share, a stylized counterpart of the recent rise of top capital incomes documented by Gomez (2025). The removal of the deterministic component (section 2.3) is what keeps such trends out of the persistence measure.
 
-### 6.8 Shocks that never fade: a unit root
+### 6.8 Unit root
 
-**Question.** What if capital shocks were permanent?
-
-**Steps.** Reset. Set $`\phi_K`$ to **1.00**. Then, in each **f** row, set $`\beta`$ to **0**.
-
-The second step matters. With $`\phi = 1`$, the constant no longer sets a level: it becomes a **drift** added every period. If you leave $`\beta`$ at its value, capital income grows by $`\beta`$ every period, and total income explodes from 400 to 11,532 in 110 periods. Setting $`\beta`$ to 0 gives a pure random walk.
+**Design.** Set $`\phi_K = 1.00`$, then set $`\beta = 0`$ in every **f** row. With $`\phi = 1`$ the constant becomes a drift added every period: left unchanged, it makes total income grow from 400 to 11,532 in 110 periods. With $`\beta = 0`$ capital income is a pure random walk.
 
 ![Figure 4 with a unit root in capital](images/guide/unit-root-series.png)
 
-**What you see.** Shares wander without returning anywhere. George and Alfred trade the top place several times; Bjørn's share falls from 18.0% to 6.8%, while Violette's rises from 6.0% to 10.6%. Ranks change in 33 periods. The Gini path no longer fluctuates around a level; it moves between 0.262 and 0.422.
+**Result.** Shares wander without reverting. Bjørn's share falls from 18.0% to 6.8% and Violette's rises from 6.0% to 10.6%; ranks change in 33 periods; the Gini coefficient moves between 0.262 and 0.422 without fluctuating around a level.
 
 <img src="images/guide/unit-root-lorenz.png" alt="Figure 2 with a unit root in capital" width="543">
 
 <img src="images/guide/unit-root-profile.png" alt="Figure 1 with a unit root in capital" width="543">
 
-Figure 1 shows very high persistence for everyone (0.887 to 0.932), with the capital-heavy bottom and top now the most persistent. The note explains that the theory line is undefined, and that incomes turn negative in 51 of 111 periods: a random walk has no floor.
+Measured persistence is high for everyone (0.887 to 0.932), with the capital-intensive bottom and top now the most persistent. The theory line is undefined, and incomes turn negative in 51 of 111 periods.
 
-**What it tells us.** With a unit root, a shock to inequality is permanent: there is no "normal" distribution to return to, and the distribution can drift anywhere. Whether income shares are stationary or contain a unit root is therefore a central empirical question, and the reason empirical work tests the stationarity of each income share before measuring persistence.
+**Interpretation.** With a unit root a deviation is permanent and the distribution has no level to return to. Whether a share is stationary around a deterministic path, possibly with structural breaks, or contains a unit root is therefore a prior question to any measurement of persistence (section 7).
 
-### 6.9 Overshooting: negative persistence
+### 6.9 Negative persistence
 
-**Question.** What does a persistence below zero look like?
-
-**Steps.** Reset. In the Persistence card, choose **By person**. In George's **f** row, set $`\phi`$ to **−0.50** and $`\beta`$ to **156.00** (that is, 1.5 × 104, which keeps his capital income around 104). Then click George's name to open his series in Figure 3.
+**Design.** Choose **By person** in the Persistence card. In George's **f** row, set $`\phi = -0.50`$ and $`\beta = 156.00`$ ($`1.5\times 104`$, which keeps his capital income around 104). Select George's name to open his series.
 
 ![George's incomes with capital persistence −0.5](images/guide/negative-george.png)
 
-**What you see.** George's capital income now zigzags: a high period is followed by a low one, and the other way round. His share's persistence falls from 0.688 to 0.305, and the persistence of everyone else falls too (Violette from 0.588 to 0.517, Bjørn from 0.831 to 0.786), because George's zigzag moves the total that every share is divided by. George changes rank 12 times instead of 4.
+**Result.** George's capital income alternates between high and low periods. The persistence of his share falls from 0.688 to 0.305, and that of every other share falls as well (Violette from 0.588 to 0.517, Bjørn from 0.831 to 0.786). George changes rank 12 times instead of 4.
 
 <img src="images/guide/negative-profile.png" alt="Figure 1 with George's capital persistence at −0.5" width="543">
 
-**What it tells us.** Negative persistence describes overshooting, for example income that tends to be realized in alternate years. It also illustrates a general point: income shares are relative, so one person's dynamics affect everyone's shares.
+**Interpretation.** Negative persistence represents overshooting, as when income realized in one year depletes the next. Because shares are relative, one individual's dynamics enter every share through the total (section 2.4, implication 3).
 
-### 6.10 How much data do you need?
+### 6.10 Sample length
 
-**Question.** How precisely do 110 years of data measure persistence?
-
-**Steps.** Reset. Set **Periods** to **2000** and wait a few seconds.
+**Design.** Set **Periods** to **2000**, then to **500**.
 
 <img src="images/guide/long-sample.png" alt="Figure 1 with 2000 periods" width="543">
 
-**What you see.** The red line now sits on the theory line, and the whiskers shrink.
+**Result.**
 
 | | Violette | Meryem | Bjørn | Alfred | George |
 | --- | --- | --- | --- | --- | --- |
@@ -518,15 +518,13 @@ Figure 1 shows very high persistence for everyone (0.887 to 0.932), with the cap
 | Simulated, 500 periods | 0.620 | 0.829 | 0.869 | 0.828 | 0.733 |
 | Simulated, 110 periods | 0.588 | 0.773 | 0.831 | 0.787 | 0.688 |
 
-**Why.** The sample autocorrelation is biased downward in short samples, and the bias is larger when persistence is high. At 110 periods, every estimate falls 0.05 to 0.07 below its true value, and the 5th to 95th percentile band is between 0.18 and 0.27 wide. At 2000 periods, every estimate is within 0.006 of the theory.
+At 110 periods every estimate lies 0.05 to 0.07 below its theoretical value and the 5th–95th percentile band is 0.18 to 0.27 wide; at 2000 periods every estimate is within 0.006 of the theory.
 
-**What it tells us.** With a century of annual data, persistence estimates are both biased toward zero and imprecise. The *shape* of the profile is robust: it is an inverted U at every sample length. Comparisons across the distribution are therefore more reliable than the level of any single estimate.
+**Interpretation.** The sample autocorrelation is biased toward zero in short samples, more so when persistence is high. With about a century of annual data, persistence estimates are both biased and imprecise, but the shape of the profile is the same at every sample length. Comparisons of persistence across the distribution are more robust than the level of any single estimate.
 
-### 6.11 Redistribution: one-off or permanent
+### 6.11 One-off and permanent redistribution
 
-**Question.** If we equalize capital income once, how long does the effect last? And what if we equalize labor income instead?
-
-**Steps, part A.** Reset. Open the **Allocation** tab, in Units. Type **40** in every Capital cell, starting with George (104), then Alfred (44), then Bjørn, Meryem and Violette, so that no entry is clipped. Press Enter: the rows re-sort, and George, now on 86 units, moves to third place behind Bjørn (98) and Alfred (106).
+**Design A.** Open the **Allocation** tab, in Units, and type **40** in every Capital cell, starting with George (104), then Alfred (44), Bjørn, Meryem and Violette, so that no entry is clipped. On Enter, the rows re-sort, and George, now at 86 units, ranks third behind Bjørn (98) and Alfred (106).
 
 <table>
 <tr>
@@ -535,187 +533,198 @@ Figure 1 shows very high persistence for everyone (0.887 to 0.932), with the cap
 </tr>
 </table>
 
-**What you see.** At period 0, the Gini coefficient halves, from 0.318 to 0.156, and the poorest 40% hold 27.5% of income instead of 17.0% (left). But the Gini path in the small chart shoots back up: 0.224 after one period, 0.254 after two, 0.295 after five. By period 10 it is exactly back on the default path (0.339). At period 110, nothing is left (right).
+**Result A.** The Gini coefficient at period 0 falls from 0.318 to 0.156, and the poorest 40% hold 27.5% of income instead of 17.0%. The Gini path then returns quickly: 0.224 after one period, 0.254 after two, 0.295 after five, and 0.339 at period 10, back on the default path. The allocation sets period 0 only (rule 3), and with $`\phi_K = 0.5`$ half of the remaining gap closes every period.
 
-**Why.** The allocation only sets period 0 (rule 2). Each capital income returns to its old long-run level, and with $`\phi_K = 0.5`$, half of the gap closes every period.
-
-**Steps, part B.** Keep the allocation and, in the Parameters tab, set $`\beta`$ to **20.00** in every **f** row ($`(1-0.5)\times 40`$), so that 40 becomes everyone's long-run capital income.
+**Design B.** Keep the allocation and set $`\beta = 20.00`$ in every **f** row ($`(1-0.5)\times 40`$), so that 40 becomes everyone's long-run capital income.
 
 <img src="images/guide/redistribution-permanent.png" alt="Figure 2 after a permanent equalization of capital" width="543">
 
-The Gini coefficient now stays low for good: 0.168 at period 110, between 0.117 and 0.239 along the path. With incomes closer together, ranks change in 50 periods.
+**Result B.** The Gini coefficient remains low: 0.168 at period 110, between 0.117 and 0.239 along the path. With incomes closer together, ranks change in 50 periods.
 
-**Steps, part C.** Reset, and equalize **labor** instead: type 40 in every Labor cell, lowering Alfred (66), Bjørn (58) and George (46) first, then raising Meryem and Violette.
+**Design C.** Reset and equalize **labor** income instead: type 40 in every Labor cell, lowering Alfred (66), Bjørn (58) and George (46) first.
 
 <img src="images/guide/redistribution-labor.png" alt="Figure 2 after a one-off equalization of labor" width="543">
 
-The Gini coefficient falls from 0.318 to 0.206 at period 0 and recovers far more slowly: 0.230 after five periods, 0.297 after ten, 0.322 after twenty. Labor shocks have a half-life of 6.6 periods, against 1 period for capital.
+**Result C.** The Gini coefficient falls from 0.318 to 0.206 at period 0 and recovers far more slowly: 0.230 after five periods, 0.297 after ten, 0.322 after twenty. The half-life of a labor deviation is 6.6 periods, against 1 period for capital.
 
-**What it tells us.** The effect of a one-off redistribution lasts as long as the income it touches is persistent. A one-off transfer of fast-reverting income fades within a few periods; a change to persistent income lasts for years; only a change in the underlying process (here $`\beta`$, in reality earning capacity, ownership or institutions) is permanent. Note also that, in parts A and B, Figure 1 reads *no simple pattern*: each person's persistence is unchanged, but George now stands in the middle of the ranking, and the profile is plotted in ranking order. The shape of a profile depends on who stands where.
+**Interpretation.** The effect of a one-off redistribution decays at the persistence of the income it targets. A transfer of fast-reverting income fades within a few periods, a change to persistent income lasts for years, and only a change in the underlying process (here $`\beta`$; in an economy, earning capacity, ownership or institutions) is permanent. In designs A and B, Figure 1 reads *no simple pattern*: each individual's persistence is unchanged, but George now ranks in the middle, and the profile is plotted in ranking order. The shape of a profile depends on who stands where.
 
 ### 6.12 A volatile top
 
-**Question.** Suppose top capital income is more volatile and less persistent than other capital income, as when it is driven by asset prices. What happens to the persistence of the top share?
+**Design.** Suppose top capital income is more volatile and less persistent than other capital income, as when it is driven by asset prices.
 
-**Steps.** Reset.
-
-- Part A: in George's **f** row, set $`\sigma`$ to **20.80** (twice its default).
-- Part B: also choose **By person** in the Persistence card, and in George's **f** row set $`\phi`$ to **0.30** and $`\beta`$ to **72.80** ($`0.7\times 104`$, to keep his capital around 104).
+- A: in George's **f** row, set $`\sigma = 20.80`$ (twice its default).
+- B: in addition, choose **By person** and set George's capital $`\phi = 0.30`$ and $`\beta = 72.80`$ ($`0.7\times 104`$).
 
 <img src="images/guide/volatile-top-params.png" alt="Parameters for a volatile top" width="410">
 
 <img src="images/guide/volatile-top-profile.png" alt="Figure 1 with a volatile top" width="543">
 
-**What you see.**
+**Result.**
 
 | | Violette | Meryem | Bjørn | Alfred | George |
 | --- | --- | --- | --- | --- | --- |
 | Default | 0.588 | 0.773 | 0.831 | 0.787 | 0.688 |
-| A: George's capital σ doubled | 0.563 | 0.725 | 0.789 | 0.726 | 0.568 |
-| B: and his capital φ at 0.30 | 0.529 | 0.701 | 0.772 | 0.693 | 0.452 |
+| A: George's capital $`\sigma`$ doubled | 0.563 | 0.725 | 0.789 | 0.726 | 0.568 |
+| B: and his capital $`\phi`$ at 0.30 | 0.529 | 0.701 | 0.772 | 0.693 | 0.452 |
 
-George's persistence falls from 0.688 to 0.452, the steepest drop of anyone, and the inverted U becomes more pronounced at the top. Everyone else's persistence also falls, because George's large, quickly reverting swings move the total that every share is divided by.
+George's persistence falls from 0.688 to 0.452, the largest change, and every other share's persistence falls as well.
 
-**What it tells us.** Volatile, quickly reverting income at the top lowers the persistence of the top share, and, through the total, spills over to every other share. It shows how a top share can have low persistence when it rests on volatile, quickly reverting capital income, such as income driven by asset prices.
+**Interpretation.** Doubling a source's volatility raises its weight in the fluctuations of the share (section 2.4, implication 2), and lowering its persistence lowers the value it contributes. Volatile, fast-reverting income at the top therefore lowers the persistence of the top share and, through the total, that of every other share.
 
 ---
 
-## 7. From the simulator to real data
+## 7. From the simulator to income-share data
 
-The simulator is a stylized model, but each experiment maps onto a question you can ask of real inequality data, such as the income shares of the World Inequality Database.
+Each experiment corresponds to a step in the empirical analysis of income-share dynamics, for instance on long-run series of pre-tax national income shares built from tax and national accounts data (Piketty and Saez, 2003; Piketty, Saez and Zucman, 2018).
 
-| In the simulator | In real data |
+| In the simulator | In income-share data |
 | --- | --- |
-| Five people | Quantile groups (bottom 50%, middle 40%, top 10%, top 1% and so on) |
-| Rank slots (6.6) | Shares of fixed quantiles, whose members change over time |
-| 110 periods (6.10) | About a century of annual observations, with small-sample bias |
-| Composition at period 0 (6.1, 6.4) | Labor and capital composition of each group, documented in the literature |
-| Unit root (6.8) | Stationarity tests on each share |
-| Trend (6.7) | Long-run rises or falls in top shares and in the capital share |
+| Five individuals | A partition of the population into income groups |
+| Rank slots (6.6) | Quantile groups, whose members change over time |
+| No-shock path (2.3) | A deterministic component: trends and structural breaks |
+| Unit root (6.8) | Unit-root tests, with and without breaks |
+| 110 periods (6.10) | About a century of annual observations |
+| Composition at period 0 (6.1, 6.4) | Decomposition of each group's income by source |
+| Shocks × 3 (6.5) | Volatility of each share, measured separately |
 
-Some guidance for reading real evidence with the simulator in mind:
+The simulator implies the following points of method.
 
-- **Compare shapes, not levels.** Short samples bias every persistence estimate toward zero (6.10), but they preserve the ordering across groups.
-- **Check stationarity first.** If a share has a unit root, its autocorrelation is not a measure of persistence around a level (6.8).
-- **Account for mobility.** Persistence of a top share mixes the persistence of top incomes with entries and exits from the top (6.6).
-- **Separate trends from persistence.** Remove the long-run movement before measuring persistence; the simulator does this by subtracting the no-shock path (6.7).
-
-The default configuration reproduces the pattern that motivated the simulator: persistence peaks in the middle of the distribution, where labor income dominates, and is weakest at both ends. Experiments 6.5 and 6.12 show why persistence and volatility must be studied separately, and experiment 6.4 shows why the Lorenz curve and the Gini coefficient alone cannot reveal the dynamics of inequality.
+- **Use non-overlapping groups.** Cumulative groups such as the Top 1%, which contains the Top 0.1%, mix the dynamics of their sub-groups. A partition of the distribution into non-overlapping bands assigns each part of the distribution to one series.
+- **Remove the deterministic component before measuring persistence.** Shares bounded between zero and one can trend for decades, and institutions and historical shocks shift their level and slope at identifiable dates. Unmodelled trends and breaks bias persistence toward one and can masquerade as unit roots (Perron, 1989; Zivot and Andrews, 1992; Lamoureux and Lastrapes, 1990). The simulator's no-shock path is the exact counterpart of this step (6.7).
+- **Test for unit roots on the stationarized series.** If a share contains a unit root, its autocorrelation does not measure persistence around a path (6.8).
+- **Compare persistence across groups rather than in levels.** The level of persistence depends on the specification of the deterministic component and is biased downward in samples of about a century (6.10); the ordering across groups is more robust.
+- **Consider higher-order dynamics.** With observed data, autoregressive models of order two or three, selected by an information criterion, can reveal overshooting where realized income in one year depletes the next (6.9).
+- **Separate persistence from volatility.** The size of a share's fluctuations is not a reliable guide to how long they last (6.5, 6.12).
+- **Relate persistence to composition.** Decompositions of each group's income into labor, business, capital and transfer income (Gomez, 2025) identify which source drives a group's fluctuations; as formula (2.4) shows, what matters is the source of fluctuations, not only the source of the level.
+- **Distinguish intrinsic from inherited persistence.** A share may appear persistent only because it tracks a persistent driver, such as policy or macroeconomic conditions. Adding such covariates to the autoregressive model, after the same removal of a deterministic component, tests whether the profile is intrinsic to the shares.
+- **Account for mobility.** The persistence of a top share combines the persistence of top incomes with entries into and exits from the top (6.6).
 
 ## 8. Exercises
 
-Each exercise starts from Reset. Try to predict the result before you run it.
+Each exercise starts from Reset. Predict the result before running it.
 
-**1. The most persistent share.** At the defaults, whose share is the most persistent, and what single number from section 2.4 explains it?
+**1. The most persistent share.** At the defaults, whose share is the most persistent, and which statistic of section 2.4 explains it?
 
 <details><summary>Answer</summary>
 
-Bjørn, at 0.831. 98.5% of his income variance comes from labor income, whose persistence is 0.90, more than anyone else.
+Bjørn's, at 0.831: 98.5% of his income variance comes from labor income, whose persistence is 0.90, the highest proportion of the five.
 </details>
 
-**2. Make the profile increase without a preset.** Using only the Allocation table, how would you make persistence rise from bottom to top?
+**2. An increasing profile from the allocation alone.** How must the allocation be changed for persistence to rise from bottom to top?
 
 <details><summary>Answer</summary>
 
-Give the bottom more capital relative to labor, and the top more labor relative to capital, while keeping each source at 200 units. The Increasing preset does exactly this (labor 4, 10, 20, 46, 120 and capital 28, 36, 40, 44, 52). Remember rule 2: if you edit the table yourself, the parameters keep their old long-run levels, so click the preset afterwards or re-anchor $`\beta`$ to see the clean result.
+The bottom must hold more capital relative to labor and the top more labor relative to capital, each source still summing to 200 units. The Increasing preset does this while keeping every period-0 income unchanged: labor 3, 10, 24, 50, 113 and capital 21, 34, 48, 60, 37. Editing the table by hand leaves the parameters anchored to the old allocation (rule 3); select the preset, or re-anchor $`\beta`$ and $`\sigma`$, to obtain the clean result.
 </details>
 
-**3. Equal persistence at 0.90.** Set $`\phi_K`$ to 0.90 (leaving $`\phi_L`$ at 0.90). What shape do you expect, and where is the theory line?
+**3. Equal persistence at 0.90.** Set $`\phi_K = 0.90`$ with $`\phi_L = 0.90`$. Which shape do you expect, and where is the theory line?
 
 <details><summary>Answer</summary>
 
-Flat, with the theory line at 0.90 for everyone: when both sources share the same persistence, every share has that persistence (6.3). The simulated values sit between 0.832 and 0.851, below 0.90 because of the small-sample bias (6.10).
+Flat, with the theory line at 0.90 for every individual (6.3). The simulated values lie between 0.832 and 0.851, below 0.90 because of the small-sample bias (6.10).
 </details>
 
-**4. How long does a transfer last?** Before running 6.11, predict which fades faster, a one-off equalization of capital or of labor, and by roughly how much.
+**4. Duration of a transfer.** Before running 6.11, predict which fades faster, a one-off equalization of capital or of labor, and by how much.
 
 <details><summary>Answer</summary>
 
-Capital, much faster. Half the remaining gap closes every period with $`\phi_K = 0.5`$ (half-life 1 period), against every 6.6 periods with $`\phi_L = 0.9`$. In the simulator, the Gini coefficient is back on its default path after about 10 periods for capital, but still below it after 20 periods for labor.
+Capital. With $`\phi_K = 0.5`$ half of the remaining gap closes every period (half-life 1 period), against a half-life of 6.6 periods with $`\phi_L = 0.9`$. The Gini coefficient is back on its default path after about 10 periods for capital, and still below it after 20 periods for labor.
 </details>
 
 **5. Doubling every shock.** Multiply every $`\sigma`$ by 2. What happens to Figure 1, to the number of rank changes and to the Gini path?
 
 <details><summary>Answer</summary>
 
-Figure 1 barely changes (0.586 to 0.827) and the theory line is identical, because persistence does not depend on the scale of shocks. Rank changes rise from 8 to 44 periods and the Gini path widens to 0.251 to 0.481, because bigger shocks make people overtake each other more often (6.5).
+Figure 1 barely changes (0.586 to 0.827) and the theory line is identical, since persistence is invariant to a common rescaling of the shocks. Rank changes rise from 8 to 44 periods and the Gini path widens to 0.251–0.481 (6.5).
 </details>
 
-**6. Why do rank slots flatten the profile?** In 6.6, why is the slot profile flatter when shocks are large?
+**6. Rank positions.** In 6.6, why is the position profile flatter when shocks are large?
 
 <details><summary>Answer</summary>
 
-With large shocks, people move between slots often, so each slot's share is made of different people's incomes over time. Each slot then inherits a blend of everyone's income sources, and the differences in composition between slots wash out.
+With large shocks, individuals move between positions often, so each position's share is made of different individuals' incomes over time. Each position inherits a blend of everyone's income sources, and differences in composition across positions are averaged out.
 </details>
 
-**7. Wage growth for the middle.** Give Bjørn's w row a trend of 0.030. What happens to the Gini coefficient and to the labor share?
+**7. Wage growth in the middle.** Set a trend of 0.030 in Bjørn's w row. What happens to the Gini coefficient and to the labor share?
 
 <details><summary>Answer</summary>
 
-Bjørn's labor income rises by 0.03 / (1 − 0.9) = 0.3 units per period, so his no-shock income grows from 72 to about 102 by period 110. He stays third, but closes part of the gap with Alfred (110) and George (150). The labor share rises from 50.0% to 52.4%, and the Gini coefficient at period 110 is 0.310 instead of 0.335: income growth in the middle, toward the top, narrows inequality. If the trend were large enough for Bjørn to overtake George, his further growth would start to widen it again.
+Bjørn's labor income rises by 0.03 / (1 − 0.9) = 0.3 units per period, so his no-shock income grows from 72 to about 102 by period 110. He remains third but closes part of the gap with Alfred (110) and George (150). The labor share rises from 50.0% to 52.4%, and the Gini coefficient at period 110 is 0.310 instead of 0.335: income growth in the middle, toward the top, narrows inequality. A trend large enough for Bjørn to overtake George would widen it again.
 </details>
 
-**8. The unit-root trap.** Set $`\phi_K = 1`$ without changing $`\beta`$. Why does total income explode, and why does the theory line disappear?
+**8. Drift under a unit root.** Set $`\phi_K = 1`$ without changing $`\beta`$. Why does total income explode, and why does the theory line disappear?
 
 <details><summary>Answer</summary>
 
-With $`\phi = 1`$, the equation becomes $`f_t = \beta + f_{t-1} + v_t`$: $`\beta`$ is added every period, so capital income grows without limit (George's by 52 units per period). The theory line needs a finite long-run level and a finite variance, which a unit root does not have (6.8).
+With $`\phi = 1`$ the equation becomes $`f_t = \beta + f_{t-1} + v_t`$: $`\beta`$ is a drift added every period, so capital income grows without bound (George's by 52 units per period). The linearization requires finite long-run levels and variances, which a unit root rules out (6.8).
 </details>
 
-## 9. Troubleshooting and frequently asked questions
+## 9. Frequently asked questions
 
-**My numbers differ slightly from the guide.** Click **Reset**: it restores the default seed, 20251008. After **New draw**, the shocks change and every number moves a little, while the shapes stay the same.
+**The numbers differ slightly from the guide.** Click **Reset** to restore the default seed, 20251008. After **New draw**, every number moves slightly while the shapes remain.
 
-**The theory line has disappeared.** It is shown only for fixed individuals (Units set to Individuals), when every $`|\phi|`$ is below 1, every trend is zero, and total long-run income is positive. The note under Figure 1 says which condition fails.
+**The theory line is not shown.** It requires fixed individuals (Units set to Individuals), $`|\phi| < 1`$ for every income, zero trends and positive long-run total income. The note under Figure 1 states which condition fails.
 
-**A note says that negative components appear.** Some income became negative in that many periods of the displayed path. It happens when shocks are large relative to the level of income (6.5), with a unit root (6.8), or when a change of $`\phi`$ moves the long-run levels (6.2). The model allows it; real incomes rarely do.
+**A note reports negative components.** Some income became negative in that number of periods. This occurs when shocks are large relative to income (6.5), with a unit root (6.8), or when a change of $`\phi`$ moves the long-run levels (6.2).
 
-**I changed $`\phi`$ and incomes drift away.** That is rule 1: $`\beta`$ did not change, so the long-run level $`\beta/(1-\phi)`$ did. Re-anchor by typing $`\beta = (1-\phi)\times`$ start, or click a preset.
+**Incomes drift after a change of $`\phi`$.** The constant did not change, so the long-run level $`\beta/(1-\phi)`$ did (rule 2). Set $`\beta = (1-\phi)\times`$ start or select a preset.
 
-**I typed a value in the Allocation table and it was reduced.** Each source is capped. Lower someone else's entry first, or raise the cap.
+**An allocation entry was reduced.** Each source is capped; lower another entry first or raise the cap.
 
-**The rows of the Allocation table moved.** They re-sort by total income when you leave the table or press Enter, so that the table always runs from the poorest to the richest at period 0.
+**The persistence fields of the Parameters tab are inactive.** They are active only when persistence is set **By person**.
 
-**The persistence fields in the Parameters tab are greyed out.** They are active only when the Persistence card is set to **By person**.
+**Figure 1 reads "no simple pattern".** The profile is plotted from the poorest to the richest at period 0. An allocation that places a capital-intensive individual in the middle (6.11) produces a profile that is neither monotone nor U-shaped; **Values by person** gives the numbers.
 
-**The title of Figure 1 says "no simple pattern".** The profile is plotted from the poorest to the richest at period 0. If an allocation moves a capital-heavy person into the middle (as in 6.11), the shape is no longer monotone or U-shaped. Open **Values by person** for the numbers.
+**The page is slow at 2000 periods.** Each change recomputes 20 samples of 2000 periods; use 110 periods while exploring.
 
-**The page is slow with 2000 periods.** Each change recomputes 20 samples of 2000 periods. Wait a second or two, or use 110 periods while exploring.
+## 10. Notation
 
-**The mouse wheel does not change a value.** Select the field first (click in it); the wheel acts only on the selected field.
-
-## 10. Glossary
-
-| Symbol or term | Meaning |
+| Symbol or term | Definition |
 | --- | --- |
-| $`w_{i,t}`$ | Labor income of person $`i`$ in period $`t`$ |
-| $`f_{i,t}`$ | Capital income of person $`i`$ in period $`t`$ |
-| $`y_{i,t}`$ | Total income, $`w_{i,t} + f_{i,t}`$ |
-| $`\phi_L`$, $`\phi_K`$ | Persistence of labor and capital income |
+| $`w_{i,t}`$, $`f_{i,t}`$, $`y_{i,t}`$ | Labor, capital and total income of individual $`i`$ in period $`t`$ |
+| $`S_{i,t}`$ | Income share, $`y_{i,t}/\sum_j y_{j,t}`$ |
+| $`\phi_L`$, $`\phi_K`$ | Persistence (autoregressive coefficient) of labor and capital income |
 | $`\beta_{W,i}`$, $`\beta_{F,i}`$ | Constants of labor and capital income |
-| $`\beta_{W,trend,i}`$, $`\beta_{F,trend,i}`$ | Trend coefficients on time |
-| $`u_{i,t}`$, $`v_{i,t}`$ | Shocks to labor and capital income, normally distributed |
+| $`\beta_{W,trend,i}`$, $`\beta_{F,trend,i}`$ | Coefficients on the time trend |
+| $`u_{i,t}`$, $`v_{i,t}`$ | Normal shocks to labor and capital income |
 | $`\sigma_{L,i}`$, $`\sigma_{K,i}`$ | Standard deviations of the shocks |
-| $`\hat\rho(1)`$ | First-order autocorrelation of an income share, the measure of persistence |
-| $`G`$ | Gini coefficient |
-| Long-run level | $`\beta/(1-\phi)`$, the level an income settles at without shocks |
-| Half-life | Periods needed for half of a shock to fade, $`\ln 0.5/\ln\phi`$ |
-| Unit root | $`\phi = 1`$ or $`-1`$: shocks never fade |
+| $`\gamma`$ | Stationary variance of a source, $`\sigma^2/(1-\phi^2)`$ |
+| $`\hat\rho_i(1)`$ | First-order sample autocorrelation of the deviation of a share from its no-shock path |
+| $`\rho_i(1)`$ | Its linearized theoretical value, formula (2.4) |
+| $`L_t(p)`$, $`G_t`$ | Lorenz curve and Gini coefficient in period $`t`$ |
+| Long-run level | $`\beta/(1-\phi)`$ |
+| Half-life | $`\ln 0.5/\ln\phi`$, the number of periods for half of a deviation to fade |
+| Unit root | $`|\phi| = 1`$: deviations never fade |
+| No-shock path | The path of income or of a share with every shock set to zero |
+| Rank slot | A position in the distribution, whoever occupies it |
 | Labor share | Labor income divided by total income |
-| Rank slot | A position in the distribution (poorest, second poorest and so on), whoever holds it |
-| No-shock path | The path of income with every shock set to zero |
-| Linearized theory | A first-order approximation of each share's persistence, computed from the parameters |
 
 ## 11. Limits of the model
 
-- The economy has five people, so the Lorenz curve has five segments, and the Gini coefficient cannot exceed 0.8.
-- Shocks are independent across people and across sources. There is no aggregate shock, such as a recession that hits everyone, and no correlation between a person's labor and capital shocks.
-- Each source follows an AR(1) process; richer dynamics, such as cycles or structural breaks, are not modelled.
-- Incomes can become negative, since shocks are normally distributed.
-- The model has no behavior: people do not save, invest, work more or respond to taxes. Composition is set by hand, not explained.
+- The economy has five individuals, so the Lorenz curve has five segments and the Gini coefficient cannot exceed 0.8.
+- Shocks are independent across individuals and sources: there is no aggregate shock and no correlation between an individual's labor and capital shocks.
+- Each source follows an AR(1) process; higher-order dynamics and structural breaks are not modelled.
+- Shocks are normal, so incomes can become negative.
+- There is no behavior: individuals do not save, invest or respond to prices or taxes, and composition is set exogenously.
+- Two sources stand for several. Transfers at the bottom and corporate profits at the top are both represented by the less persistent source, and pass-through business income, which may behave more like labor income, has no separate process.
 
-These limits are deliberate: the simulator isolates one mechanism, the link between income composition and the persistence of income shares, so that it can be seen clearly.
+These restrictions are deliberate: the simulator isolates the link between income composition and the persistence of income shares under controlled conditions, and estimates nothing from data.
 
-## 12. Credits
+## 12. References
 
-The simulator was developed by **Abdelhamid El Hamrani** and **Hajar Hazmiri**, under the supervision of **Prof. Ramses Abul Naga**, at the Faculty of Governance, Economics and Social Sciences (FGSES) of Mohammed VI Polytechnic University (UM6P). See the [README](../README.md) for the method notes, how to cite the simulator, and related work.
+- Alvaredo, F., Chancel, L., Piketty, T., Saez, E., and Zucman, G. (2018). *World Inequality Report 2018*. Belknap Press of Harvard University Press.
+- Engle, R. F. (2001). GARCH 101: The use of ARCH/GARCH models in applied econometrics. *Journal of Economic Perspectives*, 15(4), 157–168.
+- Gomez, M. (2025). Macro perspectives on income inequality. *Journal of Economic Perspectives*, 39(2), 127–148.
+- Gottschalk, P., and Moffitt, R. (2009). The rising instability of U.S. earnings. *Journal of Economic Perspectives*, 23(4), 3–24.
+- Granger, C. W. J., and Morris, M. J. (1976). Time series modelling and interpretation. *Journal of the Royal Statistical Society, Series A*, 139(2), 246–257.
+- Kopczuk, W., Saez, E., and Song, J. (2010). Earnings inequality and mobility in the United States: Evidence from social security data since 1937. *Quarterly Journal of Economics*, 125(1), 91–128.
+- Lamoureux, C. G., and Lastrapes, W. D. (1990). Persistence in variance, structural change, and the GARCH model. *Journal of Business & Economic Statistics*, 8(2), 225–234.
+- Perron, P. (1989). The great crash, the oil price shock, and the unit root hypothesis. *Econometrica*, 57(6), 1361–1401.
+- Piketty, T., and Saez, E. (2003). Income inequality in the United States, 1913–1998. *Quarterly Journal of Economics*, 118(1), 1–39.
+- Piketty, T., Saez, E., and Zucman, G. (2018). Distributional national accounts: Methods and estimates for the United States. *Quarterly Journal of Economics*, 133(2), 553–609.
+- Zivot, E., and Andrews, D. W. K. (1992). Further evidence on the great crash, the oil-price shock, and the unit-root hypothesis. *Journal of Business & Economic Statistics*, 10(3), 251–270.
+
+## 13. Credits
+
+The simulator was developed by **Abdelhamid El Hamrani** and **Hajar Hazmiri**, under the supervision of **Prof. Ramses Abul Naga**, at the Faculty of Governance, Economics and Social Sciences (FGSES) of Mohammed VI Polytechnic University (UM6P). The [README](../README.md) gives the citation, and the [technical reference](TECHNICAL.md) the implementation details.

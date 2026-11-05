@@ -428,7 +428,7 @@ details.disc[open]>summary{margin-bottom:10px}
       <section class="card">
         <div class="card-h"><h2 data-t="presets">Profile presets</h2></div>
         <div class="presets" id="presets"></div>
-        <p class="hint" data-t="presethint">A preset sets the allocation (the more persistent source receives the pattern the profile needs) and resets each person's parameters so that each income fluctuates around its own start: <span class="m"><i>β</i><span class="rel">=</span>(1<span class="op">−</span><i>φ</i>)<span class="op">×</span>start</span>, trend 0, <span class="m"><i>σ</i><span class="rel">=</span>start/10</span>.</p>
+        <p class="hint" data-t="presethint">A preset sets the allocation (the more persistent source receives the pattern the profile needs) and resets each person's parameters so that each income fluctuates around its own start: <span class="m"><i>β</i><span class="rel">=</span>(1<span class="op">−</span><i>φ</i>)<span class="op">×</span>start</span>, trend 0, <span class="m"><i>σ</i><span class="rel">=</span>start/10</span>. With equal caps, the five presets keep every person’s period-0 income, hence the Lorenz curve and the Gini coefficient; only the split between labor and capital differs.</p>
       </section>
     </div>
   </aside>
@@ -597,7 +597,7 @@ const FR_TXT={
   pplhint:`La ligne ${M_('<i>w</i>')} contient ${M_('<i>φ</i><sub>L</sub>')}, ${M_('<i>β</i><sub>W</sub>')}, ${M_('<i>β</i><sub>W,trend</sub>')}, ${M_('<i>σ</i><sub>L</sub>')} ; la ligne ${M_('<i>f</i>')} contient ${M_('<i>φ</i><sub>K</sub>')}, ${M_('<i>β</i><sub>F</sub>')}, ${M_('<i>β</i><sub>F,trend</sub>')}, ${M_('<i>σ</i><sub>K</sub>')}. Tapez une valeur, ou sélectionnez une case et tournez la molette de la souris (Maj pour des pas dix fois plus grands). Les valeurs négatives sont permises. Le long terme est le niveau où le revenu se stabilise sans choc ; un ${M_('<i>σ</i>')} supérieur à ce niveau est signalé.`,
   alloc0:'Répartition à la période 0', eunits:'Unités', epct:'Pourcentages', capL:'Plafond travail', capK:'Plafond capital',
   person:'Personne', unalloc:'Non attribué', presets:'Profils types',
-  presethint:`Un profil type fixe la répartition (la source la plus persistante reçoit la forme dont le profil a besoin) et réinitialise les paramètres de chacun pour que chaque revenu fluctue autour de son niveau de départ : ${M_('<i>β</i><span class="rel">=</span>(1<span class="op">−</span><i>φ</i>)<span class="op">×</span>départ')}, tendance 0, ${M_('<i>σ</i><span class="rel">=</span>départ/10')}.`,
+  presethint:`Un profil type fixe la répartition (la source la plus persistante reçoit la forme dont le profil a besoin) et réinitialise les paramètres de chacun pour que chaque revenu fluctue autour de son niveau de départ : ${M_('<i>β</i><span class="rel">=</span>(1<span class="op">−</span><i>φ</i>)<span class="op">×</span>départ')}, tendance 0, ${M_('<i>σ</i><span class="rel">=</span>départ/10')}. Avec des plafonds égaux, les cinq profils types conservent le revenu de chaque personne à la période 0, donc la courbe de Lorenz et le coefficient de Gini ; seule la répartition entre travail et capital change.`,
   kbd:'<kbd>←</kbd> <kbd>→</kbd> pas à pas · <kbd>Espace</kbd> lecture',
   infig:'En chiffres',
   k_model:'Le modèle', tm_model:'Chaque personne perçoit un revenu du travail et un revenu du capital',
@@ -677,12 +677,14 @@ function largestRemainder(vals,total){
 const N=5;
 const NAMES=['Violette','Meryem','Bjørn','Alfred','George'];
 const SRC=[{name:'Labor',cls:'lab',v:'w',B:'W',K:'L',e:'u'},{name:'Capital',cls:'cap',v:'f',B:'F',K:'K',e:'v'}];
-const PRESETS={ // per 100 units; H = more persistent source, Lo = less persistent source
-  'Decreasing':{H:[10,14,20,26,30],Lo:[2,8,18,30,42]},
-  'Increasing':{H:[2,5,10,23,60],Lo:[14,18,20,22,26]},
-  'Flat':{H:[8,12,18,25,37],Lo:[8,12,18,25,37]},
-  'U-shaped':{H:[9,6,6,19,60],Lo:[3,14,24,30,29]},
-  'Inverted U':{H:[2,13,29,33,23],Lo:[10,9,7,22,52]},
+const PRESETS={ // per 100 units; H = more persistent source, Lo = less persistent source.
+  // With equal caps of 200, every preset gives the five people the same period-0 incomes (24, 44, 72, 110, 150),
+  // hence the same Lorenz curve and Gini coefficient (0.318), and changes only the split between the two sources.
+  'Decreasing':{H:[10.5,19.5,21.5,26.5,22],Lo:[1.5,2.5,14.5,28.5,53]},
+  'Increasing':{H:[1.5,5,12,25,56.5],Lo:[10.5,17,24,30,18.5]},
+  'Flat':{H:[6,11,18,27.5,37.5],Lo:[6,11,18,27.5,37.5]},
+  'U-shaped':{H:[10.5,6.5,4,14,65],Lo:[1.5,15.5,32,41,10]},
+  'Inverted U':{H:[1.5,19.5,32,39.5,7.5],Lo:[10.5,2.5,4,15.5,67.5]},
 };
 const S={
   phi:[0.90,0.50], phiMode:'same',
