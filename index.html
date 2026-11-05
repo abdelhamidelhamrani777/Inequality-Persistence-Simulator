@@ -1,0 +1,1336 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="Interactive simulator of how labor and capital income shape the persistence of income shares, the Lorenz curve and the Gini coefficient.">
+<meta name="author" content="Abdelhamid El Hamrani, Hajar Hazmiri">
+<title>Inequality Persistence Simulator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800&family=Barlow+Semi+Condensed:wght@400;500;600;700&family=STIX+Two+Text:ital,wght@0,400;0,600;1,400;1,700&display=swap">
+<style>
+/* Layout: an economics magazine's data pages. A red masthead rule, then a parameter rail (left) and a board of figures (right) that scroll independently.
+   Each figure follows the editorial grammar: kicker, message title, subtitle with unit, source, data with values written on it, then a "Reading:" note.
+   Deliberately a single printed-paper theme: colors are set explicitly and the page reads the same on light or dark hosts. */
+:root{
+  color-scheme:light;
+  --red:#E8362F; --ink:#1A1A1A; --ink-2:#3B3B3B; --muted:#6B6A65; --faint:#A9A7A0;
+  --paper:#F4F3EF; --panel:#FFFFFF; --cream:#F0ECE1; --graph:#E8E8E3;
+  --rule:#D9D7D0; --rule-2:#ECEAE4; --grid:#BDBBB3;
+  --lab:#364EA2; --cap:#EA981E; --lab-ink:#364EA2; --cap-ink:#9E5E00; --lab-soft:#E7EAF5; --cap-soft:#FBEFDA;
+  --hi:#E8362F; --grey:#8C8C8C; --band:rgba(26,26,26,.075);
+  --q1:#3E9BD3; --q2:#7E4EA2; --q3:#D9A400; --q4:#BA0066; --q5:#6E8A2E;
+  --warn-bg:#FBEBD2; --warn-ink:#7A4B00; --ok-bg:#E4EEE2; --ok-ink:#2E5B2E;
+  --f-title:"Barlow Condensed","Arial Narrow","Helvetica Neue",sans-serif;
+  --f-ui:"Barlow Semi Condensed","Arial Narrow","Helvetica Neue",system-ui,sans-serif;
+  --f-text:"STIX Two Text",Georgia,"Times New Roman",serif;
+  --f-math:"STIX Two Text","Cambria Math",Cambria,"Times New Roman",serif;
+}
+
+/* ---------- base ---------- */
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{height:100%}
+body{margin:0;background:var(--paper);color:var(--ink);font:400 14px/1.45 var(--f-ui);font-variant-numeric:lining-nums;padding-inline:16px;padding-block:0 12px;display:flex;flex-direction:column;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+body::before{content:"";flex:none;display:block;height:6px;background:var(--red);margin-inline:-16px}
+h1,h2,h3{margin:0;text-wrap:balance}
+button,input,select{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--red);outline-offset:2px}
+.muted{color:var(--muted)}
+.num{font-variant-numeric:tabular-nums lining-nums}
+
+/* ---------- math ---------- */
+.m{font-family:var(--f-math);font-style:normal;font-weight:400;color:var(--ink);font-variant-numeric:lining-nums}
+.m i{font-style:italic}
+.m sub,.m sup{font-size:.68em;line-height:0;position:relative}
+.m sub{vertical-align:-.3em}
+.m sup{vertical-align:.52em}
+.m .ss{display:inline-flex;flex-direction:column;vertical-align:.62em;font-size:.68em;line-height:1.04;margin-left:.05em}
+.m .ss sup,.m .ss sub{font-size:1em;vertical-align:0;line-height:1.04}
+.m .op{margin:0 .24em}
+.m .rel{margin:0 .3em}
+.m .num{font-style:normal}
+.m .num.lab{color:var(--lab-ink)}
+.m .num.cap{color:var(--cap-ink)}
+.m .num.neu{color:var(--ink)}
+.m .hat{position:relative;display:inline-block}
+.m .hat::after{content:"\02C6";position:absolute;left:50%;top:.12em;transform:translateX(-38%);font-style:normal;font-size:.92em;line-height:1}
+.m .sig{font-size:1.3em;line-height:1;vertical-align:-.13em;margin:0 .02em 0 .08em}
+.eqline{display:flex;flex-wrap:wrap;align-items:baseline;column-gap:1em;row-gap:5px}
+.eqline>span{white-space:nowrap}
+
+/* ---------- masthead ---------- */
+.mast{flex:none;display:flex;align-items:flex-end;justify-content:space-between;gap:14px 28px;flex-wrap:wrap;padding-block:14px 12px;margin-bottom:14px;border-bottom:2px solid var(--ink)}
+.kicker{font:700 12.5px/1 var(--f-title);letter-spacing:.14em;text-transform:uppercase;color:var(--red);margin:0 0 7px}
+.mast h1{font:800 36px/.98 var(--f-title);letter-spacing:-.005em;color:var(--ink)}
+.dek{font:400 15.5px/1.35 var(--f-text);color:var(--ink-2);margin:7px 0 0;max-width:64ch}
+.dek .m{font-size:16px}
+.byline{font:500 13.5px/1.55 var(--f-ui);color:var(--muted);margin:10px 0 0;max-width:96ch}
+.byline b{font-weight:700;color:var(--ink)}
+.byline .aff{display:block}
+.byline .nw{white-space:nowrap}
+.byline .dot{display:inline-block;width:5px;height:5px;background:var(--red);margin:0 10px;vertical-align:2px}
+.credits{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px 28px;margin-top:20px;padding-top:12px;border-top:2px solid var(--ink)}
+.credits .cl{font:700 12px/1 var(--f-title);letter-spacing:.14em;text-transform:uppercase;color:var(--red)}
+.credits p{margin:6px 0 0;font:700 16px/1.3 var(--f-title);letter-spacing:.02em;color:var(--ink)}
+.credits p small{display:block;font:400 13.5px/1.4 var(--f-text);letter-spacing:0;color:var(--ink-2);margin-top:2px}
+.runbar{display:flex;align-items:center;gap:10px 18px;flex-wrap:wrap}
+.ctl{display:flex;align-items:center;gap:8px}
+.lab-s{font:700 12px/1 var(--f-title);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.seedv{font:600 14px/1 var(--f-ui);font-variant-numeric:tabular-nums;color:var(--ink);border-bottom:1px solid var(--grid);padding:3px 1px}
+
+/* ---------- controls ---------- */
+.seg{display:inline-flex;border:1px solid var(--ink);background:var(--panel);position:relative;flex-wrap:wrap}
+.seg input{position:absolute;opacity:0;width:1px;height:1px;pointer-events:none}
+.seg label{border:0;background:transparent;font:600 13.5px/1 var(--f-ui);color:var(--ink);padding:6px 10px;cursor:pointer;white-space:nowrap;display:inline-flex;align-items:center;gap:6px}
+.seg input:not(:first-child)+label{border-left:1px solid var(--ink)}
+.seg label:hover{background:var(--graph)}
+.seg input:checked+label{background:var(--ink);color:#fff}
+.seg input:checked+label .m{color:#fff}
+.seg input:focus-visible+label{outline:2px solid var(--red);outline-offset:1px}
+.seg .m{font-size:15px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;height:30px;padding:0 12px;border:1px solid var(--ink);background:var(--panel);color:var(--ink);border-radius:0;font:700 13px/1 var(--f-title);letter-spacing:.09em;text-transform:uppercase;cursor:pointer;white-space:nowrap}
+.btn:hover{background:var(--ink);color:#fff}
+.btn.ghost{border-color:transparent;background:transparent}
+.btn.ghost:hover{border-color:var(--ink);background:var(--panel);color:var(--ink)}
+.btn svg{width:13px;height:13px;flex:none}
+.fld{width:100%;height:28px;padding:0 6px;border:1px solid var(--grid);border-radius:0;background:var(--panel);color:var(--ink);font:500 14px/1 var(--f-ui);font-variant-numeric:tabular-nums lining-nums;text-align:right;-moz-appearance:textfield;appearance:textfield}
+.fld:hover{border-color:var(--ink-2)}
+.fld:focus{outline:none;border-color:var(--ink);box-shadow:inset 0 -2px 0 var(--red)}
+.fld::-webkit-outer-spin-button,.fld::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.fld:disabled{color:var(--faint);background:var(--paper);border-color:var(--rule-2);cursor:not-allowed}
+.fld.over{border-color:var(--warn-ink);background:var(--warn-bg);color:var(--warn-ink)}
+select.fld{text-align:left;padding-right:2px;cursor:pointer;width:auto;font-weight:600}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:22px;background:transparent;margin:0;cursor:pointer;--fc:var(--ink);--a:0%;--b:0%}
+input[type=range]:focus-visible{outline:none}
+input[type=range]::-webkit-slider-runnable-track{height:3px;background:linear-gradient(to right,var(--rule) var(--a),var(--fc) var(--a),var(--fc) var(--b),var(--rule) var(--b))}
+input[type=range]::-moz-range-track{height:3px;background:linear-gradient(to right,var(--rule) var(--a),var(--fc) var(--a),var(--fc) var(--b),var(--rule) var(--b))}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:15px;height:15px;margin-top:-6px;border-radius:50%;background:var(--panel);border:2px solid var(--fc)}
+input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;background:var(--panel);border:2px solid var(--fc)}
+input[type=range]:focus-visible::-webkit-slider-thumb{box-shadow:0 0 0 3px rgba(232,54,47,.35)}
+input[type=range]:focus-visible::-moz-range-thumb{box-shadow:0 0 0 3px rgba(232,54,47,.35)}
+input[type=range]:disabled{opacity:.35;cursor:not-allowed}
+.pill{display:inline-flex;align-items:center;gap:5px;font:700 11px/1 var(--f-title);letter-spacing:.08em;text-transform:uppercase;padding:3px 6px}
+.pill.ok{background:var(--ok-bg);color:var(--ok-ink)}
+.pill.warn{background:var(--warn-bg);color:var(--warn-ink)}
+.gly{flex:none;display:inline-block;vertical-align:-1px}
+.sq{display:inline-block;width:11px;height:11px;flex:none}
+.sq.lab{background:var(--lab)}.sq.cap{background:var(--cap)}
+
+/* ---------- layout ---------- */
+.app{flex:1;min-height:0;display:grid;grid-template-columns:minmax(360px,396px) minmax(0,1fr);gap:18px}
+.rail{min-height:0;overflow:auto;display:flex;flex-direction:column;gap:14px;padding:0 6px 16px 0;scrollbar-width:thin}
+.main{min-height:0;overflow:auto;display:flex;flex-direction:column;gap:16px;padding:0 4px 20px 0;scrollbar-width:thin}
+.rail>*,.main>*{flex-shrink:0}
+@media (max-width:1000px){html,body{height:auto}body{display:block}.app{grid-template-columns:minmax(0,1fr)}.rail,.main{overflow:visible;padding-right:0}}
+
+/* ---------- rail ---------- */
+.card{background:var(--panel);border-top:2px solid var(--ink);padding:12px 14px 14px;min-width:0}
+.card-h{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px;flex-wrap:wrap}
+.card-h h2{font:700 15px/1.1 var(--f-title);letter-spacing:.1em;text-transform:uppercase;display:flex;align-items:center;gap:8px}
+.card-h h2::before{content:"";width:9px;height:9px;background:var(--red);flex:none}
+.hint{font:400 13px/1.45 var(--f-text);color:var(--muted);margin:8px 0 0}
+.hint .m{font-size:13.5px;color:var(--ink-2)}
+.phi-row{display:grid;grid-template-columns:34px minmax(0,1fr) 64px;gap:10px;align-items:center}
+.phi-row .m{font-size:20px;line-height:1}
+.phi-row.lab input[type=range]{--fc:var(--lab)}
+.phi-row.cap input[type=range]{--fc:var(--cap)}
+.meta{display:flex;flex-wrap:wrap;gap:4px 12px;align-items:center;font-size:13px;color:var(--muted);margin:2px 0 12px 44px}
+.meta:last-of-type{margin-bottom:0}
+.meta b{font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums}
+.tabs{display:flex;gap:22px;border-bottom:1px solid var(--grid);position:sticky;top:0;z-index:3;background:var(--paper)}
+.tabs button{border:0;background:none;font:700 15px/1 var(--f-title);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);padding:9px 0 8px;border-bottom:3px solid transparent;margin-bottom:-1px;cursor:pointer}
+.tabs button:hover{color:var(--ink)}
+.tabs button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--red)}
+.ppl{width:100%;border-collapse:collapse;table-layout:fixed}
+.ppl .c-tag{width:30px}.ppl .c-st{width:36px}.ppl .c-phi{width:54px}.ppl .c-lr{width:50px}
+.ppl th{font:700 11.5px/1.15 var(--f-title);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);text-align:right;padding:0 3px 6px;vertical-align:bottom;border-bottom:1px solid var(--ink)}
+.ppl th .m{text-transform:none;letter-spacing:0;font-size:16px;color:var(--ink)}
+.ppl td{padding:2px 3px;text-align:right;vertical-align:middle}
+.ppl .ro{font:500 13.5px var(--f-ui);font-variant-numeric:tabular-nums;color:var(--ink-2)}
+.ppl tr.pr td{padding:11px 3px 4px;border-top:1px solid var(--rule);text-align:left}
+.ppl tbody tr.pr:first-child td{border-top:0;padding-top:8px}
+.pr-h{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.pname{display:inline-flex;align-items:center;gap:7px;border:0;background:none;padding:2px 7px 2px 3px;margin-left:-3px;font:700 16px/1 var(--f-title);letter-spacing:.04em;text-transform:uppercase;color:var(--ink);cursor:pointer}
+.pname:hover{background:var(--graph)}
+tr.pr.sel .pname{box-shadow:inset 0 -3px 0 var(--pc)}
+.pr-meta{font:500 12.5px var(--f-ui);font-variant-numeric:tabular-nums;color:var(--muted);white-space:nowrap}
+.tag{display:inline-grid;place-items:center;width:24px;height:22px;font:italic 16px/1 var(--f-math)}
+.tag.lab{background:var(--lab-soft);color:var(--lab-ink)}
+.tag.cap{background:var(--cap-soft);color:var(--cap-ink)}
+@media (max-width:460px){.ppl .c-tag{width:26px}.ppl .c-st{width:30px}.ppl .c-phi{width:44px}.ppl .c-lr{width:42px}.ppl td{padding:2px 1px}.ppl .fld{padding:0 3px;font-size:12.5px}.ppl .ro{font-size:12.5px}}
+.alloc{width:100%;border-collapse:collapse;font-size:14px}
+.alloc th{font:700 11.5px/1.15 var(--f-title);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);text-align:right;padding:0 4px 6px;white-space:nowrap;border-bottom:1px solid var(--ink)}
+.alloc th:first-child,.alloc td:first-child{text-align:left}
+.alloc td{padding:3px 4px;text-align:right}
+.alloc td:first-child{white-space:nowrap}
+.alloc .who{display:inline-flex;align-items:center;gap:7px;font:700 15px/1 var(--f-title);letter-spacing:.04em;text-transform:uppercase}
+.alloc .pos{font:600 11px/1 var(--f-title);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-left:3px}
+.alloc .fld{width:66px}
+.alloc td.ro{font-weight:500;font-variant-numeric:tabular-nums;color:var(--ink-2)}
+.alloc tfoot td{border-top:1px solid var(--ink);font-weight:700;font-variant-numeric:tabular-nums;padding-top:7px}
+.alloc tfoot td.bad{color:var(--red)}
+.alloc tfoot tr.left td{border-top:0;font-weight:500;color:var(--muted);padding-top:1px}
+.alloc tfoot tr.left td.warn{color:var(--warn-ink);font-weight:700}
+.alloc tbody tr.moved td{animation:moved 1.2s ease-out}
+@keyframes moved{from{background:var(--cream)}to{background:transparent}}
+.caps{display:flex;gap:14px;flex-wrap:wrap;align-items:center}
+.caps label{display:inline-flex;align-items:center;gap:7px;font-weight:600;color:var(--ink-2)}
+.caps .fld{width:72px}
+.presets{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:6px}
+.preset{display:flex;flex-direction:column;align-items:flex-start;gap:7px;padding:9px 10px 8px;border:1px solid var(--grid);background:var(--panel);cursor:pointer;font:700 13px/1.1 var(--f-title);letter-spacing:.07em;text-transform:uppercase;color:var(--ink);text-align:left}
+.preset:hover{border-color:var(--ink);background:var(--cream)}
+.preset .shp{color:var(--red)}
+
+/* ---------- period bar + key figures ---------- */
+.scrub{position:sticky;top:0;z-index:6;display:flex;align-items:center;gap:10px 14px;flex-wrap:wrap;background:var(--panel);border-bottom:1px solid var(--ink);padding:9px 12px}
+.transport{display:flex;gap:4px}
+.transport .btn{width:30px;height:30px;padding:0}
+.transport svg{width:12px;height:12px;fill:currentColor}
+#play{background:var(--ink);color:#fff}
+#play:hover{background:var(--red);border-color:var(--red)}
+.scrub input[type=range]{flex:1 1 240px;min-width:0}
+.tread{font:600 14px/1 var(--f-ui);color:var(--muted);white-space:nowrap;min-width:96px;text-align:right;font-variant-numeric:tabular-nums}
+.tread b{font:800 22px/1 var(--f-title);color:var(--ink)}
+.tread .m{font-size:17px;color:var(--ink)}
+.kbd-hint{font-size:12.5px;color:var(--muted);white-space:nowrap}
+kbd{font:600 11.5px/1 var(--f-ui);border:1px solid var(--grid);border-bottom-width:2px;padding:2px 5px;background:var(--panel);color:var(--ink-2)}
+@media (max-width:1200px){.kbd-hint{display:none}}
+.figures{background:var(--panel);border-top:2px solid var(--ink);padding:10px 16px 14px}
+.rub{display:flex;flex-direction:column;align-items:center;gap:6px;font:700 13.5px/1 var(--f-title);letter-spacing:.18em;text-transform:uppercase;color:var(--ink);margin-bottom:8px}
+.rub::after{content:"";width:48px;height:2px;background:var(--ink)}
+.kpis{display:grid;grid-template-columns:repeat(5,minmax(0,1fr))}
+.kpi{padding:6px 16px 4px;border-left:1px solid var(--rule);min-width:0}
+.kpi:first-child{border-left:0;padding-left:4px}
+.kpi .v{font:800 40px/1 var(--f-title);font-variant-numeric:tabular-nums lining-nums;color:var(--ink);white-space:nowrap;overflow:hidden;display:flex;align-items:center;gap:8px}
+.kpi .v.stroke{color:transparent;-webkit-text-stroke:1.4px var(--red)}
+.kpi .v.txt{font:800 27px/1.48 var(--f-title);text-transform:uppercase;letter-spacing:.01em}
+.kpi .v.txt .shp{color:var(--red)}
+.kpi .v small{font:700 18px/1 var(--f-title);color:var(--muted);-webkit-text-stroke:0}
+.kpi .k{font:700 14px/1.2 var(--f-ui);color:var(--ink);margin-top:5px}
+.kpi .s{font:400 13px/1.35 var(--f-text);color:var(--ink-2);margin-top:1px}
+@media (max-width:1300px){.kpis{grid-template-columns:repeat(3,minmax(0,1fr))}.kpi{border-top:1px solid var(--rule-2);padding-top:10px}.kpi:nth-child(-n+3){border-top:0}.kpi:nth-child(4){border-left:0;padding-left:4px}}
+@media (max-width:620px){.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.kpi{border-left:0;padding-left:4px}.kpi:nth-child(3){border-top:1px solid var(--rule-2)}.kpi:last-child{grid-column:span 2}}
+
+/* ---------- figure board ---------- */
+.board{display:grid;grid-template-columns:minmax(0,1fr);gap:16px}
+@media (min-width:1360px){.board{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}.span2{grid-column:1/-1}}
+.panel{background:var(--panel);border-top:5px solid var(--red);padding:13px 18px 16px;min-width:0;display:flex;flex-direction:column;gap:8px}
+.ph{display:flex;justify-content:space-between;align-items:flex-start;gap:8px 16px;flex-wrap:wrap}
+.ph>div:first-child{min-width:0;flex:1 1 300px}
+.kick{font:700 12.5px/1 var(--f-title);letter-spacing:.14em;text-transform:uppercase;color:var(--muted);display:flex;align-items:baseline;gap:7px;margin-bottom:7px}
+.kick .no{color:var(--red);font-size:17px;letter-spacing:0}
+.tm{font:700 23px/1.05 var(--f-title);text-transform:uppercase;letter-spacing:.005em;color:var(--ink)}
+.st{font:700 14.5px/1.25 var(--f-ui);color:var(--ink);margin:6px 0 0;max-width:80ch}
+.st .m{font-size:15px}
+.src{font:500 12.5px/1.3 var(--f-ui);color:var(--muted);margin:2px 0 0}
+.ph-aside{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.legend{display:flex;flex-wrap:wrap;gap:6px 18px;font:600 13px/1.2 var(--f-ui);color:var(--ink);align-items:center}
+.lg{display:inline-flex;align-items:center;gap:7px}
+.lg .m{font-size:15px}
+label.lg{cursor:pointer;user-select:none}
+label.lg input{accent-color:var(--ink);margin:0}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip-t{display:inline-flex;align-items:center;gap:7px;height:27px;padding:0 10px 0 8px;border:1px solid var(--ink);background:var(--panel);font:700 13.5px/1 var(--f-title);letter-spacing:.07em;text-transform:uppercase;color:var(--ink);cursor:pointer}
+.chip-t:hover{background:var(--graph)}
+.chip-t[aria-pressed="false"]{color:var(--faint);border-color:var(--rule);text-decoration:line-through}
+.chip-t[aria-pressed="false"] .gly *{fill:none;stroke:var(--faint);stroke-width:1.2}
+.chart{position:relative;width:100%;min-width:0;margin-top:4px}
+.chart svg{display:block;width:100%;height:auto;overflow:visible}
+.chart .tk{font:500 12px var(--f-ui);fill:var(--muted)}
+.chart .at{font:600 12px var(--f-ui);fill:var(--muted)}
+.chart .lb{font:700 13px var(--f-title);letter-spacing:.05em;text-transform:uppercase;fill:var(--ink)}
+.chart .lbs{font:500 12px var(--f-ui);fill:var(--muted)}
+.chart .val{font:700 13px var(--f-ui);fill:var(--ink)}
+.chart .valr{font:700 13px var(--f-ui);fill:var(--red)}
+.chart .big{font:800 20px var(--f-title);fill:var(--ink)}
+.chart .mt{font-family:var(--f-math);font-style:italic;font-weight:400;font-size:14.5px;fill:var(--ink-2)}
+.chart .gl{stroke:var(--grid);stroke-width:1;stroke-dasharray:1 3}
+.chart .base{stroke:var(--ink);stroke-width:1}
+.chart .bigr{font:800 26px var(--f-title);fill:var(--red)}
+.chart .halo{paint-order:stroke;stroke:var(--panel);stroke-width:3.5px;stroke-linejoin:round}
+.phibox{display:flex;align-items:baseline;gap:6px 16px;flex-wrap:wrap;background:var(--panel);padding:8px 14px;border-left:4px solid var(--red)}
+.phibox .m{font-size:19px}
+.phibox small{font:700 11.5px/1 var(--f-title);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.lecture{font:400 14px/1.45 var(--f-text);color:var(--ink);margin:4px 0 0;max-width:90ch}
+.lecture b{font:700 14px/1 var(--f-ui)}
+.lecture .m{font-size:14.5px}
+.readouts{display:flex;flex-wrap:wrap;gap:4px 22px;font-size:13px;color:var(--muted)}
+.readouts b{font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums}
+.note{font:400 13px/1.4 var(--f-text);color:var(--warn-ink);background:var(--warn-bg);padding:6px 10px;margin:0}
+.note b{font:700 13px var(--f-ui)}
+.tblwrap{overflow-x:auto;min-width:0}
+.dt{width:100%;border-collapse:collapse;font-size:14px;min-width:400px}
+.dt th{font:700 11.5px/1.15 var(--f-title);text-transform:uppercase;letter-spacing:.08em;color:var(--muted);text-align:right;padding:6px 8px;border-bottom:1px solid var(--ink);white-space:nowrap}
+.dt th .m{text-transform:none;letter-spacing:0;font-size:15px;color:var(--ink)}
+.dt td{padding:5px 8px;text-align:right;border-bottom:1px solid var(--rule-2);font-variant-numeric:tabular-nums;white-space:nowrap}
+.dt th:first-child,.dt td:first-child{text-align:left}
+.dt td:first-child{display:flex;align-items:center;gap:7px;font:700 14px/1.3 var(--f-title);letter-spacing:.05em;text-transform:uppercase}
+.dt tbody tr:last-child td{border-bottom:0}
+details.disc>summary{cursor:pointer;list-style:none;display:flex;align-items:center;gap:9px;font:700 13px/1 var(--f-title);letter-spacing:.1em;text-transform:uppercase;color:var(--ink);width:fit-content}
+details.disc>summary::-webkit-details-marker{display:none}
+details.disc>summary::before{content:"";width:6px;height:6px;border-right:2px solid var(--red);border-bottom:2px solid var(--red);transform:rotate(-45deg);transition:transform .15s;margin-left:2px}
+details.disc[open]>summary::before{transform:rotate(45deg)}
+details.disc>summary small{font:400 13px var(--f-text);letter-spacing:0;text-transform:none;color:var(--muted)}
+details.disc[open]>summary{margin-bottom:10px}
+
+/* ---------- model ---------- */
+.panel.model{background:var(--cream);border-top-color:var(--ink)}
+/* aligned display equations: left side | relation | right side | number, like an align environment */
+.m .bop{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;line-height:1;margin:0 .14em 0 .2em}
+.m .bop .sym{font-size:1.75em;line-height:.84}
+.m .bop .lim{font-size:.58em;line-height:1.15;font-style:normal;white-space:nowrap}
+.m .gap{display:inline-block;width:1.3em}
+.m .ss,.m .bop,.m .hat{text-indent:0}
+.m .el{text-align:right;white-space:nowrap}
+.m .er{padding:0 .34em;text-align:center}
+.m .ex{white-space:nowrap}
+.m .ex.cont{padding-left:.9em}
+/* equation sheets: one block per rubric (labor | capital, then total, then closed form), relation signs aligned inside each block */
+.eqgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;font-size:20px;line-height:1.4}
+.eqgrid.boxed{background:var(--cream);padding:12px}
+.eqb{background:var(--panel);border-top:3px solid var(--ink);padding:11px 18px 12px;min-width:0;overflow-x:auto;display:flex;flex-direction:column}
+.eqb.lab{border-top-color:var(--lab)}.eqb.cap{border-top-color:var(--cap)}.eqb.tot{border-top-color:var(--red)}.eqb.cf{border-top-color:var(--ink)}
+.eqb.wide{grid-column:1/-1}
+.eqb-h{display:flex;align-items:baseline;gap:10px;margin-bottom:10px;font:700 13px/1 var(--f-title);letter-spacing:.12em;text-transform:uppercase;color:var(--ink);font-style:normal}
+.eqb-h .no{margin-left:auto;font:400 15px/1 var(--f-math);letter-spacing:0;text-transform:none;color:var(--muted)}
+.al{display:grid;grid-template-columns:max-content max-content minmax(max-content,1fr) auto;align-items:baseline}
+.al>*{padding-top:4px}
+.al>*:nth-child(-n+4){padding-top:0}
+.al .cond{font-size:.86em;color:var(--ink-2)}
+.al .stag{font:700 11px/1 var(--f-title);letter-spacing:.12em;text-transform:uppercase;padding-left:20px;text-align:right;font-style:normal;white-space:nowrap}
+.al .stag.lab{color:var(--lab-ink)}.al .stag.cap{color:var(--cap-ink)}
+.eqb .where{margin-top:auto;padding-top:10px;font:400 13px/1.5 var(--f-text);color:var(--muted)}
+.eqb .where::before{content:"";display:block;border-top:1px solid var(--rule-2);margin-bottom:8px}
+.eqb .where .m{font-size:14px;color:var(--ink-2)}
+.eqb .where b{font:600 13px/1 var(--f-ui);color:var(--ink);font-variant-numeric:tabular-nums}
+.m .sim{display:inline-block;font-size:1.15em;line-height:1;position:relative;top:-.04em}
+@media (max-width:760px){.eqgrid{grid-template-columns:minmax(0,1fr);font-size:18px}.eqgrid.boxed{padding:8px}.eqb{padding:10px 12px}.al{grid-template-columns:max-content max-content minmax(0,1fr) 0}.al .ex{white-space:normal;padding-left:1.1em;text-indent:-1.1em}.al .stag{font-size:0;padding:0;overflow:hidden}.peq{font-size:16px}}
+.pcards{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:10px}
+.pcard{text-align:left;font:inherit;color:inherit;background:var(--panel);border:1px solid var(--rule);border-top:2px solid var(--ink);padding:10px 14px 13px;cursor:pointer;display:block;min-width:0;overflow-x:auto}
+.pcard:hover{border-color:var(--ink-2)}
+.pcard.sel{outline:2px solid var(--pc);outline-offset:-2px}
+.pcard .who{display:flex;align-items:center;gap:7px;font:700 15px/1 var(--f-title);letter-spacing:.06em;text-transform:uppercase;margin-bottom:8px}
+.pcard .who small{font:500 12.5px var(--f-ui);letter-spacing:0;text-transform:none;color:var(--muted);margin-left:auto}
+.peq{display:grid;grid-template-columns:max-content max-content minmax(max-content,1fr);align-items:baseline;font-size:17px;line-height:1.35}
+.peq>*{padding-top:2px}
+.peq>.gs{padding-top:11px}
+.cmp-controls{display:flex;flex-direction:column;gap:8px;background:var(--cream);padding:10px 12px}
+.cmp-row{display:flex;align-items:center;gap:8px 10px;flex-wrap:wrap}
+.cmp-row .lab-s{min-width:56px}
+
+/* ---------- notes + footer ---------- */
+.exergue{text-align:center;font:500 22px/1.25 var(--f-ui);color:var(--ink);margin:6px auto 14px;max-width:34ch;text-wrap:balance}
+.exergue::before,.exergue::after{content:"";display:block;width:64px;height:12px;background:var(--red);margin:0 auto}
+.exergue::before{margin-bottom:14px}.exergue::after{margin-top:14px}
+.about{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px 26px}
+.about h3{font:700 15px/1.2 var(--f-title);letter-spacing:.06em;text-transform:uppercase;margin-bottom:4px;display:flex;gap:7px;align-items:baseline}
+.about h3 .no{color:var(--red)}
+.about p{margin:0;font:400 14px/1.5 var(--f-text);color:var(--ink-2);max-width:62ch}
+.about .m{font-size:14.5px}
+.foot{display:flex;justify-content:space-between;gap:8px 20px;flex-wrap:wrap;font:600 12px/1.3 var(--f-title);letter-spacing:.12em;text-transform:uppercase;color:var(--muted);padding:10px 2px 0;border-top:1px solid var(--ink)}
+.foot .sig{display:inline-flex;align-items:center;gap:8px}
+.foot .sig::before{content:"";width:8px;height:8px;background:var(--red)}
+
+/* ---------- tooltip ---------- */
+#tip{position:fixed;z-index:50;pointer-events:none;background:var(--ink);color:#fff;padding:8px 11px;font:500 13px/1.45 var(--f-ui);box-shadow:0 10px 26px -12px rgba(0,0,0,.5);min-width:170px;max-width:310px}
+#tip .th{font:700 13.5px/1.3 var(--f-title);letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px;border-bottom:2px solid var(--red);padding-bottom:4px}
+#tip .tr{display:flex;justify-content:space-between;align-items:center;gap:18px}
+#tip .tr>span:first-child{color:#cfcdc6;display:inline-flex;align-items:center;gap:6px}
+#tip .tr b{font-weight:700;font-variant-numeric:tabular-nums}
+#tip .gly *{stroke:var(--ink)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<header class="mast">
+  <div>
+    <p class="kicker">Inequality dynamics · Interactive simulator</p>
+    <h1>Inequality Persistence Simulator</h1>
+    <p class="dek">How the mix of labor and capital income shapes the persistence of income shares, the Lorenz curve and the Gini coefficient, with <span class="m"><i>y</i><span class="rel">=</span><i>w</i><span class="op">+</span><i>f</i></span>.</p>
+    <p class="byline"><span class="nw">By <b>Abdelhamid El Hamrani</b> and <b>Hajar Hazmiri</b></span><span class="dot"></span><span class="nw">Supervised by <b>Prof. Ramses Abul Naga</b></span><span class="aff">Mohammed VI Polytechnic University (UM6P) · Faculty of Governance, Economics and Social Sciences</span></p>
+  </div>
+  <div class="runbar" role="group" aria-label="Run settings">
+    <div class="ctl"><span class="lab-s" id="lbl-T">Periods</span>
+      <div class="seg" role="radiogroup" aria-labelledby="lbl-T">
+        <input type="radio" name="T" id="T-110" value="110"><label for="T-110">110</label>
+        <input type="radio" name="T" id="T-500" value="500"><label for="T-500">500</label>
+        <input type="radio" name="T" id="T-2000" value="2000"><label for="T-2000">2000</label>
+      </div></div>
+    <div class="ctl"><span class="lab-s" id="lbl-mode">Units</span>
+      <div class="seg" role="radiogroup" aria-labelledby="lbl-mode">
+        <input type="radio" name="mode" id="mode-individual" value="individual"><label for="mode-individual">Individuals</label>
+        <input type="radio" name="mode" id="mode-rank" value="rank"><label for="mode-rank">Rank slots</label>
+      </div></div>
+    <div class="ctl"><span class="lab-s">Seed</span><span class="seedv" id="seed-val"></span>
+      <button class="btn" id="reseed" type="button"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M13.5 8a5.5 5.5 0 1 1-1.6-3.9" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square"/><path d="M14 2.2v3.6h-3.6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square"/></svg>New draw</button></div>
+    <button class="btn ghost" id="reset" type="button">Reset</button>
+  </div>
+</header>
+
+<div class="app">
+  <aside class="rail" aria-label="Parameters">
+    <section class="card" aria-labelledby="h-pers">
+      <div class="card-h"><h2 id="h-pers">Persistence</h2>
+        <div class="seg" role="radiogroup" aria-label="Persistence set for">
+          <input type="radio" name="phimode" id="phimode-same" value="same"><label for="phimode-same">Shared</label>
+          <input type="radio" name="phimode" id="phimode-person" value="person"><label for="phimode-person">By person</label>
+        </div></div>
+      <div class="phi-row lab"><label class="m" for="n-phi-0"><i>φ</i><sub>L</sub></label><input type="range" id="r-phi-0" min="-1" max="1" step="0.01" aria-label="Labor persistence"><input class="fld" type="number" id="n-phi-0" min="-1" max="1" step="0.01" aria-label="Labor persistence value"></div>
+      <div class="meta" id="stats-0"></div>
+      <div class="phi-row cap"><label class="m" for="n-phi-1"><i>φ</i><sub>K</sub></label><input type="range" id="r-phi-1" min="-1" max="1" step="0.01" aria-label="Capital persistence"><input class="fld" type="number" id="n-phi-1" min="-1" max="1" step="0.01" aria-label="Capital persistence value"></div>
+      <div class="meta" id="stats-1"></div>
+      <p class="hint" id="phimode-hint" hidden>Each person's <span class="m"><i>φ</i><sub>L</sub></span> and <span class="m"><i>φ</i><sub>K</sub></span> are set in the Parameters tab. The shared sliders are paused.</p>
+    </section>
+
+    <div class="tabs" role="tablist" aria-label="Parameter groups">
+      <button role="tab" id="tab-people" aria-controls="pane-people" type="button">Parameters</button>
+      <button role="tab" id="tab-alloc" aria-controls="pane-alloc" type="button">Allocation</button>
+    </div>
+
+    <div id="pane-people" role="tabpanel" aria-labelledby="tab-people">
+      <section class="card">
+        <div class="card-h"><h2>By person</h2></div>
+        <table class="ppl" aria-label="Parameters by person">
+          <colgroup><col class="c-tag"><col class="c-st"><col class="c-phi"><col><col><col><col class="c-lr"></colgroup>
+          <thead><tr><th></th><th>Start</th><th><span class="m"><i>φ</i></span></th><th><span class="m"><i>β</i></span></th><th>Trend</th><th><span class="m"><i>σ</i></span></th><th>Long run</th></tr></thead>
+          <tbody id="ppl-body"></tbody>
+        </table>
+        <p class="hint">Row <span class="m"><i>w</i></span> holds <span class="m"><i>φ</i><sub>L</sub></span>, <span class="m"><i>β</i><sub>W</sub></span>, <span class="m"><i>β</i><sub>W,trend</sub></span>, <span class="m"><i>σ</i><sub>L</sub></span>; row <span class="m"><i>f</i></span> holds <span class="m"><i>φ</i><sub>K</sub></span>, <span class="m"><i>β</i><sub>F</sub></span>, <span class="m"><i>β</i><sub>F,trend</sub></span>, <span class="m"><i>σ</i><sub>K</sub></span>. Type a value, or select a cell and turn the mouse wheel (Shift for steps ten times larger). Negative values are allowed. Long run is the level income settles at without shocks; a <span class="m"><i>σ</i></span> above it is flagged.</p>
+      </section>
+    </div>
+
+    <div id="pane-alloc" role="tabpanel" aria-labelledby="tab-alloc" hidden>
+      <section class="card">
+        <div class="card-h"><h2>Period-0 allocation</h2>
+          <div class="seg" role="radiogroup" aria-label="Enter allocation as">
+            <input type="radio" name="entry" id="entry-units" value="units"><label for="entry-units">Units</label>
+            <input type="radio" name="entry" id="entry-pct" value="pct"><label for="entry-pct">Percent</label>
+          </div></div>
+        <div class="caps">
+          <label for="cap-0"><span class="sq lab"></span>Labor cap <input class="fld" type="number" id="cap-0" min="10" max="5000" step="10"></label>
+          <label for="cap-1"><span class="sq cap"></span>Capital cap <input class="fld" type="number" id="cap-1" min="10" max="5000" step="10"></label>
+        </div>
+        <table class="alloc" aria-label="Period-0 allocation" style="margin-top:12px">
+          <thead><tr><th>Person</th><th id="h-w">Labor</th><th id="h-k">Capital</th><th id="h-y">Total</th><th>K / Y</th></tr></thead>
+          <tbody id="alloc-body"></tbody>
+          <tfoot><tr><td>Total</td><td id="sum-w"></td><td id="sum-k"></td><td id="sum-y"></td><td id="sum-f"></td></tr>
+          <tr class="left"><td>Unallocated</td><td id="left-w"></td><td id="left-k"></td><td></td><td></td></tr></tfoot>
+        </table>
+        <p class="hint" id="entry-hint"></p>
+      </section>
+      <section class="card">
+        <div class="card-h"><h2>Profile presets</h2></div>
+        <div class="presets" id="presets"></div>
+        <p class="hint">A preset sets the allocation (the more persistent source receives the pattern the profile needs) and resets each person's parameters so that each income fluctuates around its own start: <span class="m"><i>β</i><span class="rel">=</span>(1<span class="op">−</span><i>φ</i>)<span class="op">×</span>start</span>, trend 0, <span class="m"><i>σ</i><span class="rel">=</span>start/10</span>.</p>
+      </section>
+    </div>
+  </aside>
+
+  <main class="main" aria-label="Results">
+    <div class="scrub" role="group" aria-label="Period">
+      <div class="transport">
+        <button class="btn" id="t-first" type="button" aria-label="First period"><svg viewBox="0 0 16 16"><rect x="2.5" y="3" width="1.8" height="10"/><path d="M13 3.2L5.6 8 13 12.8z"/></svg></button>
+        <button class="btn" id="t-prev" type="button" aria-label="Previous period"><svg viewBox="0 0 16 16"><path d="M11.5 3.2L4.2 8l7.3 4.8z"/></svg></button>
+        <button class="btn" id="play" type="button" aria-label="Play through periods"><svg viewBox="0 0 16 16" id="play-ico"><path d="M4.5 2.6L13 8l-8.5 5.4z"/></svg></button>
+        <button class="btn" id="t-next" type="button" aria-label="Next period"><svg viewBox="0 0 16 16"><path d="M4.5 3.2L11.8 8l-7.3 4.8z"/></svg></button>
+        <button class="btn" id="t-last" type="button" aria-label="Last period"><svg viewBox="0 0 16 16"><path d="M3 3.2L10.4 8 3 12.8z"/><rect x="11.7" y="3" width="1.8" height="10"/></svg></button>
+      </div>
+      <input type="range" id="t-slider" min="0" max="110" value="110" aria-label="Period">
+      <span class="tread" id="t-val"></span>
+      <span class="kbd-hint"><kbd>←</kbd> <kbd>→</kbd> step · <kbd>Space</kbd> play</span>
+    </div>
+
+    <section class="figures" aria-label="Key figures at the selected period">
+      <div class="rub">In figures</div>
+      <div class="kpis" id="kpis" aria-live="polite"></div>
+    </section>
+
+    <div class="board">
+      <article class="panel model span2" id="panel-model">
+        <header class="ph">
+          <div><div class="kick">The model</div><h2 class="tm">Each person earns labor and capital income</h2>
+          <p class="st">One AR(1) process per source, with a constant and a time trend; total income is their sum. Numbers in color are the current settings: blue for labor, ochre for capital.</p></div>
+          <div class="ph-aside" id="model-phi"></div>
+        </header>
+        <div class="eqgrid m" id="model-eqs"></div>
+        <details class="disc" open><summary>Equations by person <small>select a card to open that person's series</small></summary><div class="pcards" id="people-eqs"></div></details>
+      </article>
+
+      <article class="panel" id="panel-profile">
+        <header class="ph"><div><div class="kick"><span class="no">1</span>Persistence profile</div><h2 class="tm" id="tm-profile"></h2><p class="st" id="st-profile"></p><p class="src" id="src-profile"></p></div></header>
+        <div class="legend" id="profile-legend"></div>
+        <div class="chart" id="profile-chart"></div>
+        <p class="lecture" id="rd-profile"></p>
+        <p class="note" id="profile-note" hidden></p>
+        <details class="disc"><summary>Values by person</summary><div class="tblwrap"><table class="dt" id="profile-table"></table></div></details>
+      </article>
+
+      <article class="panel" id="panel-lorenz">
+        <header class="ph"><div><div class="kick"><span class="no">2</span>Lorenz curve and Gini coefficient</div><h2 class="tm" id="tm-lorenz"></h2><p class="st" id="st-lorenz"></p><p class="src">Source: simulation, displayed sample path</p></div></header>
+        <div class="legend">
+          <span class="lg"><span class="sq" style="background:var(--red)"></span>Selected period</span>
+          <span class="lg"><span class="sq" style="background:var(--grey)"></span>Period 0</span>
+          <span class="lg"><span class="sq" style="background:var(--band);outline:1px solid var(--rule)"></span>5th–95th percentile over the path</span>
+        </div>
+        <div class="chart" id="lorenz-chart"></div>
+        <div class="chart" id="gini-chart"></div>
+        <p class="lecture" id="rd-lorenz"></p>
+      </article>
+
+      <article class="panel span2" id="panel-indiv">
+        <header class="ph">
+          <div><div class="kick"><span class="no">3</span>Individual series</div><h2 class="tm" id="tm-indiv"></h2><p class="st" id="st-indiv"></p><p class="src" id="src-indiv"></p></div>
+          <div class="ph-aside">
+            <div class="seg" role="radiogroup" aria-label="View">
+              <input type="radio" name="iview" id="iview-one" value="one"><label for="iview-one">One person</label>
+              <input type="radio" name="iview" id="iview-cmp" value="cmp"><label for="iview-cmp">Compare</label>
+            </div>
+            <select class="fld" id="person-select" aria-label="Person shown"></select>
+          </div>
+        </header>
+        <div id="cmp-controls" class="cmp-controls" hidden>
+          <div class="cmp-row"><span class="lab-s">People</span><div class="chips" id="cmp-chips"></div><button class="btn ghost" type="button" id="cmp-all">All</button><button class="btn ghost" type="button" id="cmp-none">None</button></div>
+          <div class="cmp-row"><span class="lab-s">Series</span>
+            <div class="seg" role="radiogroup" aria-label="Series compared">
+              <input type="radio" name="cvar" id="cvar-y" value="y"><label for="cvar-y">Total <span class="m"><i>y</i></span></label>
+              <input type="radio" name="cvar" id="cvar-w" value="w"><label for="cvar-w">Labor <span class="m"><i>w</i></span></label>
+              <input type="radio" name="cvar" id="cvar-f" value="f"><label for="cvar-f">Capital <span class="m"><i>f</i></span></label>
+              <input type="radio" name="cvar" id="cvar-s" value="s"><label for="cvar-s">Share</label>
+            </div>
+            <label class="lg" for="cmp-e"><input type="checkbox" id="cmp-e">No-shock paths</label>
+          </div>
+        </div>
+        <div class="eqgrid boxed m" id="indiv-eq" aria-live="polite"></div>
+        <div class="legend" id="one-legend">
+          <label class="lg" for="show-y"><input type="checkbox" id="show-y"><span class="sq" style="background:var(--red)"></span>Total <span class="m"><i>y</i></span></label>
+          <label class="lg" for="show-w"><input type="checkbox" id="show-w"><span class="sq lab"></span>Labor <span class="m"><i>w</i></span></label>
+          <label class="lg" for="show-f"><input type="checkbox" id="show-f"><span class="sq cap"></span>Capital <span class="m"><i>f</i></span></label>
+          <label class="lg" for="show-e"><input type="checkbox" id="show-e"><svg width="20" height="10" aria-hidden="true"><line x1="1" y1="5" x2="19" y2="5" stroke="var(--grey)" stroke-width="2" stroke-dasharray="4 3"/></svg>No-shock path of <span class="m"><i>y</i></span></label>
+        </div>
+        <div class="chart" id="indiv-chart"></div>
+        <p class="lecture" id="rd-indiv"></p>
+        <div class="tblwrap" id="cmp-wrap" hidden><table class="dt" id="cmp-table"></table></div>
+      </article>
+
+      <article class="panel span2" id="panel-series">
+        <header class="ph"><div><div class="kick"><span class="no">4</span>Income shares over time</div><h2 class="tm" id="tm-series"></h2><p class="st">Share of each person in total income along the displayed sample path, in %</p><p class="src">Source: simulation · select a name to hide or show it, select the chart to move the period marker</p></div></header>
+        <div class="chips" id="series-legend"></div>
+        <div class="chart" id="series-chart"></div>
+        <p class="lecture" id="rd-series"></p>
+      </article>
+
+      <article class="panel" id="panel-comp">
+        <header class="ph"><div><div class="kick"><span class="no">5</span>Income by person</div><h2 class="tm" id="tm-comp"></h2><p class="st" id="st-comp"></p><p class="src">Source: simulation, displayed sample path</p></div></header>
+        <div class="legend">
+          <span class="lg"><span class="sq lab"></span>Labor <span class="m"><i>w</i></span></span>
+          <span class="lg"><span class="sq cap"></span>Capital <span class="m"><i>f</i></span></span>
+          <span class="lg"><svg width="20" height="10" aria-hidden="true"><line x1="1" y1="5" x2="19" y2="5" stroke="var(--ink)" stroke-width="2.5"/></svg>Total at period 0</span>
+        </div>
+        <div class="chart" id="comp-chart"></div>
+        <p class="lecture" id="rd-comp"></p>
+      </article>
+
+      <article class="panel" id="panel-about" style="border-top-color:var(--ink)">
+        <header class="ph"><div><div class="kick">Notes</div><h2 class="tm">About the model</h2></div></header>
+        <p class="exergue">The persistence of an income share reflects the mix of income sources behind it</p>
+        <div class="about">
+          <div><h3><span class="no">1.</span>Timing</h3><p>Period 0 is the allocation, <span class="m"><i>w</i><sub><i>i</i>,0</sub></span> and <span class="m"><i>f</i><sub><i>i</i>,0</sub></span>. The recursion runs for <span class="m"><i>t</i><span class="rel">=</span>1, …, <i>T</i></span>. r_Labor_Persist.m starts its index at 1, so its trend term is shifted by one period.</p></div>
+          <div><h3><span class="no">2.</span>Parameters</h3><p>Each person has their own <span class="m"><i>β</i></span>, trend and <span class="m"><i>σ</i></span> for each source. <span class="m"><i>φ</i><sub>L</sub></span> and <span class="m"><i>φ</i><sub>K</sub></span> are shared unless set by person.</p></div>
+          <div><h3><span class="no">3.</span>Measuring persistence</h3><p><span class="m"><span class="hat"><i>ρ</i></span>(1)</span> is the first-order sample autocorrelation of each share, computed on its fluctuations around the no-shock path and averaged over the simulated samples. Whiskers show the 5th–95th percentiles across samples.</p></div>
+          <div><h3><span class="no">4.</span>Theory line</h3><p>A first-order linearization of each share around the long-run levels, for fixed individuals. It requires <span class="m">|<i>φ</i>|<span class="rel">&lt;</span>1</span> for both sources and every trend at zero.</p></div>
+          <div><h3><span class="no">5.</span>Units</h3><p>Rank slots re-sort people by total income every period; a slot is then a position in the distribution rather than a person.</p></div>
+          <div><h3><span class="no">6.</span>Random numbers</h3><p>A Mulberry32 generator with Box–Muller normals; each person, source and sample has its own stream, so parameter changes reuse the same shocks.</p></div>
+        </div>
+        <div class="credits" aria-label="Credits">
+          <div><span class="cl">Authors</span><p>Abdelhamid El Hamrani</p><p>Hajar Hazmiri</p></div>
+          <div><span class="cl">Supervisor</span><p>Prof. Ramses Abul Naga</p></div>
+          <div><span class="cl">University</span><p>Mohammed VI Polytechnic University (UM6P)<small>Faculty of Governance, Economics and Social Sciences (FGSES)</small></p></div>
+        </div>
+      </article>
+    </div>
+
+    <footer class="foot">
+      <span class="sig">Inequality Persistence Simulator · v1.1 · UM6P – FGSES</span>
+      <span id="foot-run"></span>
+    </footer>
+  </main>
+</div>
+
+<div id="tip" hidden></div>
+<script>
+
+/* ================= model ================= */
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function hashSeed(){let h=2166136261>>>0;for(let i=0;i<arguments.length;i++){h^=(arguments[i]>>>0);h=Math.imul(h,16777619)>>>0;h^=h>>>13;h=Math.imul(h,0x5bd1e995)>>>0;}return h>>>0;}
+function normalStream(seed){const u=mulberry32(seed);let spare=null;return function(){if(spare!==null){const s=spare;spare=null;return s;}let a=0;while(a===0)a=u();const b=u();const r=Math.sqrt(-2*Math.log(a));spare=r*Math.sin(2*Math.PI*b);return r*Math.cos(2*Math.PI*b);};}
+function acf1(x,n){let m=0;for(let t=0;t<n;t++)m+=x[t];m/=n;let num=0,den=0;for(let t=0;t<n;t++){const d=x[t]-m;den+=d*d;if(t>0)num+=d*(x[t-1]-m);}return den>1e-24?num/den:NaN;}
+function pctile(sorted,p){if(!sorted.length)return NaN;const h=(sorted.length-1)*p,lo=Math.floor(h),hi=Math.ceil(h);return sorted[lo]+(sorted[hi]-sorted[lo])*(h-lo);}
+function classify(v){
+  const n=v.length; if(v.some(x=>!isFinite(x))) return 'Undetermined';
+  const mx=Math.max(...v),mn=Math.min(...v),R=mx-mn;
+  if(R<0.03) return 'Flat';
+  const tol=Math.max(0.004,0.08*R),d=[];for(let i=1;i<n;i++)d.push(v[i]-v[i-1]);
+  if(d.every(x=>x>=-tol)) return 'Increasing';
+  if(d.every(x=>x<=tol)) return 'Decreasing';
+  const iMax=v.indexOf(mx),iMin=v.indexOf(mn);
+  if(iMax>0&&iMax<n-1&&mx-v[0]>tol&&mx-v[n-1]>tol){let ok=true;for(let i=1;i<=iMax;i++)if(d[i-1]<-tol)ok=false;for(let i=iMax+1;i<n;i++)if(d[i-1]>tol)ok=false;if(ok)return 'Inverted U';}
+  if(iMin>0&&iMin<n-1&&v[0]-mn>tol&&v[n-1]-mn>tol){let ok=true;for(let i=1;i<=iMin;i++)if(d[i-1]>tol)ok=false;for(let i=iMin+1;i<n;i++)if(d[i-1]<-tol)ok=false;if(ok)return 'U-shaped';}
+  return 'Mixed';
+}
+function largestRemainder(vals,total){
+  const fl=vals.map(v=>Math.floor(Math.max(0,v)));let left=total-fl.reduce((a,b)=>a+b,0);
+  const order=vals.map((v,i)=>({i,r:Math.max(0,v)-Math.floor(Math.max(0,v))})).sort((a,b)=>b.r-a.r||a.i-b.i);
+  for(let j=0;left>0&&order.length;j=(j+1)%order.length){fl[order[j].i]++;left--;}
+  return fl;
+}
+
+/* ================= state ================= */
+const N=5;
+const NAMES=['Violette','Meryem','Bjørn','Alfred','George'];
+const SRC=[{name:'Labor',cls:'lab',v:'w',B:'W',K:'L',e:'u'},{name:'Capital',cls:'cap',v:'f',B:'F',K:'K',e:'v'}];
+const PRESETS={ // per 100 units; H = more persistent source, Lo = less persistent source
+  'Decreasing':{H:[10,14,20,26,30],Lo:[2,8,18,30,42]},
+  'Increasing':{H:[2,5,10,23,60],Lo:[14,18,20,22,26]},
+  'Flat':{H:[8,12,18,25,37],Lo:[8,12,18,25,37]},
+  'U-shaped':{H:[9,6,6,19,60],Lo:[3,14,24,30,29]},
+  'Inverted U':{H:[2,13,29,33,23],Lo:[10,9,7,22,52]},
+};
+const S={
+  phi:[0.90,0.50], phiMode:'same',
+  par:NAMES.map(()=>[{beta:0,trend:0,sigma:0,phi:0.90},{beta:0,trend:0,sigma:0,phi:0.50}]),
+  cap:[200,200], alloc:{W:[4,26,58,66,46],K:[20,18,14,44,104]}, pid:[0,1,2,3,4], entry:'units',
+  mode:'individual', T:110, seed:20251008, t:110, playing:false,
+  sel:4, show:{y:true,w:true,f:true,e:true}, tab:'people', iview:'one', cmpOn:[true,true,true,true,true], cvar:'y', cmpDet:false
+};
+let RES=null;
+const $=s=>document.querySelector(s);
+const fmt=(v,d=3)=>isFinite(v)?v.toFixed(d):'n/a';
+const fmtM=(v,d=2)=>isFinite(v)?v.toFixed(d).replace('-','−'):'n/a';
+const pct=(v,d=1)=>isFinite(v)?(v*100).toFixed(d)+'%':'n/a';
+const unitLabel=i=>S.mode==='rank'?`Rank ${i+1}`:NAMES[S.pid[i]];
+const Q=i=>`var(--q${(S.mode==='rank'?i:S.pid[i])+1})`;
+const QP=i=>`var(--q${S.pid[i]+1})`;
+const hold=(i,k)=>k===0?S.alloc.W[i]:S.alloc.K[i];
+const rowOf=p=>S.pid.indexOf(p);
+const phiOf=(p,k)=>S.phiMode==='person'?S.par[p][k].phi:S.phi[k];
+function presetParams(){ // used by the profile presets: each income fluctuates around its own start
+  for(let i=0;i<N;i++){const p=S.pid[i];for(let k=0;k<2;k++){const h=hold(i,k),phi=phiOf(p,k),pr=S.par[p][k];pr.beta=+((phi<0.999?(1-phi):0)*h).toFixed(4);pr.trend=0;pr.sigma=+(h/10).toFixed(4);}}
+}
+function personParams(i){const p=S.pid[i];return [0,1].map(k=>{const pr=S.par[p][k],h=hold(i,k),phi=phiOf(p,k);return {beta:pr.beta,trend:pr.trend,sigma:pr.sigma,phi,start:h};});}
+function longRun(p){if(p.phi>=0.999)return NaN;return p.beta/(1-p.phi)-p.phi*p.trend/Math.pow(1-p.phi,2);}
+function srcInfo(k,P){
+  if(S.phiMode==='person'){const v=P.map(pp=>pp[k].phi);return {byPerson:true,stationary:v.every(x=>Math.abs(x)<0.999),phi:NaN,min:Math.min(...v),max:Math.max(...v),half:NaN};}
+  const phi=S.phi[k],stat=Math.abs(phi)<0.999;return {stationary:stat,phi,half:(phi>0&&phi<0.999)?Math.log(.5)/Math.log(phi):NaN};
+}
+
+/* ================= simulation ================= */
+function makeLev(T){return [0,1].map(()=>Array.from({length:N},()=>new Float64Array(T+1)));}
+function simulate(P,T,seed,rep,lev,shocks){
+  for(let k=0;k<2;k++)for(let i=0;i<N;i++){
+    const p=P[i][k],out=lev[k][i];out[0]=p.start;
+    if(shocks&&p.sigma!==0){const draw=normalStream(hashSeed(seed,rep,S.pid[i],k));for(let t=1;t<=T;t++)out[t]=p.beta+p.trend*t+p.phi*out[t-1]+p.sigma*draw();}
+    else for(let t=1;t<=T;t++)out[t]=p.beta+p.trend*t+p.phi*out[t-1];
+  }
+}
+function unitSeries(lev,T,mode){
+  const mk=()=>Array.from({length:N},()=>new Float64Array(T+1));
+  const Su=mk(),Sp=mk(),Y=new Float64Array(T+1),LS=new Float64Array(T+1);
+  const who=Array.from({length:N},()=>new Int8Array(T+1)),rank=Array.from({length:N},()=>new Int8Array(T+1));
+  const L=lev[0],K=lev[1],idx=new Array(N),yy=new Array(N);
+  for(let t=0;t<=T;t++){
+    let Wt=0,Kt=0;for(let i=0;i<N;i++){Wt+=L[i][t];Kt+=K[i][t];yy[i]=L[i][t]+K[i][t];idx[i]=i;}
+    const Yt=Wt+Kt;Y[t]=Yt;LS[t]=Yt!==0?Wt/Yt:NaN;
+    idx.sort((p,q)=>yy[p]-yy[q]||p-q);
+    for(let r=0;r<N;r++){who[r][t]=idx[r];rank[idx[r]][t]=r+1;}
+    for(let i=0;i<N;i++)Sp[i][t]=Yt!==0?yy[i]/Yt:NaN;
+    for(let u=0;u<N;u++)Su[u][t]=mode==='rank'?Sp[who[u][t]][t]:Sp[u][t];
+  }
+  return {Su,Sp,Y,LS,who,rank};
+}
+function theory(P){
+  if(S.mode!=='individual')return {th:null,why:'rank'};
+  if(P.some(pp=>pp.some(p=>Math.abs(p.phi)>=0.999)))return {th:null,why:'unit'};
+  if(P.some(pp=>pp.some(p=>p.trend!==0)))return {th:null,why:'trend'};
+  const m=P.map(pp=>pp.map(p=>p.beta/(1-p.phi))),g=P.map(pp=>pp.map(p=>p.sigma*p.sigma/(1-p.phi*p.phi)));
+  let M=0;for(const pp of m)for(const v of pp)M+=v;
+  if(!(M>0))return {th:null,why:'level'};
+  const th=P.map((_,i)=>{const s=(m[i][0]+m[i][1])/M;let v0=0,v1=0;for(let j=0;j<N;j++){const c=((i===j?1:0)-s)/M,c2=c*c;for(let k=0;k<2;k++){v0+=c2*g[j][k];v1+=c2*P[j][k].phi*g[j][k];}}return v0>0?v1/v0:NaN;});
+  return {th,why:null};
+}
+function repsFor(T){return T<=110?200:T<=500?60:20;}
+function compute(){
+  const T=S.T,R=repsFor(T),mode=S.mode,P=Array.from({length:N},(_,i)=>personParams(i)),infos=[0,1].map(k=>srcInfo(k,P));
+  const det=makeLev(T);simulate(P,T,0,0,det,false);
+  let detFlat=true;
+  for(let k=0;k<2&&detFlat;k++)for(let i=0;i<N&&detFlat;i++){const a=det[k][i];for(let t=1;t<=T;t++)if(Math.abs(a[t]-a[0])>1e-8*Math.max(1,Math.abs(a[0]))){detFlat=false;break;}}
+  const du=unitSeries(det,T,'individual');let Du=du.Sp;
+  if(mode==='rank'){Du=Array.from({length:N},()=>new Float64Array(T+1));const tmp=new Array(N);for(let t=0;t<=T;t++){for(let i=0;i<N;i++)tmp[i]=det[0][i][t]+det[1][i][t];const srt=tmp.slice().sort((a,b)=>a-b);for(let r=0;r<N;r++)Du[r][t]=du.Y[t]!==0?srt[r]/du.Y[t]:NaN;}}
+  const levD=makeLev(T),levW=makeLev(T),acc=Array.from({length:N},()=>[]),x=new Float64Array(T+1);
+  let disp=null;
+  for(let r=0;r<R;r++){
+    const lev=r===0?levD:levW;simulate(P,T,S.seed,r,lev,true);
+    const u=unitSeries(lev,T,mode);if(r===0)disp=u;
+    for(let i=0;i<N;i++){let ok=true;for(let t=0;t<=T;t++){const v=u.Su[i][t]-Du[i][t];if(!isFinite(v)){ok=false;break;}x[t]=v;}if(!ok)continue;const v=acf1(x,T+1);if(isFinite(v))acc[i].push(v);}
+  }
+  const stats=acc.map(a=>{const s=a.slice().sort((p,q)=>p-q);return {mean:s.length?s.reduce((p,q)=>p+q,0)/s.length:NaN,p5:pctile(s,.05),p95:pctile(s,.95)};});
+  const TH=theory(P);
+  const useTheory=!!TH.th&&TH.th.every(isFinite);
+  const whyNo=!TH.th?TH.why:null;
+  const Lz=new Array(T+1),G=new Float64Array(T+1),y=new Array(N);let neg=0;
+  for(let t=0;t<=T;t++){
+    let Y=0,anyNeg=false;
+    for(let i=0;i<N;i++){const a=levD[0][i][t],c=levD[1][i][t];y[i]=a+c;Y+=y[i];if(a<0||c<0)anyNeg=true;}
+    if(anyNeg)neg++;
+    const s=y.slice().sort((a,b)=>a-b),L=new Float64Array(N+1);let cum=0;
+    for(let i=0;i<N;i++){cum+=s[i];L[i+1]=Y!==0?cum/Y:NaN;}
+    Lz[t]=L;let g=1;for(let i=1;i<=N;i++)g-=(L[i]+L[i-1])/N;G[t]=g;
+  }
+  const env={lo:[0],hi:[0]};
+  for(let j=1;j<N;j++){const v=[];for(let t=0;t<=T;t++)if(isFinite(Lz[t][j]))v.push(Lz[t][j]);v.sort((a,b)=>a-b);env.lo.push(pctile(v,.05));env.hi.push(pctile(v,.95));}
+  env.lo.push(1);env.hi.push(1);
+  let switches=0;const changes=new Array(N).fill(0);
+  for(let t=1;t<=T;t++){let any=false;for(let i=0;i<N;i++)if(disp.rank[i][t]!==disp.rank[i][t-1]){changes[i]++;any=true;}if(any)switches++;}
+  const profVals=useTheory?TH.th:stats.map(s=>s.mean);
+  return {P,infos,T,R,mode,det,detSp:du.Sp,levD,disp,stats,th:TH.th,useTheory,whyNo,detFlat,label:classify(profVals),Lz,G,env,neg,switches,changes};
+}
+
+
+
+/* ================= typesetting helpers ================= */
+const TH='&#8288;&#8202;&#8288;'; // hair space held by word joiners, so a line never breaks inside a term
+const O=x=>`<span class="op">${x}</span><wbr>`;
+const RL=x=>`<span class="rel">${x}</span>`;
+const NUM=(v,d,c)=>`<span class="num ${c}">${fmtM(v,d)}</span>`;
+const SG=(v,d,c)=>`${O(v<0?'−':'+')}<span class="num ${c}">${Math.abs(v).toFixed(d)}</span>`;
+const SS=(base,sup,sub)=>`${base}<span class="ss"><sup>${sup}</sup><sub>${sub}</sub></span>`;
+const SUM=(lo,hi)=>`<span class="bop"><span class="lim">${hi}</span><span class="sym">∑</span><span class="lim">${lo}</span></span>`;
+const R3=(l,r,x,c='')=>`<span class="el ${c}">${l}</span><span class="er ${c}">${r}</span><span class="ex ${c}">${x}</span>`;
+const RA=(l,r,x,tag='',c='')=>R3(l,r,x,c)+`<span class="stag ${tag==='Labor'?'lab':tag==='Capital'?'cap':''}">${tag}</span>`;
+const SIM='<span class="sim">~</span>';
+const BLK=(cls,title,no,rows,where)=>`<section class="eqb ${cls}"><div class="eqb-h">${title}${no?`<span class="no">(${no})</span>`:''}</div><div class="al">${rows}</div>${where?`<div class="where">${where}</div>`:''}</section>`;
+const RHO='<span class="m"><span class="hat"><i>ρ</i></span>(1)</span>';
+const UC=s=>String(s).toUpperCase();
+const ord=n=>n+((n%100>=11&&n%100<=13)?'th':(['th','st','nd','rd'][n%10]||'th'));
+const uP=i=>S.mode==='rank'?i:S.pid[i];
+const unitName=i=>S.mode==='rank'?`rank slot ${i+1}`:NAMES[S.pid[i]];
+function markPath(k,x,y,r){
+  switch(k%5){
+    case 0:return `<circle cx="${x}" cy="${y}" r="${r}"/>`;
+    case 1:{const a=r*.88;return `<rect x="${x-a}" y="${y-a}" width="${2*a}" height="${2*a}"/>`;}
+    case 2:return `<path d="M${x},${y-r*1.18}L${x+r*1.08},${y+r*.82}L${x-r*1.08},${y+r*.82}Z"/>`;
+    case 3:return `<path d="M${x},${y-r*1.28}L${x+r*1.12},${y}L${x},${y+r*1.28}L${x-r*1.12},${y}Z"/>`;
+    default:return `<path d="M${x},${y+r*1.18}L${x+r*1.08},${y-r*.82}L${x-r*1.08},${y-r*.82}Z"/>`;
+  }
+}
+const mark=(p,x,y,r,ring=true)=>`<g fill="var(--q${p+1})"${ring?' stroke="var(--panel)" stroke-width="1.5"':''}>${markPath(p,x,y,r)}</g>`;
+const glyph=(p,s=12)=>`<svg class="gly" width="${s}" height="${s}" viewBox="0 0 12 12" aria-hidden="true">${mark(p,6,6,4.1,false)}</svg>`;
+const SHP={'Decreasing':[.2,.35,.5,.65,.8],'Increasing':[.8,.65,.5,.35,.2],'Flat':[.5,.5,.5,.5,.5],'U-shaped':[.2,.62,.8,.62,.2],'Inverted U':[.8,.38,.2,.38,.8],'Mixed':[.55,.22,.72,.3,.6]};
+function shapeGlyph(label,w=40,h=16){
+  const v=SHP[label];
+  if(!v)return `<svg class="shp" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" aria-hidden="true"><line x1="2" y1="${h/2}" x2="${w-2}" y2="${h/2}" stroke="currentColor" stroke-width="1.6" stroke-dasharray="3 3"/></svg>`;
+  const P=v.map((y,i)=>[2.5+i*(w-5)/4,2.5+y*(h-5)]);
+  return `<svg class="shp" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" aria-hidden="true"><polyline points="${P.map(p=>p.map(c=>c.toFixed(1)).join(',')).join(' ')}" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>${P.map(p=>`<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="2.3" fill="currentColor"/>`).join('')}</svg>`;
+}
+
+/* ================= tabs ================= */
+function setTab(name){S.tab=name;['people','alloc'].forEach(n=>{const on=n===name,b=$('#tab-'+n);b.setAttribute('aria-selected',on);b.tabIndex=on?0:-1;$('#pane-'+n).hidden=!on;});}
+['people','alloc'].forEach(n=>$('#tab-'+n).addEventListener('click',()=>setTab(n)));
+$('.tabs').addEventListener('keydown',e=>{if(e.key!=='ArrowRight'&&e.key!=='ArrowLeft')return;const n=S.tab==='people'?'alloc':'people';setTab(n);$('#tab-'+n).focus();});
+
+/* ================= range fill ================= */
+function fillRange(r){const mn=+r.min,mx=+r.max,v=+r.value,p=(v-mn)/(mx-mn)*100;
+  if(mn<0&&mx>0){const z=(0-mn)/(mx-mn)*100;r.style.setProperty('--a',Math.min(z,p)+'%');r.style.setProperty('--b',Math.max(z,p)+'%');}
+  else{r.style.setProperty('--a','0%');r.style.setProperty('--b',p+'%');}}
+
+/* ================= persistence controls ================= */
+[0,1].forEach(k=>{
+  const r=$('#r-phi-'+k),n=$('#n-phi-'+k);
+  const apply=v=>{v=+v;if(!isFinite(v))v=S.phi[k];v=Math.max(-1,Math.min(1,v));S.phi[k]=v;r.value=v;n.value=v.toFixed(2);fillRange(r);schedule();};
+  r.addEventListener('input',()=>apply(r.value));n.addEventListener('change',()=>apply(n.value));
+});
+document.querySelectorAll('input[name=phimode]').forEach(el=>el.addEventListener('change',()=>{
+  if(el.value==='person'&&S.phiMode!=='person')NAMES.forEach((_,p)=>[0,1].forEach(k=>{S.par[p][k].phi=S.phi[k];}));
+  S.phiMode=el.value;schedule();}));
+function renderSourceStats(infos){infos.forEach((inf,k)=>{
+  const st=inf.stationary?'<span class="pill ok">Stationary</span>':'<span class="pill warn">Unit root</span>';
+  $('#stats-'+k).innerHTML=inf.byPerson
+    ?`<span>${SRC[k].name}: by person, <b>${fmtM(inf.min,2)}</b> to <b>${fmtM(inf.max,2)}</b></span>${st}`
+    :`<span>${SRC[k].name}</span>${st}`;});}
+
+/* ================= allocation ================= */
+function buildAlloc(){
+  $('#alloc-body').innerHTML=Array.from({length:N},(_,i)=>`<tr id="row-${i}"><td><span class="who"><span id="gl-${i}"></span><span id="nm-${i}"></span></span>${i===0?' <span class="pos">bottom</span>':i===N-1?' <span class="pos">top</span>':''}</td>
+    <td><input class="fld" type="number" id="w-${i}" step="1" aria-label="Labor, row ${i+1}"></td>
+    <td><input class="fld" type="number" id="c-${i}" step="1" aria-label="Capital, row ${i+1}"></td>
+    <td class="ro"><span id="yt-${i}"></span><input class="fld" type="number" id="y-${i}" min="0" max="100" step="0.5" aria-label="Total income percent, row ${i+1}" hidden></td><td class="ro" id="f-${i}"></td></tr>`).join('');
+  const unitsEdit=(key,i,el)=>{if(S.entry!=='units')return;const k=key==='W'?0:1,arr=S.alloc[key],others=arr.reduce((a,b,j)=>j===i?a:a+b,0);
+    let v=Math.round(+el.value||0);const mx=S.cap[k]-others;if(v>mx){v=mx;el.value=v;}arr[i]=v;syncAllocTotals();schedule();};
+  for(let i=0;i<N;i++){
+    $('#w-'+i).addEventListener('input',e=>unitsEdit('W',i,e.target));
+    $('#c-'+i).addEventListener('input',e=>unitsEdit('K',i,e.target));
+    $('#w-'+i).addEventListener('change',e=>{if(S.entry==='pct')setPct(i,'W',e.target.value);});
+    $('#c-'+i).addEventListener('change',e=>{if(S.entry==='pct')setPct(i,'K',e.target.value);});
+    $('#y-'+i).addEventListener('change',e=>setPct(i,'T',e.target.value));
+  }
+  const tbl=$('.alloc');
+  tbl.addEventListener('focusout',e=>{if(!tbl.contains(e.relatedTarget))rankByTotal(null);});
+  tbl.addEventListener('keydown',e=>{if(e.key!=='Enter'||!e.target.id)return;e.preventDefault();e.target.dispatchEvent(new Event('change'));const [f,r]=e.target.id.split('-');rankByTotal({field:f,row:+r});});
+  document.querySelectorAll('input[name=entry]').forEach(el=>el.addEventListener('change',()=>{S.entry=el.value;syncAlloc();}));
+}
+function rebalance(arr,i,cap){
+  const others=[...Array(N).keys()].filter(j=>j!==i),rest=Math.max(0,cap-arr[i]);
+  let base=others.map(j=>arr[j]),tot=base.reduce((a,b)=>a+b,0);if(tot<=0){base=others.map(()=>1);tot=others.length;}
+  const al=largestRemainder(base.map(v=>v/tot*rest),rest);others.forEach((j,n)=>{arr[j]=al[n];});
+}
+function setPct(i,key,raw){
+  let p=+raw;if(!isFinite(p))return;p=Math.max(-100,Math.min(100,p));
+  if(key==='T'){
+    const capT=S.cap[0]+S.cap[1],T=Math.round(p/100*capT),W=S.alloc.W[i],K=S.alloc.K[i],k=W+K>0?K/(W+K):S.cap[1]/capT;
+    let Kn=Math.min(S.cap[1],Math.round(k*T)),Wn=Math.min(S.cap[0],T-Kn);if(Wn<0)Wn=0;if(Wn+Kn<T)Kn=Math.min(S.cap[1],T-Wn);
+    S.alloc.W[i]=Wn;S.alloc.K[i]=Kn;rebalance(S.alloc.W,i,S.cap[0]);rebalance(S.alloc.K,i,S.cap[1]);
+  }else{const k=key==='W'?0:1,arr=S.alloc[key];arr[i]=Math.round(p/100*S.cap[k]);rebalance(arr,i,S.cap[k]);}
+  syncAlloc();schedule();
+}
+function rankByTotal(refocus){
+  const W=S.alloc.W,K=S.alloc.K,idx=[...Array(N).keys()];
+  idx.sort((a,b)=>(W[a]+K[a])-(W[b]+K[b])||a-b);
+  if(idx.every((v,i)=>v===i))return false;
+  S.alloc={W:idx.map(i=>W[i]),K:idx.map(i=>K[i])};S.pid=idx.map(i=>S.pid[i]);
+  syncAlloc();
+  idx.forEach((old,i)=>{if(old!==i){const r=$('#row-'+i);r.classList.remove('moved');void r.offsetWidth;r.classList.add('moved');}});
+  if(refocus){const el=$(`#${refocus.field}-${idx.indexOf(refocus.row)}`);if(el)el.focus();}
+  schedule();return true;
+}
+function syncAlloc(){
+  const P=S.entry==='pct';
+  $('#h-w').textContent=P?'Labor %':'Labor';$('#h-k').textContent=P?'Capital %':'Capital';$('#h-y').textContent=P?'Total %':'Total';
+  $('#entry-hint').textContent=P?'Labor % and capital % are shares of each cap; total % is the person’s share of all units. Changing one person rescales the others so each source still fills its cap. Rows re-sort by total when you leave the table.':'Each source is capped: an entry larger than what is left is clipped. Rows re-sort by total when you leave the table or press Enter.';
+  const sumAll=S.alloc.W.reduce((a,b)=>a+b,0)+S.alloc.K.reduce((a,b)=>a+b,0);
+  for(let i=0;i<N;i++){
+    const w=S.alloc.W[i],k=S.alloc.K[i],wi=$('#w-'+i),ci=$('#c-'+i),yi=$('#y-'+i),yt=$('#yt-'+i);
+    wi.step=P?0.5:1;ci.step=P?0.5:1;wi.max=P?100:'';ci.max=P?100:'';
+    if(document.activeElement!==wi)wi.value=P?(100*w/S.cap[0]).toFixed(1):w;
+    if(document.activeElement!==ci)ci.value=P?(100*k/S.cap[1]).toFixed(1):k;
+    yi.hidden=!P;yt.hidden=P;
+    if(document.activeElement!==yi)yi.value=sumAll>0?(100*(w+k)/sumAll).toFixed(1):0;
+    yt.textContent=(w+k).toFixed(0);
+    $('#nm-'+i).textContent=NAMES[S.pid[i]];$('#gl-'+i).innerHTML=glyph(S.pid[i]);
+  }
+  syncAllocTotals();
+}
+function syncAllocTotals(){
+  const P=S.entry==='pct';let sw=0,sk=0;
+  for(let i=0;i<N;i++){const w=S.alloc.W[i],k=S.alloc.K[i];sw+=w;sk+=k;$('#f-'+i).textContent=w+k>0?(k/(w+k)).toFixed(2):'n/a';if(!P)$('#yt-'+i).textContent=(w+k).toFixed(0);}
+  if(!P)for(let i=0;i<N;i++){$('#w-'+i).max=S.cap[0]-sw+S.alloc.W[i];$('#c-'+i).max=S.cap[1]-sk+S.alloc.K[i];}
+  $('#sum-w').textContent=P?(100*sw/S.cap[0]).toFixed(0)+'%':`${sw}/${S.cap[0]}`;$('#sum-k').textContent=P?(100*sk/S.cap[1]).toFixed(0)+'%':`${sk}/${S.cap[1]}`;
+  $('#sum-y').textContent=P?'100%':(sw+sk).toFixed(0);$('#sum-f').textContent=sw+sk>0?(sk/(sw+sk)).toFixed(2):'n/a';
+  $('#sum-w').classList.toggle('bad',sw<=0);$('#sum-k').classList.toggle('bad',sk<=0);
+  const lw=$('#left-w'),lk=$('#left-k');lw.textContent=S.cap[0]-sw;lk.textContent=S.cap[1]-sk;lw.classList.toggle('warn',sw<S.cap[0]);lk.classList.toggle('warn',sk<S.cap[1]);
+}
+function buildPresets(){
+  $('#presets').innerHTML=Object.keys(PRESETS).map(n=>`<button class="preset" type="button" data-p="${n}">${shapeGlyph(n,48,20)}<span>${n}</span></button>`).join('');
+  document.querySelectorAll('#presets .preset').forEach(b=>b.addEventListener('click',()=>{
+    const avg=k=>NAMES.reduce((a,_,p)=>a+phiOf(p,k),0)/N,p=PRESETS[b.dataset.p],labHi=avg(0)>=avg(1),sc=(pat,k)=>largestRemainder(pat.map(v=>v*S.cap[k]/100),S.cap[k]);
+    S.alloc={W:sc(labHi?p.H:p.Lo,0),K:sc(labHi?p.Lo:p.H,1)};S.pid=[0,1,2,3,4];presetParams();syncAlloc();rankByTotal(null);schedule();}));
+}
+function setCap(k,v){
+  v=Math.max(10,Math.min(5000,Math.round(+v||200)));const old=S.cap[k];if(v===old){$('#cap-'+k).value=v;return;}
+  const key=k===0?'W':'K',arr=S.alloc[key],sum=arr.reduce((a,b)=>a+b,0),newSum=Math.min(v,Math.round(sum*v/old));
+  S.alloc[key]=sum>0?largestRemainder(arr.map(x=>x*newSum/sum),newSum):arr.map(()=>0);
+  S.cap[k]=v;$('#cap-'+k).value=v;syncAlloc();rankByTotal(null);schedule();
+}
+[0,1].forEach(k=>$('#cap-'+k).addEventListener('change',e=>setCap(k,e.target.value)));
+
+/* ================= parameters by person ================= */
+const PF=[{f:'phi',d:2,step:0.01},{f:'beta',d:2,step:0.01},{f:'trend',d:3,step:0.001},{f:'sigma',d:2,step:0.01}];
+const PFL={phi:['persistence φL','persistence φK'],beta:['constant βW','constant βF'],trend:['trend βW,trend','trend βF,trend'],sigma:['shock σL','shock σK']};
+function buildPeople(){
+  $('#ppl-body').innerHTML=NAMES.map((n,p)=>`<tr class="pr" id="pr-${p}" style="--pc:var(--q${p+1})"><td colspan="7"><div class="pr-h"><button type="button" class="pname" data-p="${p}" title="Show ${n}'s series">${glyph(p,13)}<span>${n}</span></button><span class="pr-meta" id="prm-${p}"></span></div></td></tr>`+
+    [0,1].map(k=>`<tr><td><span class="tag ${SRC[k].cls}" title="${SRC[k].name} income">${SRC[k].v}</span></td><td class="ro" id="pst-${p}-${k}"></td>${PF.map(c=>`<td><input class="fld" type="number" id="pp-${p}-${k}-${c.f}" step="${c.step}"${c.f==='phi'?' min="-1" max="1"':''} aria-label="${n}, ${PFL[c.f][k]}"></td>`).join('')}<td class="ro" id="plr-${p}-${k}"></td></tr>`).join('')).join('');
+  NAMES.forEach((_,p)=>[0,1].forEach(k=>PF.forEach(c=>{$(`#pp-${p}-${k}-${c.f}`).addEventListener('change',e=>{let v=+e.target.value;if(!isFinite(v))return;if(c.f==='phi'){if(S.phiMode!=='person')return;v=Math.max(-1,Math.min(1,v));}S.par[p][k][c.f]=v;schedule();});})));
+  document.querySelectorAll('.pname').forEach(b=>b.addEventListener('click',()=>selectPerson(+b.dataset.p,true)));
+}
+function syncPeople(res){
+  NAMES.forEach((_,p)=>{const i=rowOf(p);
+    $('#pr-'+p).classList.toggle('sel',p===S.sel);
+    $('#prm-'+p).textContent=`rank ${res.disp.rank[i][0]} · y₀ = ${fmtM(res.P[i][0].start+res.P[i][1].start,0)}`;
+    [0,1].forEach(k=>{const P=res.P[i][k],lr=longRun(P);
+      $(`#pst-${p}-${k}`).textContent=fmtM(P.start,0);$(`#plr-${p}-${k}`).textContent=fmtM(lr,1);
+      PF.forEach(c=>{const el=$(`#pp-${p}-${k}-${c.f}`);if(document.activeElement!==el)el.value=(+P[c.f]).toFixed(c.d);if(c.f==='phi')el.disabled=S.phiMode!=='person';
+        if(c.f==='sigma')el.classList.toggle('over',isFinite(lr)&&lr>0&&Math.abs(P.sigma)>lr);});});});
+}
+function selectPerson(p,one){S.sel=p;if(one)S.iview='one';$('#person-select').value=p;const el=document.querySelector(`input[name=iview][value="${S.iview}"]`);if(el)el.checked=true;if(RES){syncPeople(RES);renderIndivAll(RES);}}
+
+/* ================= run settings ================= */
+function initRadios(){const set=(name,val)=>{const el=document.querySelector(`input[name=${name}][value="${val}"]`);if(el)el.checked=true;};
+  set('phimode',S.phiMode);set('mode',S.mode);set('T',S.T);set('entry',S.entry);set('iview',S.iview);set('cvar',S.cvar);}
+document.querySelectorAll('input[name=mode]').forEach(el=>el.addEventListener('change',()=>{S.mode=el.value;schedule();}));
+document.querySelectorAll('input[name=T]').forEach(el=>el.addEventListener('change',()=>{S.T=+el.value;S.t=S.T;schedule();}));
+$('#reseed').addEventListener('click',()=>{S.seed=(Math.random()*4294967295)>>>0;schedule();});
+function buildPersonPickers(){
+  $('#person-select').innerHTML=NAMES.map((n,p)=>`<option value="${p}">${n}</option>`).join('');
+  $('#person-select').addEventListener('change',e=>selectPerson(+e.target.value,false));
+}
+['y','w','f','e'].forEach(k=>$('#show-'+k).addEventListener('change',e=>{S.show[k]=e.target.checked;renderIndiv(RES);}));
+
+/* ================= chart helpers ================= */
+function ticks(lo,hi,step){const out=[];for(let v=Math.ceil(lo/step-1e-9)*step;v<=hi+1e-9;v+=step)out.push(+v.toFixed(10));return out;}
+function niceStep(range,target){const raw=Math.max(range,1e-12)/target,p=Math.pow(10,Math.floor(Math.log10(raw))),f=raw/p;return (f<1.5?1:f<3?2:f<7?5:10)*p;}
+function decFor(step){return step>=1?0:step>=0.1?1:step>=0.01?2:3;}
+const svgOpen=(W,H,label)=>`<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" role="img" aria-label="${label}">`;
+// Editorial axes: dotted grid, a black baseline at the foot of the plot, a black zero line when zero sits inside, few ticks, unit at the top left.
+function axes(o){
+  let s='';const x1=o.m.l,x2=o.W-o.m.r,yb=o.H-o.m.b;
+  for(const v of o.yt){const y=o.Y(v);
+    if(Math.abs(y-yb)>1)s+=`<line class="gl" x1="${x1}" x2="${x2}" y1="${y.toFixed(1)}" y2="${y.toFixed(1)}"/>`;
+    s+=`<text class="tk" x="${x1-8}" y="${(y+4).toFixed(1)}" text-anchor="end">${o.yf(v)}</text>`;}
+  if(o.zero!==false&&o.yt.some(v=>Math.abs(v)<1e-12)){const y=o.Y(0);if(Math.abs(y-yb)>1)s+=`<line class="base" x1="${x1}" x2="${x2}" y1="${y.toFixed(1)}" y2="${y.toFixed(1)}"/>`;}
+  s+=`<line class="base" x1="${x1}" x2="${x2}" y1="${yb}" y2="${yb}"/>`;
+  if(o.xt)for(const v of o.xt)s+=`<line class="base" x1="${o.X(v).toFixed(1)}" x2="${o.X(v).toFixed(1)}" y1="${yb}" y2="${yb+4}"/><text class="tk" x="${o.X(v).toFixed(1)}" y="${yb+17}" text-anchor="middle">${o.xf?o.xf(v):v}</text>`;
+  if(o.yTitle)s+=`<text class="at" x="${x1-8}" y="${o.m.t-12}">${o.yTitle}</text>`;
+  if(o.xTitle)s+=`<text class="at" x="${x2}" y="${o.H-3}" text-anchor="end">${o.xTitle}</text>`;
+  return s;
+}
+const MT=(x,sub)=>`<tspan class="mt">${x}</tspan>${sub?`<tspan class="mt" style="font-size:10px;font-style:normal" dy="3">${sub}</tspan><tspan dy="-3"> </tspan>`:''}`;
+function polyPts(T,X,Y,f,stride){let pts='';for(let t=0;t<=T;t+=stride){const v=f(t);if(isFinite(v))pts+=`${X(t).toFixed(1)},${Y(v).toFixed(1)} `;}if(T%stride){const v=f(T);if(isFinite(v))pts+=`${X(T).toFixed(1)},${Y(v).toFixed(1)}`;}return pts;}
+// Series named at the end of their line, with the last value written beside the name.
+function endLabels(items,m,pw,ph){ // items: {p|col, y, name, val}
+  items.sort((a,b)=>a.y-b.y);for(let k=1;k<items.length;k++)if(items[k].y-items[k-1].y<16)items[k].y=items[k-1].y+16;
+  const over=items.length?items[items.length-1].y-(m.t+ph+4):0;if(over>0)items.forEach(e=>e.y-=over);
+  const x=m.l+pw+10;
+  return items.map(e=>`${e.p!=null?mark(e.p,x+4,e.y,4.2):`<rect x="${x}" y="${e.y-4.5}" width="9" height="9" fill="${e.col}"/>`}<text class="lb" x="${x+13}" y="${e.y+4.5}">${UC(e.name)}${e.val!=null?`<tspan class="lbs" dx="5">${e.val}</tspan>`:''}</text>`).join('');
+}
+const tip=$('#tip');
+function showTip(html,x,y){tip.innerHTML=html;tip.hidden=false;const r=tip.getBoundingClientRect();let L=x+16,T=y+16;if(L+r.width>innerWidth-8)L=x-r.width-16;if(T+r.height>innerHeight-8)T=y-r.height-16;tip.style.left=Math.max(8,L)+'px';tip.style.top=Math.max(8,T)+'px';}
+function hideTip(){tip.hidden=true;}
+const TR=(k,v)=>`<div class="tr"><span>${k}</span><b>${v}</b></div>`;
+function bindHits(el,fn){el.onpointermove=e=>{const h=e.target.closest('[data-hit]');if(!h){hideTip();return;}showTip(fn(+h.dataset.hit),e.clientX,e.clientY);};el.onpointerleave=hideTip;}
+function bindTime(hitId,T,onMove,onLeave){const hit=$(hitId);const tAt=e=>{const r=hit.getBoundingClientRect();return Math.max(0,Math.min(T,Math.round((e.clientX-r.left)/r.width*T)));};
+  hit.onpointermove=e=>onMove(tAt(e),e);hit.onpointerleave=()=>{onLeave();hideTip();};hit.onclick=e=>setT(tAt(e));}
+const hoverLine=(X,t,m,ph)=>`<line x1="${X(t)}" x2="${X(t)}" y1="${m.t}" y2="${m.t+ph}" stroke="var(--ink)" stroke-opacity=".35" stroke-dasharray="2 3"/>`;
+const cursorLine=(X,t,m,ph)=>`<line x1="${X(t)}" x2="${X(t)}" y1="${m.t-4}" y2="${m.t+ph}" stroke="var(--ink)" stroke-width="1"/>`;
+
+/* ================= "in figures" strip ================= */
+function renderKPIs(res){
+  const t=S.t,d=res.disp,G=res.G,dG=G[t]-G[0];
+  let most=0;for(let i=1;i<N;i++)if(res.changes[i]>res.changes[most])most=i;
+  const arrow=dG>5e-4?'▲':dG<-5e-4?'▼':'■';
+  const tiles=[
+    {v:fmt(G[t],3),cls:'stroke',k:`Gini coefficient at t = ${t}`,s:`${arrow} ${dG>=0?'+':'−'}${Math.abs(dG).toFixed(3)} since period 0`},
+    {v:pct(d.LS[t],1),k:'Labor share of income',s:`${pct(d.LS[0],1)} at period 0`},
+    {v:`${fmtM(d.Y[t],1)}<small>units</small>`,k:'Total income',s:`${fmtM(d.Y[0],1)} at period 0`},
+    {v:`${shapeGlyph(res.label,46,22)}<span>${res.label}</span>`,cls:'txt',k:'Persistence profile',s:res.useTheory?'read from the linearized theory':`from ${res.R} simulated samples`},
+    {v:`${res.switches}<small>/ ${res.T}</small>`,k:'Periods with a rank change',s:res.switches?`most often: ${NAMES[S.pid[most]]} (${res.changes[most]})`:'ranks never change'}
+  ];
+  $('#kpis').innerHTML=tiles.map(x=>`<div class="kpi"><div class="v${x.cls?' '+x.cls:''}">${x.v}</div><div class="k">${x.k}</div><div class="s">${x.s}</div></div>`).join('');
+}
+
+/* ================= model panel ================= */
+function srcParts(P,k){const p=P[k],v=SRC[k].v,e=SRC[k].e,c=k?'cap':'lab';
+  return {l:`<i>${v}</i><sub><i>t</i></sub>`,
+    r:`${NUM(p.beta,2,c)}${SG(p.trend,3,c)}${TH}<i>t</i>${SG(p.phi,2,c)}${TH}<i>${v}</i><sub><i>t</i>−1</sub>${O('+')}<i>${e}</i><sub><i>t</i></sub>`,
+    dl:`<i>${e}</i><sub><i>t</i></sub>`, dr:`<i>N</i>(0,${TH}${NUM(Math.abs(p.sigma),2,c)}<sup>2</sup>)`,
+    sl:`<i>${v}</i><sub>0</sub>`, sr:NUM(p.start,0,c)};}
+const cardDist=a=>`${a.dr},<span class="gap"></span>${a.sl}${RL('=')}${a.sr}`;
+const yRow=P=>`<i>w</i><sub><i>t</i></sub>${O('+')}<i>f</i><sub><i>t</i></sub>,<span class="gap"></span><i>y</i><sub>0</sub>${RL('=')}${NUM(P[0].start+P[1].start,0,'neu')}`;
+function renderModel(res){
+  const pi=S.phiMode==='person',ii=pi?',<i>i</i>':'',it='<i>i</i>,<i>t</i>';
+  const phi=k=>`<i>φ</i><sub>${k?'K':'L'}${ii}</sub>`,phiP=(k,ex)=>SS('<i>φ</i>',ex,`${k?'K':'L'}${ii}`);
+  const M=x=>`<span class="m">${x}</span>`;
+  const src=k=>{const v=k?'f':'w',e=k?'v':'u',B=k?'F':'W',L=k?'K':'L';
+    return RA(`<i>${v}</i><sub>${it}</sub>`,'=',`<i>β</i><sub>${B},<i>i</i></sub>${O('+')}<i>β</i><sub>${B},trend,<i>i</i></sub>${TH}<i>t</i>${O('+')}${phi(k)}${TH}<i>${v}</i><sub><i>i</i>,<i>t</i>−1</sub>${O('+')}<i>${e}</i><sub>${it}</sub>`)
+      +RA(`<i>${e}</i><sub>${it}</sub>`,SIM,`<i>N</i>(0,${TH}${SS('<i>σ</i>','2',`${L},<i>i</i>`)})`);};
+  const legend=k=>{const B=k?'F':'W',L=k?'K':'L',e=k?'v':'u';
+    return `${M(`<i>β</i><sub>${B},<i>i</i></sub>`)} constant · ${M(`<i>β</i><sub>${B},trend,<i>i</i></sub>`)} trend · ${M(phi(k))} persistence · ${M(`<i>${e}</i><sub>${it}</sub>`)} shock with standard deviation ${M(`<i>σ</i><sub>${L},<i>i</i></sub>`)}`;};
+  const part=k=>{const v=k?'f':'w',e=k?'v':'u',B=k?'F':'W';return `${phiP(k,'<i>t</i>')}${TH}<i>${v}</i><sub><i>i</i>,0</sub>${O('+')}${SUM('<i>s</i>=1','<i>t</i>')}${phiP(k,'<i>t</i>−<i>s</i>')}(<i>β</i><sub>${B},<i>i</i></sub>${O('+')}<i>β</i><sub>${B},trend,<i>i</i></sub>${TH}<i>s</i>${O('+')}<i>${e}</i><sub><i>i</i>,<i>s</i></sub>)`;};
+  $('#model-eqs').innerHTML=
+    BLK('lab','Labor income',1,src(0),legend(0))+
+    BLK('cap','Capital income',2,src(1),legend(1))+
+    BLK('tot wide','Total income',3,
+      RA(`<i>y</i><sub>${it}</sub>`,'=',`<i>w</i><sub>${it}</sub>${O('+')}<i>f</i><sub>${it}</sub>,<span class="gap"></span><span class="cond"><i>i</i>${RL('=')}1,${TH}…,${TH}5,<span class="gap"></span><i>t</i>${RL('=')}1,${TH}…,${TH}<i>T</i></span>`),
+      'Total income ranks the five people and enters the Lorenz curve and the Gini coefficient.')+
+    BLK('cf wide','Closed form',4,
+      RA(`<i>y</i><sub>${it}</sub>`,'=',part(0),'Labor')+RA('','',`${O('+')}${part(1)}`,'Capital','cont'),
+      `Obtained by substituting each recursion back to period 0. The starting values ${M('<i>w</i><sub><i>i</i>,0</sub>')} and ${M('<i>f</i><sub><i>i</i>,0</sub>')} come from the period-0 allocation.`);
+  $('#model-phi').innerHTML=pi?`<div class="phibox"><small>Persistence set by person</small></div>`:`<div class="phibox"><span class="m"><i>φ</i><sub>L</sub>${RL('=')}${NUM(S.phi[0],2,'lab')}</span><span class="m"><i>φ</i><sub>K</sub>${RL('=')}${NUM(S.phi[1],2,'cap')}</span><small>shared</small></div>`;
+  $('#people-eqs').innerHTML=[...Array(N).keys()].map(i=>S.pid[i]).map(p=>{const i=rowOf(p),P=res.P[i];
+    return `<button type="button" class="pcard${p===S.sel?' sel':''}" style="--pc:var(--q${p+1})" data-p="${p}" aria-pressed="${p===S.sel}"><span class="who">${glyph(p,13)}${NAMES[p]}<small>rank ${res.disp.rank[i][0]} at t = 0</small></span><span class="peq m">${(a=>R3(a.l,'=',a.r)+R3(a.dl,SIM,cardDist(a),'dist'))(srcParts(P,0))}${(b=>R3(b.l,'=',b.r,'gs')+R3(b.dl,SIM,cardDist(b),'dist'))(srcParts(P,1))}${R3('<i>y</i><sub><i>t</i></sub>','=',yRow(P),'gs')}</span></button>`;}).join('');
+  document.querySelectorAll('#people-eqs .pcard').forEach(b=>b.addEventListener('click',()=>selectPerson(+b.dataset.p,true)));
+}
+
+/* ================= figure 1: persistence profile ================= */
+const PROFILE_TITLE={
+  'Inverted U':'Persistence peaks in the middle of the distribution',
+  'U-shaped':'Persistence is lowest in the middle of the distribution',
+  'Increasing':'Persistence rises from the bottom to the top',
+  'Decreasing':'Persistence falls from the bottom to the top',
+  'Flat':'Persistence is about the same for everyone',
+  'Mixed':'Persistence follows no simple pattern',
+  'Undetermined':'Persistence cannot be measured with these settings'
+};
+function renderProfile(res){
+  const el=$('#profile-chart'),W=Math.max(300,el.clientWidth),H=300,m={l:40,r:84,t:28,b:48};
+  const pw=W-m.l-m.r,ph=H-m.t-m.b,{stats,th,infos,useTheory}=res;
+  const vals=[...stats.map(s=>s.p5),...stats.map(s=>s.p95),...(useTheory?th:[]),...infos.filter(i=>!i.byPerson&&i.stationary).map(i=>i.phi)].filter(isFinite);
+  const lo=Math.min(0,Math.floor(((vals.length?Math.min(...vals):0)-0.02)*10)/10),hi=1;
+  const Y=v=>m.t+ph*(1-(v-lo)/(hi-lo)),band=pw/N,X=i=>m.l+band*(i+.5),st=hi-lo>0.6?0.2:0.1;
+  let s=svgOpen(W,H,`Persistence profile: ${res.label}`);
+  s+=axes({W,H,m,Y,yt:ticks(lo,hi,st),yf:v=>v.toFixed(1),yTitle:'Autocorrelation'});
+  const lw=Math.max(...Array.from({length:N},(_,i)=>unitLabel(i).length))*6.2+12,stag=band<lw+4;
+  for(let i=0;i<N;i++){const p=uP(i),lab=UC(unitLabel(i)),tw=lab.length*7,cx=X(i)+6,dy=stag&&i%2?15:0;s+=`${mark(p,cx-tw/2-9,H-m.b+20+dy,4.2,false)}<text class="lb" x="${cx}" y="${H-m.b+24.5+dy}" text-anchor="middle">${lab}</text>`;}
+  const refs=[0,1].map(k=>({k,v:infos[k].byPerson||!infos[k].stationary?NaN:infos[k].phi})).filter(r=>isFinite(r.v));
+  const ly=refs.map(r=>Y(r.v));
+  if(ly.length===2&&Math.abs(ly[0]-ly[1])<22){const mid=(ly[0]+ly[1])/2,o=ly[0]<=ly[1]?-11:11;ly[0]=mid+o;ly[1]=mid-o;}
+  refs.forEach((r,j)=>{const col=r.k?'var(--cap)':'var(--lab)';
+    s+=`<line x1="${m.l}" x2="${m.l+pw}" y1="${Y(r.v)}" y2="${Y(r.v)}" stroke="${col}" stroke-width="1.5" stroke-dasharray="6 4"/>`;
+    s+=`<rect x="${m.l+pw+8}" y="${ly[j]-4.5}" width="9" height="9" fill="${col}"/><text x="${m.l+pw+22}" y="${ly[j]+4.5}">${MT('φ',r.k?'K':'L')}<tspan class="val" dx="3">${r.v.toFixed(2)}</tspan></text>`;});
+  stats.forEach((q,i)=>{if(!isFinite(q.p5))return;const cx=X(i);
+    s+=`<g stroke="var(--faint)" stroke-width="1.5"><line x1="${cx}" x2="${cx}" y1="${Y(q.p5)}" y2="${Y(q.p95)}"/><line x1="${cx-6}" x2="${cx+6}" y1="${Y(q.p5)}" y2="${Y(q.p5)}"/><line x1="${cx-6}" x2="${cx+6}" y1="${Y(q.p95)}" y2="${Y(q.p95)}"/></g>`;});
+  if(useTheory){
+    s+=`<polyline points="${th.map((v,i)=>`${X(i)},${Y(v)}`).join(' ')}" fill="none" stroke="var(--grey)" stroke-width="1.5" stroke-dasharray="4 3"/>`;
+    th.forEach((v,i)=>{s+=`<rect x="${X(i)-4}" y="${Y(v)-4}" width="8" height="8" transform="rotate(45 ${X(i)} ${Y(v)})" fill="var(--panel)" stroke="var(--grey)" stroke-width="1.5"/>`;});
+  }
+  const mp=stats.map((q,i)=>isFinite(q.mean)?`${X(i)},${Y(q.mean)}`:null).filter(Boolean);
+  if(mp.length>1)s+=`<polyline points="${mp.join(' ')}" fill="none" stroke="var(--hi)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>`;
+  stats.forEach((q,i)=>{if(isFinite(q.mean))s+=`<circle cx="${X(i)}" cy="${Y(q.mean)}" r="5" fill="var(--hi)" stroke="var(--panel)" stroke-width="2"/><text class="valr halo" x="${X(i)+10}" y="${Y(q.mean)+4.5}">${q.mean.toFixed(2)}</text>`;});
+  for(let i=0;i<N;i++)s+=`<rect data-hit="${i}" x="${m.l+band*i}" y="${m.t}" width="${band}" height="${ph}" fill="transparent"/>`;
+  s+='</svg>';el.innerHTML=s;
+  bindHits(el,i=>{const q=stats[i];return `<div class="th">${unitLabel(i)}</div>`+TR('Simulated mean ρ̂(1)',fmt(q.mean))+TR('5th–95th percentile',`${fmt(q.p5,2)} to ${fmt(q.p95,2)}`)+(useTheory?TR('Linearized theory',fmt(th[i])):'');});
+}
+function renderProfileMeta(res){
+  const {stats,th,useTheory,R,T,mode,infos}=res;
+  $('#tm-profile').textContent=PROFILE_TITLE[res.label]||PROFILE_TITLE.Mixed;
+  $('#st-profile').innerHTML=`Autocorrelation of each ${mode==='rank'?'rank slot':'person'}’s income share from one period to the next, ${RHO}, mean of ${R} simulated samples of ${T} periods`;
+  $('#src-profile').textContent=`Source: simulation, seed ${S.seed}${useTheory?' · profile shape read from the linearized theory':''}`;
+  $('#profile-legend').innerHTML=
+    `<span class="lg"><svg width="24" height="12" aria-hidden="true"><line x1="1" y1="6" x2="23" y2="6" stroke="var(--hi)" stroke-width="2.5"/><circle cx="12" cy="6" r="4" fill="var(--hi)"/></svg>Simulated mean</span>`+
+    `<span class="lg"><svg width="12" height="16" aria-hidden="true"><g stroke="var(--faint)" stroke-width="1.5"><line x1="6" y1="2" x2="6" y2="14"/><line x1="2" y1="2" x2="10" y2="2"/><line x1="2" y1="14" x2="10" y2="14"/></g></svg>5th–95th percentile</span>`+
+    (useTheory?`<span class="lg"><svg width="24" height="12" aria-hidden="true"><line x1="1" y1="6" x2="23" y2="6" stroke="var(--grey)" stroke-width="1.5" stroke-dasharray="4 3"/><rect x="8" y="2" width="8" height="8" transform="rotate(45 12 6)" fill="var(--panel)" stroke="var(--grey)" stroke-width="1.5"/></svg>Linearized theory</span>`:'')+
+    (S.phiMode==='person'?'':`<span class="lg"><svg width="22" height="10" aria-hidden="true"><line x1="1" y1="5" x2="21" y2="5" stroke="var(--lab)" stroke-width="1.5" stroke-dasharray="6 4"/></svg><span class="m"><i>φ</i><sub>L</sub></span></span><span class="lg"><svg width="22" height="10" aria-hidden="true"><line x1="1" y1="5" x2="21" y2="5" stroke="var(--cap)" stroke-width="1.5" stroke-dasharray="6 4"/></svg><span class="m"><i>φ</i><sub>K</sub></span></span>`);
+  const ok=stats.map((q,i)=>({i,v:q.mean})).filter(o=>isFinite(o.v));
+  if(ok.length>1){const a=ok.reduce((x,y)=>y.v>x.v?y:x),b=ok.reduce((x,y)=>y.v<x.v?y:x);
+    $('#rd-profile').innerHTML=`<b>Reading:</b> the share of ${unitName(a.i)} has the most persistent fluctuations, ${RHO} = ${fmt(a.v)}: when it sits above its usual level, it tends to stay above it in the next period. The share of ${unitName(b.i)} is the least persistent, at ${fmt(b.v)}.`;}
+  else $('#rd-profile').innerHTML='<b>Reading:</b> with these settings the shares do not fluctuate, so no autocorrelation can be measured. Give at least one person a shock with <span class="m"><i>σ</i></span> different from 0.';
+  const notes=[];
+  if(!infos.every(i=>i.stationary))notes.push('A persistence of |φ| = 1 (unit root) is in use, so the theory line is not defined.');
+  if(res.whyNo==='trend')notes.push('Theory line hidden: a non-zero trend keeps moving the levels the linearization is taken around.');
+  if(res.whyNo==='rank')notes.push('Rank slots: the linearized theory applies to fixed people, so only simulated values are shown.');
+  if(res.whyNo==='level')notes.push('Long-run income is not positive, so the theory line is not defined.');
+  if(res.neg>0)notes.push(`Negative components appear in ${res.neg} of ${T+1} periods of the displayed path.`);
+  const n=$('#profile-note');n.hidden=!notes.length;n.innerHTML=notes.length?`<b>Note:</b> ${notes.join(' ')}`:'';
+  const W=S.alloc.W,K=S.alloc.K,M=W.reduce((a,b)=>a+b,0)+K.reduce((a,b)=>a+b,0);
+  let h=`<thead><tr><th>${mode==='rank'?'Slot':'Person'}</th>${mode==='individual'?'<th>Share at 0</th><th>K / Y at 0</th>':''}<th>Simulated <span class="m"><span class="hat"><i>ρ</i></span>(1)</span></th><th>5th–95th</th>${useTheory?'<th>Theory <span class="m"><i>ρ</i>(1)</span></th>':''}</tr></thead><tbody>`;
+  for(let i=0;i<N;i++){const q=stats[i];h+=`<tr><td>${glyph(uP(i))}${unitLabel(i)}</td>`+(mode==='individual'?`<td>${pct((W[i]+K[i])/M)}</td><td>${W[i]+K[i]>0?fmt(K[i]/(W[i]+K[i]),2):'n/a'}</td>`:'')+`<td>${fmt(q.mean)}</td><td>${fmt(q.p5,2)} to ${fmt(q.p95,2)}</td>`+(useTheory?`<td>${fmt(th[i])}</td>`:'')+`</tr>`;}
+  $('#profile-table').innerHTML=h+'</tbody>';
+}
+
+/* ================= figure 2: Lorenz + Gini ================= */
+function renderLorenz(res){
+  const el=$('#lorenz-chart'),W=Math.max(260,el.clientWidth),m={l:46,r:14,t:26,b:42};
+  const side=Math.max(170,Math.min(W-m.l-m.r,330)),H=side+m.t+m.b,ox=m.l+((W-m.l-m.r)-side)/2;
+  const t=S.t,L=res.Lz[t],L0=res.Lz[0],env=res.env;
+  const all=[...env.lo,...L,...L0].filter(isFinite);
+  const lo=Math.min(0,Math.floor(Math.min(...all)*20)/20),hi=Math.max(1,Math.ceil(Math.max(...all)*20)/20);
+  const X=p=>ox+side*p,Y=v=>m.t+side*(1-(v-lo)/(hi-lo)),P=j=>j/N;
+  let s=svgOpen(W,H,`Lorenz curve at period ${t}, Gini ${fmt(res.G[t])}`);
+  for(const v of ticks(lo,hi,0.2)){if(Math.abs(Y(v)-Y(lo))>1)s+=`<line class="gl" x1="${X(0)}" x2="${X(1)}" y1="${Y(v)}" y2="${Y(v)}"/>`;s+=`<text class="tk" x="${X(0)-8}" y="${Y(v)+4}" text-anchor="end">${Math.round(v*100)}</text>`;}
+  for(let j=0;j<=N;j++){if(j>0)s+=`<line class="gl" x1="${X(P(j))}" x2="${X(P(j))}" y1="${Y(lo)}" y2="${Y(hi)}"/>`;s+=`<text class="tk" x="${X(P(j))}" y="${Y(lo)+17}" text-anchor="middle">${j*20}</text>`;}
+  s+=`<line class="base" x1="${X(0)}" x2="${X(1)}" y1="${Y(lo)}" y2="${Y(lo)}"/>`;
+  if(lo<0)s+=`<line class="base" x1="${X(0)}" x2="${X(1)}" y1="${Y(0)}" y2="${Y(0)}"/>`;
+  s+=`<text class="at" x="${X(0)-8}" y="${m.t-12}">Cumulative share of income, %</text><text class="at" x="${X(1)}" y="${H-3}" text-anchor="end">Cumulative share of population, %</text>`;
+  const poly=[...env.hi.map((v,j)=>`${X(P(j))},${Y(v)}`),...env.lo.map((v,j)=>`${X(P(j))},${Y(v)}`).reverse()].join(' ');
+  s+=`<polygon points="${poly}" fill="var(--band)"/><line x1="${X(0)}" y1="${Y(0)}" x2="${X(1)}" y2="${Y(1)}" stroke="var(--ink)" stroke-width="1"/>`;
+  const ang=Math.atan2(Y(1)-Y(0),X(1)-X(0))*180/Math.PI,ex=X(.62),ey=Y(.62)-7;
+  s+=`<text class="lbs" x="${ex}" y="${ey}" text-anchor="middle" transform="rotate(${ang.toFixed(1)} ${ex} ${ey})">Perfect equality</text>`;
+  if(L0.every(isFinite))s+=`<polyline points="${Array.from(L0,(v,j)=>`${X(P(j))},${Y(v)}`).join(' ')}" fill="none" stroke="var(--grey)" stroke-width="1.5" stroke-dasharray="4 3"/>`;
+  if(L.every(isFinite)){
+    s+=`<polyline points="${Array.from(L,(v,j)=>`${X(P(j))},${Y(v)}`).join(' ')}" fill="none" stroke="var(--hi)" stroke-width="2.5" stroke-linejoin="round"/>`;
+    for(let j=1;j<N;j++)s+=`<circle cx="${X(P(j))}" cy="${Y(L[j])}" r="4" fill="var(--hi)" stroke="var(--panel)" stroke-width="2"/><text class="valr halo" x="${X(P(j))+7}" y="${Y(L[j])+16}">${(L[j]*100).toFixed(0)}</text><circle data-hit="${j}" cx="${X(P(j))}" cy="${Y(L[j])}" r="14" fill="transparent"/>`;
+  }
+  s+=`<text x="${X(0)+12}" y="${Y(hi)+26}"><tspan class="mt" style="font-size:22px;font-weight:700;fill:var(--red)">G</tspan><tspan class="bigr" dx="6">= ${fmt(res.G[t])}</tspan></text><text class="lbs" x="${X(0)+12}" y="${Y(hi)+44}">at t = ${t} · ${fmt(res.G[0])} at period 0</text></svg>`;
+  el.innerHTML=s;
+  bindHits(el,j=>`<div class="th">Bottom ${j*20}% of the population</div>`+TR(`Income share, t = ${t}`,pct(L[j]))+TR('Income share, t = 0',pct(L0[j]))+TR('5th–95th over the path',`${pct(env.lo[j])} to ${pct(env.hi[j])}`));
+  const dG=res.G[t]-res.G[0];
+  $('#tm-lorenz').textContent=t===0?'Inequality at the starting allocation':dG>0.005?'Inequality has risen since period 0':dG<-0.005?'Inequality has fallen since period 0':'Inequality is almost unchanged since period 0';
+  $('#st-lorenz').textContent=`Lorenz curve at period ${t} and Gini coefficient over the path, shares in %`;
+  $('#rd-lorenz').innerHTML=`<b>Reading:</b> at period ${t}, the poorest 40% of the population (two of the five people) hold ${pct(L[2])} of total income${t?`, against ${pct(L0[2])} at period 0`:''}. The Gini coefficient is ${fmt(res.G[t])}; it would be 0 if everyone had the same income.`;
+}
+function renderGini(res){
+  const el=$('#gini-chart'),W=Math.max(260,el.clientWidth),H=112,m={l:46,r:14,t:26,b:22},T=res.T,G=res.G;
+  let lo=Infinity,hi=-Infinity;for(const g of G)if(isFinite(g)){lo=Math.min(lo,g);hi=Math.max(hi,g);}
+  if(!isFinite(lo)){lo=0;hi=1;}
+  const pad=Math.max(0.002,(hi-lo)*0.18);lo-=pad;hi+=pad;
+  const X=t=>m.l+(W-m.l-m.r)*t/T,Y=v=>m.t+(H-m.t-m.b)*(1-(v-lo)/(hi-lo));
+  let s=svgOpen(W,H,'Gini coefficient over the displayed path');
+  s+=`<text class="at" x="${m.l-8}" y="${m.t-12}">Gini coefficient over the path</text>`;
+  s+=`<line class="gl" x1="${m.l}" x2="${W-m.r}" y1="${Y(hi-pad)}" y2="${Y(hi-pad)}"/><line class="base" x1="${m.l}" x2="${W-m.r}" y1="${H-m.b}" y2="${H-m.b}"/>`;
+  s+=`<text class="tk" x="${m.l-8}" y="${Y(hi-pad)+4}" text-anchor="end">${(hi-pad).toFixed(3)}</text><text class="tk" x="${m.l-8}" y="${Y(lo+pad)+4}" text-anchor="end">${(lo+pad).toFixed(3)}</text>`;
+  if(isFinite(G[0]))s+=`<line x1="${m.l}" x2="${W-m.r}" y1="${Y(G[0])}" y2="${Y(G[0])}" stroke="var(--grey)" stroke-dasharray="4 3" stroke-width="1.2"/>`;
+  s+=`<polyline points="${polyPts(T,X,Y,t=>G[t],1)}" fill="none" stroke="var(--hi)" stroke-width="1.75" stroke-linejoin="round"/>`;
+  s+=`<text class="tk" x="${m.l}" y="${H-5}">t = 0</text><text class="tk" x="${W-m.r}" y="${H-5}" text-anchor="end">t = ${T}</text>`;
+  s+=`<g id="gini-cursor"></g><rect id="gini-hit" x="${m.l}" y="${m.t}" width="${W-m.l-m.r}" height="${H-m.t-m.b}" fill="transparent" style="cursor:pointer"/></svg>`;
+  el.innerHTML=s;res._gini={X,Y,m,H,W};renderGiniCursor(res);
+  bindTime('#gini-hit',T,(t,e)=>showTip(`<div class="th">Period ${t}</div>`+TR('Gini',fmt(G[t]))+TR('Change vs t = 0',`${G[t]-G[0]>=0?'+':'−'}${Math.abs(G[t]-G[0]).toFixed(3)}`),e.clientX,e.clientY),()=>{});
+}
+function renderGiniCursor(res){const g=$('#gini-cursor');if(!g||!res._gini)return;const {X,Y,m,H,W}=res._gini,t=S.t,v=res.G[t];
+  const right=X(t)<W-m.r-60;
+  g.innerHTML=`<line x1="${X(t)}" x2="${X(t)}" y1="${m.t-4}" y2="${H-m.b}" stroke="var(--ink)"/>`+(isFinite(v)?`<circle cx="${X(t)}" cy="${Y(v)}" r="4" fill="var(--hi)" stroke="var(--panel)" stroke-width="1.5"/><text class="valr halo" x="${X(t)+(right?7:-7)}" y="${Y(v)-7}" text-anchor="${right?'start':'end'}">${fmt(v)}</text>`:'');}
+
+/* ================= figure 3: individual series ================= */
+function renderIndivEq(res){
+  const i=rowOf(S.sel),P=res.P[i],L=P[0],K=P[1],nm=NAMES[S.sel];
+  const pw=(phi,ex,c)=>`${phi<0?'(':''}${NUM(phi,2,c)}${phi<0?')':''}<sup>${ex}</sup>`;
+  const part=(p,k)=>{const e=SRC[k].e,c=k?'cap':'lab';return `${pw(p.phi,'<i>t</i>',c)}${TH}·${TH}${NUM(p.start,0,c)}${O('+')}${SUM('<i>s</i>=1','<i>t</i>')}${pw(p.phi,'<i>t</i>−<i>s</i>',c)}(${NUM(p.beta,2,c)}${SG(p.trend,3,c)}${TH}<i>s</i>${O('+')}<i>${e}</i><sub><i>s</i></sub>)`;};
+  const src=k=>{const a=srcParts(P,k);return RA(a.l,'=',a.r)+RA(a.dl,SIM,a.dr)+RA(a.sl,'=',a.sr);};
+  const facts=k=>{const p=P[k],lr=longRun(p),hl=(p.phi>0&&p.phi<0.999)?Math.log(.5)/Math.log(p.phi):NaN;
+    if(Math.abs(p.phi)>=0.999)return 'No long-run level: with a unit root, shocks never fade.';
+    return `Long-run level without shocks${p.trend?' at t = 0':''} <b>${fmtM(lr,1)}</b>`+(isFinite(hl)?` · half-life of a shock <b>${fmt(hl,1)}</b> period${Math.abs(hl-1)<.05?'':'s'}`:'');};
+  const y0=L.start+K.start,r0=res.disp.rank[i][0];
+  $('#indiv-eq').innerHTML=
+    BLK('lab','Labor income','',src(0),facts(0))+
+    BLK('cap','Capital income','',src(1),facts(1))+
+    BLK('tot wide','Total income','',
+      RA('<i>y</i><sub><i>t</i></sub>','=',`<i>w</i><sub><i>t</i></sub>${O('+')}<i>f</i><sub><i>t</i></sub>`)+RA('<i>y</i><sub>0</sub>','=',NUM(y0,0,'neu')),
+      `${nm} ranks <b>${ord(r0)}</b> of ${N} at period 0, with <b>${y0>0?Math.round(100*K.start/y0):'n/a'}%</b> of income from capital.`)+
+    BLK('cf wide','Closed form','',
+      RA('<i>y</i><sub><i>t</i></sub>','=',part(L,0),'Labor')+RA('','',`${O('+')}${part(K,1)}`,'Capital','cont'),
+      `Each line substitutes one recursion back to period 0: the starting value fades at the rate <span class="m"><i>φ</i></span>, and each past shock is discounted by the same factor.`);
+}
+function renderIndiv(res){
+  if(!res)return;
+  if(S.iview==='cmp'){renderCompare(res);return;}
+  const el=$('#indiv-chart'),W=Math.max(300,el.clientWidth),H=Math.round(Math.min(340,Math.max(240,W*0.3))),m={l:48,r:124,t:28,b:36},T=res.T;
+  const i=rowOf(S.sel),Lw=res.levD[0][i],Kf=res.levD[1][i],Dw=res.det[0][i],Df=res.det[1][i];
+  const ser=[];
+  if(S.show.e)ser.push({f:t=>Dw[t]+Df[t],c:'var(--grey)',w:1.5,dash:'5 4',name:'No shock'});
+  if(S.show.w)ser.push({f:t=>Lw[t],c:'var(--lab)',w:1.6,name:'Labor'});
+  if(S.show.f)ser.push({f:t=>Kf[t],c:'var(--cap)',w:1.6,name:'Capital'});
+  if(S.show.y)ser.push({f:t=>Lw[t]+Kf[t],c:'var(--hi)',w:2.5,name:'Total'});
+  let lo=0,hi=-Infinity;for(const sr of ser)for(let t=0;t<=T;t++){const v=sr.f(t);if(isFinite(v)){lo=Math.min(lo,v);hi=Math.max(hi,v);}}
+  if(!isFinite(hi))hi=1;if(hi-lo<1e-9)hi=lo+1;const pad=(hi-lo)*0.05;hi+=pad;if(lo<0)lo-=pad;
+  const pw=W-m.l-m.r,ph=H-m.t-m.b,X=t=>m.l+pw*t/T,Y=v=>m.t+ph*(1-(v-lo)/(hi-lo)),step=niceStep(hi-lo,5);
+  let s=svgOpen(W,H,`Income series of ${NAMES[S.sel]}`);
+  s+=axes({W,H,m,X,Y,yt:ticks(lo,hi,step),yf:v=>v.toFixed(decFor(step)),xt:ticks(0,T,niceStep(T,Math.max(3,Math.min(8,pw/64)))),yTitle:'Units',xTitle:'Period t'});
+  const stride=T>1200?2:1;
+  for(const sr of ser)s+=`<polyline points="${polyPts(T,X,Y,sr.f,stride)}" fill="none" stroke="${sr.c}" stroke-width="${T>500?Math.max(1,sr.w-.5):sr.w}" stroke-linejoin="round"${sr.dash?` stroke-dasharray="${sr.dash}"`:''}/>`;
+  s+=endLabels(ser.map(sr=>{const v=sr.f(T);return {col:sr.c,y:isFinite(v)?Y(v):m.t,name:sr.name,val:fmtM(v,1)};}),m,pw,ph);
+  s+=`<g id="indiv-cursor"></g><g id="indiv-hover"></g><rect id="indiv-hit" x="${m.l}" y="${m.t}" width="${pw}" height="${ph}" fill="transparent" style="cursor:crosshair"/></svg>`;
+  el.innerHTML=s;res._indiv={X,Y,m,ph,i};res._cmp=null;
+  bindTime('#indiv-hit',T,(t,e)=>{$('#indiv-hover').innerHTML=hoverLine(X,t,m,ph);
+    showTip(`<div class="th">${NAMES[S.sel]} · period ${t}</div>`+TR('Total y',fmtM(Lw[t]+Kf[t],2))+TR('Labor w',fmtM(Lw[t],2))+TR('Capital f',fmtM(Kf[t],2))+TR('No-shock y',fmtM(Dw[t]+Df[t],2))+TR('Rank',`${res.disp.rank[i][t]} of ${N}`),e.clientX,e.clientY);},()=>{$('#indiv-hover').innerHTML='';});
+  let sum=0,mn=Infinity,mnT=0,mx=-Infinity,mxT=0,ng=0;
+  for(let t=0;t<=T;t++){const v=Lw[t]+Kf[t];sum+=v;if(v<mn){mn=v;mnT=t;}if(v>mx){mx=v;mxT=t;}if(v<0)ng++;}
+  res._indivStats={mean:sum/(T+1),mn,mnT,mx,mxT,ng,changes:res.changes[i]};
+  renderIndivCursor(res);renderIndivReadouts(res);
+}
+function renderIndivReadouts(res){
+  if(S.iview==='cmp'){renderCmpText(res);renderCmpTable(res);return;}
+  const st=res._indivStats;if(!st||!res._indiv)return;const i=res._indiv.i,t=S.t,nm=NAMES[S.sel];
+  const w=res.levD[0][i][t],f=res.levD[1][i][t],y=w+f,r=res.disp.rank[i][t];
+  let title;
+  if(!(y>0))title=`${nm}’s total income is negative at t = ${t}`;
+  else if(w<0||f<0)title=`${nm} has a negative ${w<0?'labor':'capital'} income at t = ${t}`;
+  else{const k=Math.round(100*f/y);title=k>=50?`${nm} draws ${k}% of income from capital`:`${nm} draws ${100-k}% of income from labor`;}
+  $('#tm-indiv').textContent=title;
+  $('#st-indiv').textContent=`Labor, capital and total income of ${nm} on the displayed sample path, in units`;
+  $('#src-indiv').textContent='Source: simulation · the dashed grey line sets every shock to zero';
+  $('#rd-indiv').innerHTML=`<b>Reading:</b> at period ${t}, ${nm} earns ${fmtM(y,1)} units, ${fmtM(w,1)} from labor and ${fmtM(f,1)} from capital, and ranks ${ord(r)} of ${N} from the bottom. Over the path, ${nm}’s rank changes ${st.changes} time${st.changes===1?'':'s'} and total income ranges from ${fmtM(st.mn,1)} (t = ${st.mnT}) to ${fmtM(st.mx,1)} (t = ${st.mxT}).${st.ng?` Total income is negative in ${st.ng} period${st.ng===1?'':'s'}.`:''}`;
+}
+function renderIndivCursor(res){
+  if(S.iview==='cmp'){renderCmpCursor(res);return;}
+  const g=$('#indiv-cursor');if(!g||!res._indiv)return;const {X,Y,m,ph,i}=res._indiv,t=S.t,y=res.levD[0][i][t]+res.levD[1][i][t];
+  g.innerHTML=cursorLine(X,t,m,ph)+(S.show.y&&isFinite(y)?`<circle cx="${X(t)}" cy="${Y(y)}" r="4.5" fill="var(--hi)" stroke="var(--panel)" stroke-width="2"/>`:'');
+}
+function renderIndivAll(res){
+  if(!res)return;renderModel(res);
+  const cmp=S.iview==='cmp';
+  $('#cmp-controls').hidden=!cmp;$('#indiv-eq').hidden=cmp;$('#one-legend').hidden=cmp;$('#person-select').hidden=cmp;$('#cmp-wrap').hidden=!cmp;
+  document.querySelectorAll('#cmp-chips .chip-t').forEach(b=>b.setAttribute('aria-pressed',S.cmpOn[+b.dataset.p]));
+  if(!cmp)renderIndivEq(res);renderIndiv(res);
+}
+function toggleCmp(p){S.cmpOn[p]=!S.cmpOn[p];if(RES){renderIndivAll(RES);renderSeries(RES);}}
+const CV={y:'Total income y',w:'Labor income w',f:'Capital income f',s:'Income share'};
+const CVN={y:'total income',w:'labor income',f:'capital income',s:'income share'};
+function cmpVal(res,i,t,det){const L=(det?res.det:res.levD)[0][i][t],K=(det?res.det:res.levD)[1][i][t];
+  return S.cvar==='y'?L+K:S.cvar==='w'?L:S.cvar==='f'?K:(det?res.detSp[i][t]:res.disp.Sp[i][t]);}
+function cmpFmt(v,d=2){return S.cvar==='s'?pct(v,d):fmtM(v,d);}
+const cmpRows=()=>NAMES.map((_,p)=>p).filter(p=>S.cmpOn[p]).map(p=>({p,i:rowOf(p)}));
+function renderCompare(res){
+  const el=$('#indiv-chart'),W=Math.max(300,el.clientWidth),H=Math.round(Math.min(350,Math.max(250,W*0.3))),m={l:50,r:118,t:28,b:36},T=res.T;
+  const rows=cmpRows();
+  let lo=S.cvar==='s'?Infinity:0,hi=-Infinity;
+  for(const r of rows)for(let t=0;t<=T;t++)for(const det of S.cmpDet?[false,true]:[false]){const v=cmpVal(res,r.i,t,det);if(isFinite(v)){lo=Math.min(lo,v);hi=Math.max(hi,v);}}
+  if(!isFinite(hi)){lo=0;hi=1;}if(hi-lo<1e-9)hi=lo+1;const pad=(hi-lo)*0.05;hi+=pad;if(lo<0||S.cvar==='s')lo-=pad;
+  const pw=W-m.l-m.r,ph=H-m.t-m.b,X=t=>m.l+pw*t/T,Y=v=>m.t+ph*(1-(v-lo)/(hi-lo)),step=niceStep(hi-lo,5);
+  let s=svgOpen(W,H,`${CV[S.cvar]} of ${rows.map(r=>NAMES[r.p]).join(', ')}`);
+  s+=axes({W,H,m,X,Y,yt:ticks(lo,hi,step),yf:v=>S.cvar==='s'?(v*100).toFixed(step<0.01?1:0):v.toFixed(decFor(step)),xt:ticks(0,T,niceStep(T,Math.max(3,Math.min(8,pw/64)))),yTitle:S.cvar==='s'?'%':'Units',xTitle:'Period t',zero:S.cvar!=='s'});
+  const stride=T>1200?2:1;
+  for(const r of rows){const col=`var(--q${r.p+1})`;
+    if(S.cmpDet)s+=`<polyline points="${polyPts(T,X,Y,t=>cmpVal(res,r.i,t,true),stride)}" fill="none" stroke="${col}" stroke-width="1.3" stroke-dasharray="5 4"/>`;
+    s+=`<polyline points="${polyPts(T,X,Y,t=>cmpVal(res,r.i,t,false),stride)}" fill="none" stroke="${col}" stroke-width="${T>500?1.4:2}" stroke-linejoin="round"/>`;}
+  s+=endLabels(rows.map(r=>{const v=cmpVal(res,r.i,T,false);return {p:r.p,y:isFinite(v)?Y(v):m.t,name:NAMES[r.p],val:cmpFmt(v,1)};}),m,pw,ph);
+  if(!rows.length)s+=`<text class="lb" x="${m.l+pw/2}" y="${m.t+ph/2}" text-anchor="middle">SELECT AT LEAST ONE PERSON ABOVE</text>`;
+  s+=`<g id="indiv-cursor"></g><g id="indiv-hover"></g><rect id="indiv-hit" x="${m.l}" y="${m.t}" width="${pw}" height="${ph}" fill="transparent" style="cursor:crosshair"/></svg>`;
+  el.innerHTML=s;res._cmp={X,Y,m,ph,rows};
+  bindTime('#indiv-hit',T,(t,e)=>{$('#indiv-hover').innerHTML=hoverLine(X,t,m,ph);
+    let h=`<div class="th">${CV[S.cvar]} · period ${t}</div>`;rows.slice().sort((a,b)=>cmpVal(res,b.i,t,false)-cmpVal(res,a.i,t,false)).forEach(r=>{h+=TR(`${glyph(r.p,10)}${NAMES[r.p]} · rank ${res.disp.rank[r.i][t]}`,cmpFmt(cmpVal(res,r.i,t,false)));});
+    showTip(h,e.clientX,e.clientY);},()=>{$('#indiv-hover').innerHTML='';});
+  renderCmpCursor(res);renderCmpText(res);renderCmpTable(res);
+}
+function renderCmpText(res){
+  const rows=cmpRows(),t=S.t;
+  $('#st-indiv').textContent=`${CV[S.cvar].replace(/ [ywf]$/,'')} of the selected people on the displayed sample path, ${S.cvar==='s'?'in %':'in units'}`;
+  $('#src-indiv').textContent=S.cmpDet?'Source: simulation · dashed lines set every shock to zero':'Source: simulation';
+  if(!rows.length){$('#tm-indiv').textContent='Select at least one person to compare';$('#rd-indiv').innerHTML='<b>Reading:</b> choose names in the People row above to draw their series.';return;}
+  const srt=rows.slice().sort((a,b)=>cmpVal(res,b.i,t,false)-cmpVal(res,a.i,t,false)),top=srt[0],bot=srt[srt.length-1];
+  $('#tm-indiv').textContent=rows.length===1?`${NAMES[top.p]}’s ${CVN[S.cvar]} on its own`:`${NAMES[top.p]} has the highest ${CVN[S.cvar]} at t = ${t}`;
+  $('#rd-indiv').innerHTML=`<b>Reading:</b> at period ${t}, ${NAMES[top.p]}’s ${CVN[S.cvar]} is ${cmpFmt(cmpVal(res,top.i,t,false),S.cvar==='s'?1:1)}${S.cvar==='s'?'':' units'}`+(rows.length>1?`, against ${cmpFmt(cmpVal(res,bot.i,t,false),1)}${S.cvar==='s'?'':' units'} for ${NAMES[bot.p]}, the lowest of the selected people.`:'.');
+}
+function renderCmpCursor(res){const g=$('#indiv-cursor');if(!g||!res._cmp)return;const {X,Y,m,ph,rows}=res._cmp,t=S.t;
+  let h=cursorLine(X,t,m,ph);
+  rows.forEach(r=>{const v=cmpVal(res,r.i,t,false);if(isFinite(v))h+=mark(r.p,X(t),Y(v),4.4);});g.innerHTML=h;}
+function renderCmpTable(res){
+  const rows=cmpRows(),T=res.T,ind=res.mode==='individual';
+  let h=`<thead><tr><th>Person</th><th><span class="m"><i>φ</i><sub>L</sub></span></th><th><span class="m"><i>φ</i><sub>K</sub></span></th><th>At t = ${S.t}</th><th>Mean</th><th>s.d.</th><th>Lowest</th><th>Highest</th><th>Rank at t</th><th>Rank changes</th>${ind?'<th><span class="m"><span class="hat"><i>ρ</i></span>(1)</span> of share</th>':''}</tr></thead><tbody>`;
+  rows.forEach(r=>{let sum=0,sq=0,mn=Infinity,mx=-Infinity;for(let t=0;t<=T;t++){const v=cmpVal(res,r.i,t,false);sum+=v;sq+=v*v;mn=Math.min(mn,v);mx=Math.max(mx,v);}
+    const mean=sum/(T+1),sd=Math.sqrt(Math.max(0,sq/(T+1)-mean*mean)),P=res.P[r.i];
+    h+=`<tr><td>${glyph(r.p)}${NAMES[r.p]}</td><td>${fmtM(P[0].phi,2)}</td><td>${fmtM(P[1].phi,2)}</td><td>${cmpFmt(cmpVal(res,r.i,S.t,false))}</td><td>${cmpFmt(mean)}</td><td>${cmpFmt(sd)}</td><td>${cmpFmt(mn)}</td><td>${cmpFmt(mx)}</td><td>${res.disp.rank[r.i][S.t]} of ${N}</td><td>${res.changes[r.i]}</td>${ind?`<td>${fmt(res.stats[r.i].mean)}</td>`:''}</tr>`;});
+  if(!rows.length)h+=`<tr><td colspan="11" style="color:var(--muted)">No one selected.</td></tr>`;
+  $('#cmp-table').innerHTML=h+'</tbody>';
+}
+function buildCompare(){
+  $('#cmp-chips').innerHTML=NAMES.map((n,p)=>`<button type="button" class="chip-t" data-p="${p}" aria-pressed="${S.cmpOn[p]}">${glyph(p)}${n}</button>`).join('');
+  document.querySelectorAll('#cmp-chips .chip-t').forEach(b=>b.addEventListener('click',()=>toggleCmp(+b.dataset.p)));
+  $('#cmp-all').addEventListener('click',()=>{S.cmpOn=S.cmpOn.map(()=>true);if(RES){renderIndivAll(RES);renderSeries(RES);}});
+  $('#cmp-none').addEventListener('click',()=>{S.cmpOn=S.cmpOn.map(()=>false);if(RES){renderIndivAll(RES);renderSeries(RES);}});
+  document.querySelectorAll('input[name=iview]').forEach(el=>el.addEventListener('change',()=>{S.iview=el.value;renderIndivAll(RES);}));
+  document.querySelectorAll('input[name=cvar]').forEach(el=>el.addEventListener('change',()=>{S.cvar=el.value;renderIndiv(RES);}));
+  $('#cmp-e').addEventListener('change',e=>{S.cmpDet=e.target.checked;renderIndiv(RES);});
+}
+
+/* ================= figure 4: shares over time ================= */
+const shownU=i=>S.mode!=='individual'||S.cmpOn[S.pid[i]];
+function renderSeries(res){
+  const el=$('#series-chart'),W=Math.max(300,el.clientWidth),H=Math.round(Math.min(380,Math.max(260,W*0.25))),m={l:44,r:124,t:28,b:36},T=res.T,d=res.disp;
+  let lo=Infinity,hi=-Infinity;for(let i=0;i<N;i++){if(!shownU(i))continue;for(let t=0;t<=T;t++){const v=d.Su[i][t];if(isFinite(v)){lo=Math.min(lo,v);hi=Math.max(hi,v);}}}
+  if(!isFinite(lo)){lo=0;hi=1;}
+  const pad=Math.max(1e-4,(hi-lo)*0.06);lo=Math.min(lo-pad,Math.max(0,lo-pad));hi+=pad;
+  const pw=W-m.l-m.r,ph=H-m.t-m.b,X=t=>m.l+pw*t/T,Y=v=>m.t+ph*(1-(v-lo)/(hi-lo)),step=niceStep(hi-lo,5);
+  let s=svgOpen(W,H,`Income shares over ${T} periods`);
+  s+=axes({W,H,m,X,Y,yt:ticks(lo,hi,step),yf:v=>(v*100).toFixed(step<0.01?1:0),xt:ticks(0,T,niceStep(T,Math.max(3,Math.min(10,pw/64)))),yTitle:'%',xTitle:'Period t'});
+  const stride=T>1200?2:1;
+  for(let i=0;i<N;i++){if(!shownU(i))continue;s+=`<polyline points="${polyPts(T,X,Y,t=>d.Su[i][t],stride)}" fill="none" stroke="var(--q${uP(i)+1})" stroke-width="${T>500?1.4:2}" stroke-linejoin="round"/>`;}
+  const items=[];for(let i=0;i<N;i++){if(!shownU(i))continue;const v=d.Su[i][T];items.push({p:uP(i),y:isFinite(v)?Y(v):m.t,name:unitLabel(i),val:pct(v,1)});}
+  s+=endLabels(items,m,pw,ph);
+  s+=`<g id="series-cursor"></g><g id="series-hover"></g><rect id="series-hit" x="${m.l}" y="${m.t}" width="${pw}" height="${ph}" fill="transparent" style="cursor:crosshair"/></svg>`;
+  el.innerHTML=s;res._series={X,Y,m,pw,ph,T};
+  bindTime('#series-hit',T,(t,e)=>{$('#series-hover').innerHTML=hoverLine(X,t,m,ph);
+    let h=`<div class="th">Period ${t}</div>`;[...Array(N).keys()].filter(shownU).sort((a,b)=>d.Su[b][t]-d.Su[a][t]).forEach(i=>{h+=TR(`${glyph(uP(i),10)}${unitLabel(i)}${S.mode==='rank'?` (${NAMES[S.pid[d.who[i][t]]]})`:''}`,pct(d.Su[i][t],2));});
+    h+=TR('Labor share',pct(d.LS[t],2));showTip(h,e.clientX,e.clientY);},()=>{$('#series-hover').innerHTML='';});
+  renderSeriesCursor(res);
+  if(S.mode==='individual'){
+    $('#series-legend').innerHTML=NAMES.map((n,p)=>`<button type="button" class="chip-t" data-p="${p}" aria-pressed="${S.cmpOn[p]}">${glyph(p)}${n}</button>`).join('');
+    document.querySelectorAll('#series-legend .chip-t').forEach(b=>b.addEventListener('click',()=>toggleCmp(+b.dataset.p)));
+  } else $('#series-legend').innerHTML=`<div class="legend">${Array.from({length:N},(_,i)=>`<span class="lg">${glyph(i)}${unitLabel(i)}${i===0?' (bottom)':i===N-1?' (top)':''}</span>`).join('')}</div>`;
+  // message title and reading
+  const top0=S.mode==='rank'?N-1:d.who[N-1][0],a=d.Su[top0][0],b=d.Su[top0][T];
+  const who0=S.mode==='rank'?'The top slot':NAMES[S.pid[top0]];
+  $('#tm-series').textContent=Math.abs(b-a)<0.0005?`${who0}’s share holds at ${pct(a,1)} over ${T} periods`:`${who0}’s share moves from ${pct(a,1)} to ${pct(b,1)} over ${T} periods`;
+  let most=0;for(let i=1;i<N;i++)if(res.changes[i]>res.changes[most])most=i;
+  $('#rd-series').innerHTML=`<b>Reading:</b> ${S.mode==='rank'?'each line is a position in the distribution, not a person; ':''}ranks change in ${res.switches} of ${T} periods on this path`+(res.switches?`, and ${NAMES[S.pid[most]]} changes rank most often (${res.changes[most]} time${res.changes[most]===1?'':'s'}).`:'.')+(S.mode==='rank'?'':` At period 0, ${who0} holds the largest share.`);
+}
+function renderSeriesCursor(res){const g=$('#series-cursor');if(!g||!res._series)return;const {X,Y,m,ph}=res._series,t=S.t,d=res.disp;
+  let h=cursorLine(X,t,m,ph);
+  for(let i=0;i<N;i++){if(!shownU(i))continue;const v=d.Su[i][t];if(isFinite(v))h+=mark(uP(i),X(t),Y(v),4.4);}g.innerHTML=h;}
+
+/* ================= figure 5: income by person at t ================= */
+function renderComp(res){
+  const el=$('#comp-chart'),W=Math.max(280,el.clientWidth),H=310,m={l:44,r:10,t:28,b:52},t=S.t,lev=res.levD,d=res.disp;
+  const parts=Array.from({length:N},(_,r)=>{const i=d.who[r][t];return {i,p:S.pid[i],w:lev[0][i][t],f:lev[1][i][t],y0:lev[0][i][0]+lev[1][i][0]};});
+  let hi=0,lo=0;parts.forEach(q=>{hi=Math.max(hi,Math.max(0,q.w)+Math.max(0,q.f),q.y0);lo=Math.min(lo,Math.min(0,q.w)+Math.min(0,q.f));});
+  hi=hi*1.14+1e-9;if(lo<0)lo*=1.1;
+  const stag=(W-m.l-m.r)/N<Math.max(...NAMES.map(n=>n.length))*7+24;if(stag)m.b=84;
+  const pw=W-m.l-m.r,ph=H-m.t-m.b,band=pw/N,bw=Math.min(56,band*0.5),step=niceStep(hi-lo,5);
+  const Y=v=>m.t+ph*(1-(v-lo)/(hi-lo)),X=r=>m.l+band*(r+.5);
+  let s=svgOpen(W,H,`Labor and capital income by person at period ${t}`);
+  s+=axes({W,H,m,Y,yt:ticks(lo,hi,step),yf:v=>v.toFixed(decFor(step)),yTitle:'Units'});
+  parts.forEach((q,r)=>{
+    const x0=X(r)-bw/2,segs=[];let pb=0,nb=0;
+    if(q.w>0){segs.push(['var(--lab)',pb,pb+q.w]);pb+=q.w;}if(q.f>0){segs.push(['var(--cap)',pb,pb+q.f]);pb+=q.f;}
+    if(q.w<0){segs.push(['var(--lab)',nb+q.w,nb]);nb+=q.w;}if(q.f<0){segs.push(['var(--cap)',nb+q.f,nb]);nb+=q.f;}
+    segs.forEach(g=>{const yt=Y(g[2]),yb=Y(g[1]);s+=`<rect x="${x0}" y="${yt}" width="${bw}" height="${Math.max(0,yb-yt)}" fill="${g[0]}" stroke="var(--panel)" stroke-width="1.5"/>`;});
+    s+=`<line x1="${x0-7}" x2="${x0+bw+7}" y1="${Y(q.y0)}" y2="${Y(q.y0)}" stroke="var(--ink)" stroke-width="2.5"/>`;
+    s+=`<text class="val halo" x="${X(r)}" y="${Math.min(Y(pb),Y(q.y0))-8}" text-anchor="middle">${fmtM(q.w+q.f,1)}</text>`;
+    const nm=UC(NAMES[q.p]),tw=nm.length*7,dy=stag&&r%2?31:0;
+    s+=`${mark(q.p,X(r)-tw/2-4,H-m.b+19+dy,4.2,false)}<text class="lb" x="${X(r)+5}" y="${H-m.b+23.5+dy}" text-anchor="middle">${nm}</text><text class="lbs" x="${X(r)}" y="${H-m.b+39+dy}" text-anchor="middle">rank ${r+1}</text>`;
+    s+=`<rect data-hit="${r}" x="${m.l+band*r}" y="${m.t}" width="${band}" height="${ph}" fill="transparent"/>`;
+  });
+  s+='</svg>';el.innerHTML=s;
+  bindHits(el,r=>{const q=parts[r],y=q.w+q.f;return `<div class="th">${NAMES[q.p]} · rank ${r+1} at t = ${t}</div>`+TR('Total y',fmtM(y,2))+TR('Labor w',fmtM(q.w,2))+TR('Capital f',fmtM(q.f,2))+TR('Capital / total',y!==0?fmt(q.f/y,2):'n/a')+TR('Share of income',pct(d.Sp[q.i][t],2))+TR('Total at t = 0',fmtM(q.y0,1));});
+  const top=parts[N-1],ty=top.w+top.f,nm=NAMES[top.p];
+  $('#tm-comp').textContent=`${nm} has the highest income at t = ${t}`;
+  $('#st-comp').textContent=`Labor and capital income of each person at period ${t}, from the lowest to the highest total, in units`;
+  $('#rd-comp').innerHTML=`<b>Reading:</b> at period ${t}, ${nm} earns ${fmtM(ty,1)} units`+(ty>0&&top.w>=0&&top.f>=0?`, ${Math.round(100*top.w/ty)}% from labor and ${Math.round(100*top.f/ty)}% from capital`:'')+`. Across the five people, total income is ${fmtM(d.Y[t],1)} units and the labor share is ${pct(d.LS[t])} (${pct(d.LS[0])} at period 0). The black tick marks each person’s total at period 0.`;
+}
+
+/* ================= orchestration ================= */
+function renderTimeViews(){
+  if(!RES)return;
+  $('#t-val').innerHTML=`<span class="m"><i>t</i></span> = <b>${S.t}</b> / ${RES.T}`;
+  const sl=$('#t-slider');sl.value=S.t;fillRange(sl);
+  renderKPIs(RES);renderLorenz(RES);renderGiniCursor(RES);renderComp(RES);renderSeriesCursor(RES);renderIndivCursor(RES);renderIndivReadouts(RES);
+}
+function renderAll(){
+  if(!RES)return;
+  [0,1].forEach(k=>{const r=$('#r-phi-'+k),n=$('#n-phi-'+k),dis=S.phiMode==='person';r.value=S.phi[k];fillRange(r);if(document.activeElement!==n)n.value=S.phi[k].toFixed(2);r.disabled=dis;n.disabled=dis;});
+  $('#phimode-hint').hidden=S.phiMode!=='person';
+  renderSourceStats(RES.infos);syncPeople(RES);
+  $('#seed-val').textContent=S.seed;
+  $('#foot-run').textContent=`Seed ${S.seed} · T = ${RES.T} · ${RES.R} samples`;
+  const sl=$('#t-slider');sl.max=RES.T;
+  renderProfile(RES);renderProfileMeta(RES);renderGini(RES);renderSeries(RES);renderIndivAll(RES);renderTimeViews();
+}
+let pending=false;
+function schedule(){if(pending)return;pending=true;requestAnimationFrame(()=>{pending=false;S.t=Math.min(S.t,S.T);RES=compute();renderAll();});}
+function setT(t){if(!RES)return;S.t=Math.max(0,Math.min(RES.T,t));renderTimeViews();}
+$('#t-slider').addEventListener('input',e=>setT(+e.target.value));
+$('#t-first').addEventListener('click',()=>setT(0));
+$('#t-last').addEventListener('click',()=>setT(RES.T));
+$('#t-prev').addEventListener('click',()=>setT(S.t-1));
+$('#t-next').addEventListener('click',()=>setT(S.t+1));
+let playTimer=null;
+function setPlaying(on){
+  S.playing=on;$('#play').setAttribute('aria-label',on?'Pause':'Play through periods');
+  $('#play-ico').innerHTML=on?'<rect x="4" y="3" width="2.8" height="10"/><rect x="9.2" y="3" width="2.8" height="10"/>':'<path d="M4.5 2.6L13 8l-8.5 5.4z"/>';
+  if(playTimer){clearInterval(playTimer);playTimer=null;}
+  if(on){if(S.t>=RES.T)setT(0);const step=Math.max(1,Math.round(RES.T/220));playTimer=setInterval(()=>{const t=S.t+step;if(t>RES.T){setPlaying(false);return;}setT(t);},80);}
+}
+$('#play').addEventListener('click',()=>setPlaying(!S.playing));
+document.addEventListener('keydown',e=>{
+  const tg=e.target,tag=tg&&tg.tagName;
+  if(tag==='INPUT'||tag==='SELECT'||tag==='TEXTAREA'||(tg&&tg.isContentEditable)||!RES)return;
+  if(e.key==='ArrowLeft'||e.key==='ArrowRight'){if(tg.closest&&tg.closest('[role=tablist]'))return;e.preventDefault();setT(S.t+(e.key==='ArrowRight'?1:-1)*(e.shiftKey?10:1));}
+  else if(e.key===' '&&tag!=='BUTTON'&&tag!=='SUMMARY'){e.preventDefault();setPlaying(!S.playing);}
+  else if(e.key==='Home'){e.preventDefault();setT(0);}else if(e.key==='End'){e.preventDefault();setT(RES.T);}
+});
+document.addEventListener('wheel',e=>{const el=e.target;if(!(el instanceof HTMLInputElement)||el.type!=='number'||document.activeElement!==el||el.disabled)return;
+  e.preventDefault();const st=parseFloat(el.step)||1,dec=(String(el.step).split('.')[1]||'').length,dir=e.deltaY<0?1:-1;
+  let v=(parseFloat(el.value)||0)+dir*st*(e.shiftKey?10:1);if(el.max!=='')v=Math.min(v,+el.max);if(el.min!=='')v=Math.max(v,+el.min);
+  el.value=v.toFixed(dec);el.dispatchEvent(new Event('input',{bubbles:true}));el.dispatchEvent(new Event('change',{bubbles:true}));},{passive:false});
+let rz=null;
+const ro=new ResizeObserver(()=>{if(rz)return;rz=requestAnimationFrame(()=>{rz=null;if(RES){renderProfile(RES);renderGini(RES);renderSeries(RES);renderIndiv(RES);renderTimeViews();}});});
+ro.observe($('.board'));
+
+/* ================= start ================= */
+presetParams();
+const DEF=JSON.stringify(S);
+function syncStatic(){initRadios();syncAlloc();$('#cap-0').value=S.cap[0];$('#cap-1').value=S.cap[1];$('#person-select').value=S.sel;$('#cmp-e').checked=S.cmpDet;['y','w','f','e'].forEach(k=>{$('#show-'+k).checked=S.show[k];});setTab(S.tab);}
+$('#reset').addEventListener('click',()=>{setPlaying(false);const d=JSON.parse(DEF);for(const k of Object.keys(d))S[k]=d[k];syncStatic();schedule();});
+buildCompare();buildAlloc();buildPresets();buildPeople();buildPersonPickers();syncStatic();
+RES=compute();renderAll();
+
+</script>
+</body>
+</html>
