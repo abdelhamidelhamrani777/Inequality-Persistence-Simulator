@@ -32,7 +32,7 @@ Inequality has two dimensions.
 
 Most public discussion is about the first dimension. This simulator is about the second, and about one mechanism in particular: **the persistence of an income share depends on the mix of income sources behind it**. Labor income (wages and salaries) and capital income (dividends, interest, rents, capital gains) do not behave alike. Wages tend to move slowly, anchored by contracts, institutions and careers. Capital income tends to move fast, driven by asset prices and the timing of payouts. A group that lives mostly on wages will therefore see its share of income move slowly; a group that lives mostly on capital will see its share jump around and revert quickly.
 
-The simulator comes from a collective research effort at the Faculty of Governance, Economics and Social Sciences (FGSES) of Mohammed VI Polytechnic University: two master's theses on U.S. pre-tax income shares, Hajar Hazmiri's on their persistence and Abdelhamid El Hamrani's on their volatility, brought together in a joint working paper, *Modeling the Persistence of Income Shares and the Lorenz Curve* (Abul Naga, El Hamrani and Hazmiri, 2026). Across fifteen income bands over 1914–2023, the working paper finds that persistence has an inverted-U profile: the first-order autoregressive coefficient is about 0.8 in the middle of the distribution, where labor provides 82–86% of income, against 0.30 for the bottom 5% and 0.24 for the top 0.001%. The simulator lets you build that result from first principles, then break it, reverse it and test it.
+The simulator results from a research effort carried out within master's theses at the Faculty of Governance, Economics and Social Sciences (FGSES) of Mohammed VI Polytechnic University (UM6P), under the supervision of Professor Ramses Abul Naga, on how income shares move over time along the distribution. It lets you build that mechanism from first principles, then break it, reverse it and test it.
 
 It is a laboratory with five hypothetical people: **Violette, Meryem, Bjørn, Alfred and George**. It illustrates mechanisms; it does not estimate anything from data.
 
@@ -316,7 +316,7 @@ Each experiment starts from **Reset**, changes one thing, and reports what the s
 
 As section 2.4 showed, the ranking of persistence follows exactly the share of each person's fluctuations that comes from labor. The middle is anchored by wages; the bottom and the top are exposed to fast-reverting capital income.
 
-**What it tells us about inequality.** The shape of the profile reflects the income composition behind it. A top share that moves quickly, rising in one year and falling the next, is not evidence that top incomes are random. It may simply reflect that top incomes are made of capital. This is the mechanism the theses and the working paper put forward for U.S. data.
+**What it tells us about inequality.** The shape of the profile reflects the income composition behind it. A top share that moves quickly, rising in one year and falling the next, is not evidence that top incomes are random. It may simply reflect that top incomes are made of capital. This is the mechanism the simulator was built to illustrate.
 
 ### 6.2 Swap which source is persistent
 
@@ -484,7 +484,7 @@ The second step matters. With $`\phi = 1`$, the constant no longer sets a level:
 
 Figure 1 shows very high persistence for everyone (0.887 to 0.932), with the capital-heavy bottom and top now the most persistent. The note explains that the theory line is undefined, and that incomes turn negative in 51 of 111 periods: a random walk has no floor.
 
-**What it tells us.** With a unit root, a shock to inequality is permanent: there is no "normal" distribution to return to, and the distribution can drift anywhere. Whether income shares are stationary or contain a unit root is therefore a central empirical question, and the reason the theses test the stationarity of each income share before measuring persistence.
+**What it tells us.** With a unit root, a shock to inequality is permanent: there is no "normal" distribution to return to, and the distribution can drift anywhere. Whether income shares are stationary or contain a unit root is therefore a central empirical question, and the reason empirical work tests the stationarity of each income share before measuring persistence.
 
 ### 6.9 Overshooting: negative persistence
 
@@ -575,13 +575,13 @@ The Gini coefficient falls from 0.318 to 0.206 at period 0 and recovers far more
 
 George's persistence falls from 0.688 to 0.452, the steepest drop of anyone, and the inverted U becomes more pronounced at the top. Everyone else's persistence also falls, because George's large, quickly reverting swings move the total that every share is divided by.
 
-**What it tells us.** Volatile, quickly reverting income at the top lowers the persistence of the top share, and, through the total, spills over to every other share. This is consistent with the finding that persistence is weakest in the very top band of the U.S. distribution (0.24 for the top 0.001%), the only band in which corporate profits make up a majority of income.
+**What it tells us.** Volatile, quickly reverting income at the top lowers the persistence of the top share, and, through the total, spills over to every other share. It shows how a top share can have low persistence when it rests on volatile, quickly reverting capital income, such as income driven by asset prices.
 
 ---
 
 ## 7. From the simulator to real data
 
-The simulator is a stylized model, but each experiment maps onto a question you can ask of real inequality data, such as the income shares of the World Inequality Database used in the theses and the working paper.
+The simulator is a stylized model, but each experiment maps onto a question you can ask of real inequality data, such as the income shares of the World Inequality Database.
 
 | In the simulator | In real data |
 | --- | --- |
@@ -599,7 +599,7 @@ Some guidance for reading real evidence with the simulator in mind:
 - **Account for mobility.** Persistence of a top share mixes the persistence of top incomes with entries and exits from the top (6.6).
 - **Separate trends from persistence.** Remove the long-run movement before measuring persistence; the simulator does this by subtracting the no-shock path (6.7).
 
-The default configuration reproduces the central finding of the theses and the working paper: persistence peaks in the middle of the distribution, where labor income dominates, and is weakest at both ends. In the data, the volatility of the shares is U-shaped across the distribution while their persistence is an inverted U, which is why Abdelhamid El Hamrani's thesis studies volatility separately; experiments 6.5 and 6.12 show why the two must not be confused. Experiment 6.4 mirrors another result of the working paper: economies with the same Lorenz curve and similar Gini coefficients can have completely different persistence profiles.
+The default configuration reproduces the pattern that motivated the simulator: persistence peaks in the middle of the distribution, where labor income dominates, and is weakest at both ends. Experiments 6.5 and 6.12 show why persistence and volatility must be studied separately, and experiment 6.4 shows why the Lorenz curve and the Gini coefficient alone cannot reveal the dynamics of inequality.
 
 ## 8. Exercises
 
