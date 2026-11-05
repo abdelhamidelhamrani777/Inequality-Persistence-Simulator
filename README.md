@@ -28,11 +28,17 @@ The simulator is a single HTML file that runs in any modern browser, with no ins
 
 ## About this project
 
-This simulator grew out of the master's research we carried out at the Faculty of Governance, Economics and Social Sciences (FGSES) of Mohammed VI Polytechnic University (UM6P), under the supervision of Professor Ramses Abul Naga.
+The Inequality Persistence Simulator is a collective research effort stemming from two master's theses written at the Faculty of Governance, Economics and Social Sciences (FGSES) of Mohammed VI Polytechnic University (UM6P), under the supervision of Professor Ramses Abul Naga: Hajar Hazmiri's *The Persistence of Income Shares and the Lorenz Curve* (2026) and Abdelhamid El Hamrani's *Exploring the Second Dimension of Inequality* (2026). Both study U.S. pre-tax income shares from the World Inequality Database over more than a century, the first through their persistence and the second through their volatility. The two lines of work are brought together in a joint working paper, *Modeling the Persistence of Income Shares and the Lorenz Curve* (Abul Naga, El Hamrani and Hazmiri, 2026).
 
-Hajar Hazmiri's thesis, *The Persistence of Income Shares and the Lorenz Curve* (2026), studies 111 years of U.S. pre-tax income shares from the World Inequality Database. One of its central conclusions is that persistence is not uniform along the Lorenz curve. Within-regime persistence is strongest in the middle of the distribution, where labor income anchored by slow-moving institutions dominates, and much weaker at the very top, where capital income driven by asset prices and tax timing dominates. These differences are consistent with the composition of income sources across the distribution documented by Gomez (2025). A companion thesis by Abdelhamid El Hamrani, *Exploring the Second Dimension of Inequality* (2026), examines the volatility of the same income shares.
+Both theses find that the dynamics of inequality differ along the distribution: shares in the middle, where labor income dominates, move slowly, while shares at the top, where capital income dominates, move quickly and go through sharp changes in volatility. The working paper makes this precise for fifteen non-overlapping income bands over 1914–2023:
 
-The Inequality Persistence Simulator is our effort to make that conclusion accessible and visible beyond the thesis itself. It turns the mechanism behind the finding, the mix of labor and capital income, into something anyone can explore directly. You give labor and capital their own persistence, decide who holds what, and watch the persistence profile, the Lorenz curve, the Gini coefficient and the ranking of individuals respond.
+- **Persistence has an inverted-U profile.** The first-order autoregressive coefficient is 0.81 at P30–P40 and 0.80 at P40–P50, against 0.30 at P0–P5 and 0.24 at P99.999–P100. A deviation in the middle has a half-life of about three years; at the extremes, it fades within a year.
+- **The profile follows income composition.** The most persistent bands are those where labor provides 82–86% of income. Persistence is lowest at the bottom, where pensions and social insurance provide about a quarter of income, and in the very top band, the only one in which corporate profits make up a majority of income (56%).
+- **Persistence is not volatility.** The relative size of fluctuations is U-shaped across the distribution, while their persistence has an inverted-U shape.
+- **Policy and macroeconomic variables do not explain the profile.** Adding ten such covariates leaves the middle peak unchanged or slightly higher, and model selection prefers no covariates in fourteen of the fifteen bands.
+- **Static measures miss this heterogeneity.** Economies that start from the same Lorenz curve, and whose Gini coefficients stay in the same range, can display very different persistence profiles.
+
+The simulator is the two-source model behind that last result, made interactive. It turns the mechanism, the mix of labor and capital income, into something anyone can explore directly: you give labor and capital their own persistence, decide who holds what, and watch the persistence profile, the Lorenz curve, the Gini coefficient and the ranking of individuals respond.
 
 The simulator is a stylized laboratory with five hypothetical individuals. It illustrates a mechanism; it does not estimate anything from data.
 
@@ -280,4 +286,5 @@ If you use the simulator in teaching or research, please cite it as:
 
 - Hazmiri, H. (2026). *The Persistence of Income Shares and the Lorenz Curve: A Time-Series Econometric Analysis of U.S. Income Distribution, 1913–2023* [Master's thesis]. Faculty of Governance, Economics and Social Sciences, Mohammed VI Polytechnic University.
 - El Hamrani, A. (2026). *Exploring the Second Dimension of Inequality: A GARCH Analysis of U.S. Income Shares, 1913–2024* [Master's thesis]. Faculty of Governance, Economics and Social Sciences, Mohammed VI Polytechnic University.
+- Abul Naga, R., El Hamrani, A., & Hazmiri, H. (2026). *Modeling the Persistence of Income Shares and the Lorenz Curve* [Working paper]. Faculty of Governance, Economics and Social Sciences, Mohammed VI Polytechnic University.
 - Gomez, M. (2025). Macro perspectives on income inequality. *Journal of Economic Perspectives*, 39(2), 127–148.
