@@ -1,8 +1,10 @@
 # Inequality Persistence Simulator: User Guide
 
+**English** · [Français](GUIDE.fr.md)
+
 **The analytical framework of the simulator, its controls and figures, and twelve controlled experiments on the persistence of income shares.**
 
-The guide has three parts. Sections 1 to 3 set out the research question, the framework and the simulated economy. Sections 4 and 5 document the interface. Sections 6 to 8 report controlled experiments, relate them to empirical work on income shares and propose exercises. Every number and screenshot comes from the simulator at its default seed (20251008), so each result can be reproduced exactly.
+The guide has three parts. Sections 1 to 3 set out the research question, the framework and the simulated economy. Sections 4 and 5 document the interface. Sections 6 and 7 report controlled experiments and relate them to empirical work on income shares. Every number and screenshot comes from the simulator at its default seed (20251008), so each result can be reproduced exactly.
 
 The simulator runs in any recent browser: open [`index.html`](../index.html) from this repository, or use the [online version](https://abdelhamidelhamrani777.github.io/Inequality-Persistence-Simulator/). Technical details on the implementation are collected in the [technical reference](TECHNICAL.md).
 
@@ -15,12 +17,11 @@ The simulator runs in any recent browser: open [`index.html`](../index.html) fro
 5. [Reading the figures](#5-reading-the-figures)
 6. [Controlled experiments](#6-controlled-experiments)
 7. [From the simulator to income-share data](#7-from-the-simulator-to-income-share-data)
-8. [Exercises](#8-exercises)
-9. [Frequently asked questions](#9-frequently-asked-questions)
-10. [Notation](#10-notation)
-11. [Limits of the model](#11-limits-of-the-model)
-12. [References](#12-references)
-13. [Credits](#13-credits)
+8. [Frequently asked questions](#8-frequently-asked-questions)
+9. [Notation](#9-notation)
+10. [Limits of the model](#10-limits-of-the-model)
+11. [References](#11-references)
+12. [Credits](#12-credits)
 
 ---
 
@@ -36,7 +37,7 @@ The feature of that stochastic part studied here is **persistence**: the extent 
 
 The working hypothesis is that persistence depends on the **composition of income by source**. Wages dominate the middle of the distribution, social insurance is a major source at the bottom and business income dominates the very top (Gomez, 2025). Labor income is set by contracts, wage schedules and institutions that change slowly. Capital income follows profits, asset prices and the timing of realizations, and transfers respond to eligibility rules and to the business cycle. If each source has its own dynamics, each income share inherits a different process. The statistical core of the argument is that a sum of autoregressive components with different coefficients does not have the persistence of any single component (Granger and Morris, 1976).
 
-The simulator isolates this mechanism. It builds an economy in which composition is the only source of heterogeneity across individuals, and measures the persistence of each income share, the Lorenz curve and the Gini coefficient. It results from a research effort carried out within master's theses at the Faculty of Governance, Economics and Social Sciences (FGSES) of Mohammed VI Polytechnic University (UM6P), under the supervision of Professor Ramses Abul Naga.
+The simulator isolates this mechanism. It builds an economy in which composition is the only source of heterogeneity across individuals, and measures the persistence of each income share, the Lorenz curve and the Gini coefficient. It results from a research effort carried out within the master's theses of Abdelhamid El Hamrani and Hajar Hazmiri at the Faculty of Governance, Economics and Social Sciences (FGSES) of Mohammed VI Polytechnic University (UM6P), under the supervision of Professor Ramses Abul Naga.
 
 ## 2. Analytical framework
 
@@ -106,21 +107,20 @@ At the default settings ($`\phi_L = 0.90`$, $`\phi_K = 0.50`$, shocks proportion
 
 The linearization is defined for fixed individuals when every $`|\phi|`$ is below 1, every trend is zero and total long-run income is positive. The simulator draws it as the *theory line*.
 
-### 2.5 Persistence, volatility and mobility
+### 2.5 Persistence and volatility
 
-Persistence is distinct from volatility (Engle, 2001). The former describes how long a deviation lasts; the latter measures its size. Both are distinct from mobility, the frequency with which individuals change rank.
+Persistence is distinct from volatility (Engle, 2001). The former describes how long a deviation lasts; the latter measures its size.
 
 | Dimension | Question | Where it appears |
 | --- | --- | --- |
 | Persistence | How long does a deviation last? | Figure 1 |
 | Volatility | How large are the deviations? | Figures 3 and 4; the Gini path of Figure 2 |
-| Mobility | How often do individuals change rank? | In figures strip; crossings in Figure 4 |
 
-Persistence is invariant to a common rescaling of the shocks, whereas volatility scales with them and mobility depends on the size of shocks relative to the gaps between incomes. Experiment 6.5 separates the three.
+Persistence is invariant to a common rescaling of the shocks, whereas volatility scales with them. Larger fluctuations also make individuals overtake one another more often, since rank changes depend on the size of shocks relative to the gaps between incomes. Experiment 6.5 separates the two dimensions.
 
 ### 2.6 Individuals and rank positions
 
-Inequality statistics such as top income shares follow rank positions, not the same people over time. The persistence measured on a quantile group is the persistence of a group's claim on national income, which combines the dynamics of its members' incomes with entries into and exits from the group. Work on individual earnings dynamics (Gottschalk and Moffitt, 2009; Kopczuk, Saez and Song, 2010) studies individuals followed over time and therefore addresses a different object. The **Rank slots** mode of the simulator re-sorts individuals by income every period and measures the persistence of positions (experiment 6.6).
+Inequality statistics such as top income shares follow rank positions, not the same people over time. The persistence measured on a quantile group is the persistence of a group's claim on national income, which combines the dynamics of its members' incomes with entries into and exits from the group. Work on individual earnings dynamics (Gottschalk and Moffitt, 2009) studies individuals followed over time and therefore addresses a different object. The **Rank slots** mode of the simulator re-sorts individuals by income every period and measures the persistence of positions (experiment 6.6).
 
 ### 2.7 What static measures do not reveal
 
@@ -317,8 +317,8 @@ Each experiment starts from **Reset** and changes one element of the calibration
 | 6.2 | Reversed source persistence | The profile reverses |
 | 6.3 | Equal source persistence | Composition becomes irrelevant |
 | 6.4 | Five economies with identical incomes | Composition generates every shape; the Lorenz curve and the Gini coefficient do not register it |
-| 6.5 | Larger shocks | Volatility and mobility rise; persistence does not |
-| 6.6 | Rank positions | High mobility compresses the persistence of positions |
+| 6.5 | Larger shocks | Volatility rises; persistence does not |
+| 6.6 | Rank positions | Frequent rank changes compress the persistence of positions |
 | 6.7 | Deterministic trends | Trends move the level of inequality, not its persistence |
 | 6.8 | Unit root | Deviations become permanent |
 | 6.9 | Negative persistence | Overshooting in one source lowers every share's persistence |
@@ -417,7 +417,7 @@ Each shape follows the labor share across individuals. In the inverted-U economy
 
 **Interpretation.** The five economies share the same Lorenz curve at period 0, their mean Gini coefficients over 110 periods lie between 0.317 and 0.322, and their 5th–95th percentile ranges overlap almost entirely. At period 110 the Gini coefficient differs across economies, from 0.290 to 0.343, but this spread is smaller than the range each economy covers over time. Yet the linearized persistence of individual shares ranges from 0.62 to 0.88 in the inverted-U economy and is uniform at 0.82 in the flat one. The Lorenz curve and the Gini coefficient do not register this heterogeneity (section 2.7).
 
-### 6.5 Larger shocks: volatility, persistence and mobility
+### 6.5 Larger shocks: volatility and persistence
 
 **Design.** Multiply every $`\sigma`$ by 3 in the Parameters tab.
 
@@ -439,7 +439,7 @@ Each shape follows the labor share across individuals. In the inverted-U economy
 
 <img src="images/guide/shocks-profile.png" alt="Figure 1 with shocks multiplied by 3" width="543">
 
-**Interpretation.** A common rescaling of the shocks rescales every deviation but leaves its rate of decay unchanged; mobility, which depends on shocks relative to income gaps, rises sharply. A distribution can be highly volatile and mobile while each deviation lasts exactly as long as before, so the three dimensions must be measured separately.
+**Interpretation.** A common rescaling of the shocks rescales every deviation but leaves its rate of decay unchanged. Rank changes, which depend on shocks relative to income gaps, multiply as volatility rises. A distribution can be highly volatile while each deviation lasts exactly as long as before, so persistence and volatility must be measured separately.
 
 ### 6.6 Rank positions
 
@@ -451,7 +451,7 @@ Each shape follows the labor share across individuals. In the inverted-U economy
 
 ![Figure 4 in rank slots](images/guide/rank-series.png)
 
-**Interpretation.** A rank position holds whoever occupies it. When mobility is low, a position is effectively an individual and its persistence reveals that individual's composition. When mobility is high, a position inherits a blend of everyone's sources and differences across positions are compressed. The persistence of quantile-group shares is a property of positions, and its interpretation requires information on entries into and exits from each group.
+**Interpretation.** A rank position holds whoever occupies it. When individuals rarely change rank, a position is effectively an individual and its persistence reveals that individual's composition. When they change rank often, a position inherits a blend of everyone's sources and differences across positions are compressed. The persistence of quantile-group shares is a property of positions, and its interpretation requires information on entries into and exits from each group.
 
 ### 6.7 Deterministic trends
 
@@ -598,69 +598,9 @@ The simulator implies the following points of method.
 - **Separate persistence from volatility.** The size of a share's fluctuations is not a reliable guide to how long they last (6.5, 6.12).
 - **Relate persistence to composition.** Decompositions of each group's income into labor, business, capital and transfer income (Gomez, 2025) identify which source drives a group's fluctuations; as formula (2.4) shows, what matters is the source of fluctuations, not only the source of the level.
 - **Distinguish intrinsic from inherited persistence.** A share may appear persistent only because it tracks a persistent driver, such as policy or macroeconomic conditions. Adding such covariates to the autoregressive model, after the same removal of a deterministic component, tests whether the profile is intrinsic to the shares.
-- **Account for mobility.** The persistence of a top share combines the persistence of top incomes with entries into and exits from the top (6.6).
+- **Account for changes in group membership.** The persistence of a top share combines the persistence of top incomes with entries into and exits from the top (6.6).
 
-## 8. Exercises
-
-Each exercise starts from Reset. Predict the result before running it.
-
-**1. The most persistent share.** At the defaults, whose share is the most persistent, and which statistic of section 2.4 explains it?
-
-<details><summary>Answer</summary>
-
-Bjørn's, at 0.831: 98.5% of his income variance comes from labor income, whose persistence is 0.90, the highest proportion of the five.
-</details>
-
-**2. An increasing profile from the allocation alone.** How must the allocation be changed for persistence to rise from bottom to top?
-
-<details><summary>Answer</summary>
-
-The bottom must hold more capital relative to labor and the top more labor relative to capital, each source still summing to 200 units. The Increasing preset does this while keeping every period-0 income unchanged: labor 3, 10, 24, 50, 113 and capital 21, 34, 48, 60, 37. Editing the table by hand leaves the parameters anchored to the old allocation (rule 3); select the preset, or re-anchor $`\beta`$ and $`\sigma`$, to obtain the clean result.
-</details>
-
-**3. Equal persistence at 0.90.** Set $`\phi_K = 0.90`$ with $`\phi_L = 0.90`$. Which shape do you expect, and where is the theory line?
-
-<details><summary>Answer</summary>
-
-Flat, with the theory line at 0.90 for every individual (6.3). The simulated values lie between 0.832 and 0.851, below 0.90 because of the small-sample bias (6.10).
-</details>
-
-**4. Duration of a transfer.** Before running 6.11, predict which fades faster, a one-off equalization of capital or of labor, and by how much.
-
-<details><summary>Answer</summary>
-
-Capital. With $`\phi_K = 0.5`$ half of the remaining gap closes every period (half-life 1 period), against a half-life of 6.6 periods with $`\phi_L = 0.9`$. The Gini coefficient is back on its default path after about 10 periods for capital, and still below it after 20 periods for labor.
-</details>
-
-**5. Doubling every shock.** Multiply every $`\sigma`$ by 2. What happens to Figure 1, to the number of rank changes and to the Gini path?
-
-<details><summary>Answer</summary>
-
-Figure 1 barely changes (0.586 to 0.827) and the theory line is identical, since persistence is invariant to a common rescaling of the shocks. Rank changes rise from 8 to 44 periods and the Gini path widens to 0.251–0.481 (6.5).
-</details>
-
-**6. Rank positions.** In 6.6, why is the position profile flatter when shocks are large?
-
-<details><summary>Answer</summary>
-
-With large shocks, individuals move between positions often, so each position's share is made of different individuals' incomes over time. Each position inherits a blend of everyone's income sources, and differences in composition across positions are averaged out.
-</details>
-
-**7. Wage growth in the middle.** Set a trend of 0.030 in Bjørn's w row. What happens to the Gini coefficient and to the labor share?
-
-<details><summary>Answer</summary>
-
-Bjørn's labor income rises by 0.03 / (1 − 0.9) = 0.3 units per period, so his no-shock income grows from 72 to about 102 by period 110. He remains third but closes part of the gap with Alfred (110) and George (150). The labor share rises from 50.0% to 52.4%, and the Gini coefficient at period 110 is 0.310 instead of 0.335: income growth in the middle, toward the top, narrows inequality. A trend large enough for Bjørn to overtake George would widen it again.
-</details>
-
-**8. Drift under a unit root.** Set $`\phi_K = 1`$ without changing $`\beta`$. Why does total income explode, and why does the theory line disappear?
-
-<details><summary>Answer</summary>
-
-With $`\phi = 1`$ the equation becomes $`f_t = \beta + f_{t-1} + v_t`$: $`\beta`$ is a drift added every period, so capital income grows without bound (George's by 52 units per period). The linearization requires finite long-run levels and variances, which a unit root rules out (6.8).
-</details>
-
-## 9. Frequently asked questions
+## 8. Frequently asked questions
 
 **The numbers differ slightly from the guide.** Click **Reset** to restore the default seed, 20251008. After **New draw**, every number moves slightly while the shapes remain.
 
@@ -678,7 +618,7 @@ With $`\phi = 1`$ the equation becomes $`f_t = \beta + f_{t-1} + v_t`$: $`\beta`
 
 **The page is slow at 2000 periods.** Each change recomputes 20 samples of 2000 periods; use 110 periods while exploring.
 
-## 10. Notation
+## 9. Notation
 
 | Symbol or term | Definition |
 | --- | --- |
@@ -700,7 +640,7 @@ With $`\phi = 1`$ the equation becomes $`f_t = \beta + f_{t-1} + v_t`$: $`\beta`
 | Rank slot | A position in the distribution, whoever occupies it |
 | Labor share | Labor income divided by total income |
 
-## 11. Limits of the model
+## 10. Limits of the model
 
 - The economy has five individuals, so the Lorenz curve has five segments and the Gini coefficient cannot exceed 0.8.
 - Shocks are independent across individuals and sources: there is no aggregate shock and no correlation between an individual's labor and capital shocks.
@@ -711,20 +651,19 @@ With $`\phi = 1`$ the equation becomes $`f_t = \beta + f_{t-1} + v_t`$: $`\beta`
 
 These restrictions are deliberate: the simulator isolates the link between income composition and the persistence of income shares under controlled conditions, and estimates nothing from data.
 
-## 12. References
+## 11. References
 
 - Alvaredo, F., Chancel, L., Piketty, T., Saez, E., and Zucman, G. (2018). *World Inequality Report 2018*. Belknap Press of Harvard University Press.
 - Engle, R. F. (2001). GARCH 101: The use of ARCH/GARCH models in applied econometrics. *Journal of Economic Perspectives*, 15(4), 157–168.
 - Gomez, M. (2025). Macro perspectives on income inequality. *Journal of Economic Perspectives*, 39(2), 127–148.
 - Gottschalk, P., and Moffitt, R. (2009). The rising instability of U.S. earnings. *Journal of Economic Perspectives*, 23(4), 3–24.
 - Granger, C. W. J., and Morris, M. J. (1976). Time series modelling and interpretation. *Journal of the Royal Statistical Society, Series A*, 139(2), 246–257.
-- Kopczuk, W., Saez, E., and Song, J. (2010). Earnings inequality and mobility in the United States: Evidence from social security data since 1937. *Quarterly Journal of Economics*, 125(1), 91–128.
 - Lamoureux, C. G., and Lastrapes, W. D. (1990). Persistence in variance, structural change, and the GARCH model. *Journal of Business & Economic Statistics*, 8(2), 225–234.
 - Perron, P. (1989). The great crash, the oil price shock, and the unit root hypothesis. *Econometrica*, 57(6), 1361–1401.
 - Piketty, T., and Saez, E. (2003). Income inequality in the United States, 1913–1998. *Quarterly Journal of Economics*, 118(1), 1–39.
 - Piketty, T., Saez, E., and Zucman, G. (2018). Distributional national accounts: Methods and estimates for the United States. *Quarterly Journal of Economics*, 133(2), 553–609.
 - Zivot, E., and Andrews, D. W. K. (1992). Further evidence on the great crash, the oil-price shock, and the unit-root hypothesis. *Journal of Business & Economic Statistics*, 10(3), 251–270.
 
-## 13. Credits
+## 12. Credits
 
-The simulator was developed by **Abdelhamid El Hamrani** and **Hajar Hazmiri**, under the supervision of **Prof. Ramses Abul Naga**, at the Faculty of Governance, Economics and Social Sciences (FGSES) of Mohammed VI Polytechnic University (UM6P). The [README](../README.md) gives the citation, and the [technical reference](TECHNICAL.md) the implementation details.
+The simulator was developed by **Ramses Abul Naga**, **Abdelhamid El Hamrani** and **Hajar Hazmiri** at the Faculty of Governance, Economics and Social Sciences (FGSES) of Mohammed VI Polytechnic University (UM6P). The [README](../README.md) gives the citation, and the [technical reference](TECHNICAL.md) the implementation details.

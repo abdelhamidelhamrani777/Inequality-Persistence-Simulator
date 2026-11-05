@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="description" content="Interactive simulator of how labor and capital income shape the persistence of income shares, the Lorenz curve and the Gini coefficient. In English and French.">
-<meta name="author" content="Abdelhamid El Hamrani, Hajar Hazmiri">
+<meta name="author" content="Ramses Abul Naga, Abdelhamid El Hamrani, Hajar Hazmiri">
 <title>Inequality Persistence Simulator</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -349,7 +349,7 @@ details.disc[open]>summary{margin-bottom:10px}
     <p class="kicker" data-t="kicker">Inequality dynamics · Interactive simulator</p>
     <h1 data-t="title">Inequality Persistence Simulator</h1>
     <p class="dek" data-t="dek">How the mix of labor and capital income shapes the persistence of income shares, the Lorenz curve and the Gini coefficient, with <span class="m"><i>y</i><span class="rel">=</span><i>w</i><span class="op">+</span><i>f</i></span>.</p>
-    <p class="byline" data-t="byline"><span class="nw">By <b>Abdelhamid El Hamrani</b> and <b>Hajar Hazmiri</b></span><span class="dot"></span><span class="nw">Supervised by <b>Prof. Ramses Abul Naga</b></span><span class="aff">Mohammed VI Polytechnic University (UM6P) · Faculty of Governance, Economics and Social Sciences</span></p>
+    <p class="byline" data-t="byline">By <span class="nw"><b>Ramses Abul Naga</b></span>, <span class="nw"><b>Abdelhamid El Hamrani</b></span> and <span class="nw"><b>Hajar Hazmiri</b></span><span class="aff">Mohammed VI Polytechnic University (UM6P) · Faculty of Governance, Economics and Social Sciences</span></p>
   </div>
   <div class="runbar" role="group" aria-label="Run settings" data-ta="runset">
     <div class="ctl"><span class="lab-s" id="lbl-T" data-t="periods">Periods</span>
@@ -549,8 +549,7 @@ details.disc[open]>summary{margin-bottom:10px}
           <div data-t="ab6"><h3><span class="no">6.</span>Random numbers</h3><p>A Mulberry32 generator with Box–Muller normals; each person, source and sample has its own stream, so parameter changes reuse the same shocks.</p></div>
         </div>
         <div class="credits" aria-label="Credits" data-ta="credits">
-          <div><span class="cl" data-t="authors">Authors</span><p>Abdelhamid El Hamrani</p><p>Hajar Hazmiri</p></div>
-          <div><span class="cl" data-t="supervisor">Supervisor</span><p data-t="prof">Prof. Ramses Abul Naga</p></div>
+          <div><span class="cl" data-t="authors">Authors</span><p>Ramses Abul Naga</p><p>Abdelhamid El Hamrani</p><p>Hajar Hazmiri</p></div>
           <div><span class="cl" data-t="university">University</span><p data-t="univ">Mohammed VI Polytechnic University (UM6P)<small>Faculty of Governance, Economics and Social Sciences (FGSES)</small></p></div>
         </div>
       </article>
@@ -588,7 +587,7 @@ const FR_TXT={
   kicker:'Dynamique des inégalités · Simulateur interactif',
   title:'Simulateur de persistance des inégalités',
   dek:`Comment la composition du revenu, entre travail et capital, façonne la persistance des parts de revenu, la courbe de Lorenz et le coefficient de Gini, avec ${M_('<i>y</i><span class="rel">=</span><i>w</i><span class="op">+</span><i>f</i>')}.`,
-  byline:'<span class="nw">Par <b>Abdelhamid El Hamrani</b> et <b>Hajar Hazmiri</b></span><span class="dot"></span><span class="nw">Sous la direction du <b>Pr Ramses Abul Naga</b></span><span class="aff">Université Mohammed VI Polytechnique (UM6P) · Faculté de Gouvernance, Sciences Économiques et Sociales</span>',
+  byline:'Par <span class="nw"><b>Ramses Abul Naga</b></span>, <span class="nw"><b>Abdelhamid El Hamrani</b></span> et <span class="nw"><b>Hajar Hazmiri</b></span><span class="aff">Université Mohammed VI Polytechnique (UM6P) · Faculté de Gouvernance, Sciences Économiques et Sociales</span>',
   periods:'Périodes', units:'Unités', indivs:'Individus', rankslots:'Rangs', seed:'Graine', newdraw:'Nouveau tirage', reset:'Réinitialiser', lang:'Langue',
   pers:'Persistance', shared:'Commune', byperson:'Par personne',
   phihint:`Les ${M_('<i>φ</i><sub>L</sub>')} et ${M_('<i>φ</i><sub>K</sub>')} de chaque personne se règlent dans l’onglet Paramètres. Les curseurs communs sont suspendus.`,
@@ -624,7 +623,7 @@ const FR_TXT={
   ab4:`<h3><span class="no">4.</span>Ligne théorique</h3><p>Une linéarisation au premier ordre de chaque part autour des niveaux de long terme, pour des individus fixes. Elle suppose ${M_('|<i>φ</i>|<span class="rel">&lt;</span>1')} pour les deux sources et toutes les tendances nulles.</p>`,
   ab5:'<h3><span class="no">5.</span>Unités</h3><p>En mode Rangs, les personnes sont reclassées chaque période selon leur revenu total ; un rang est alors une position dans la distribution plutôt qu’une personne.</p>',
   ab6:'<h3><span class="no">6.</span>Nombres aléatoires</h3><p>Un générateur Mulberry32 avec des tirages normaux de Box–Muller ; chaque personne, source et échantillon a son propre flux, si bien que les changements de paramètres réutilisent les mêmes chocs.</p>',
-  authors:'Auteurs', supervisor:'Encadrant', prof:'Pr Ramses Abul Naga', university:'Université',
+  authors:'Auteurs', university:'Université',
   univ:'Université Mohammed VI Polytechnique (UM6P)<small>Faculté de Gouvernance, Sciences Économiques et Sociales (FGSES)</small>',
   sig:'Simulateur de persistance des inégalités · v1.2 · UM6P – FGSES',
   pos_b:'bas', pos_t:'haut'
