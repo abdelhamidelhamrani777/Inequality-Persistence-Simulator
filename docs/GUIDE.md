@@ -105,7 +105,7 @@ Experiment 6.5 shows that you can triple volatility, leave persistence almost un
 
 | # | Area | What it holds |
 | --- | --- | --- |
-| 1 | Run settings | Number of periods, units (individuals or rank slots), random seed with **New draw**, and **Reset** |
+| 1 | Run settings | Number of periods, units (individuals or rank slots), random seed with **New draw**, **Reset**, and the **EN / FR** language switch |
 | 2 | Persistence | $`\phi_L`$ for labor and $`\phi_K`$ for capital, shared by everyone or set by person |
 | 3 | Tabs | Switch the lower left panel between **Parameters** and **Allocation** |
 | 4 | Parameters by person | Constant, trend, shock size and persistence of each person's labor and capital income |
@@ -150,6 +150,7 @@ Two more facts help:
 - **Units**: *Individuals* follows the same five people over time. *Rank slots* re-sorts people by income every period and follows positions instead: the poorest, the second poorest, and so on (see experiment 6.6).
 - **Seed** and **New draw**: the seed fixes the random shocks; New draw picks a new one.
 - **Reset**: back to the defaults.
+- **Language**: **EN** or **FR** switches every label, title and reading between English and French, without changing the settings or the results. The simulator remembers the choice, and the address `…/Inequality-Persistence-Simulator/?lang=fr` opens it directly in French. In French, numbers use a decimal comma.
 
 ### 4.2 Persistence
 

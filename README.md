@@ -1,48 +1,79 @@
+<a id="english"></a>
+
 # Inequality Persistence Simulator
 
-**An interactive simulator of how labor and capital income shape the persistence of income shares, the Lorenz curve and the Gini coefficient.**
+**English** · [Français](#francais)
 
-The simulator is a single HTML file that runs in any modern browser, with no installation, server or build step.
+**A free, interactive tool that shows why some people's share of income changes slowly while others' jumps up and down, and what this means for inequality.**
 
-**Run it:** download [`index.html`](index.html) and open it in your browser, or use the online version at [https://abdelhamidelhamrani777.github.io/Inequality-Persistence-Simulator/](https://abdelhamidelhamrani777.github.io/Inequality-Persistence-Simulator/).
+![The Inequality Persistence Simulator at its starting settings](docs/images/simulator.png)
 
-**Learn with it:** the [user guide](docs/GUIDE.md) explains every control and figure, then runs twelve guided experiments on the dynamics of inequality, with screenshots and the numbers the simulator produces.
+**Open it:** use the [online version](https://abdelhamidelhamrani777.github.io/Inequality-Persistence-Simulator/), with nothing to install, or download [`index.html`](index.html) and open it in your browser. The **EN / FR** switch in the top bar changes the language.
 
-![The Inequality Persistence Simulator at its default settings](docs/images/simulator.png)
+**Learn with it:** the [user guide](docs/GUIDE.md) explains every button and chart, then walks through twelve experiments step by step.
 
-## Contents
+## What is this?
 
-- [User guide (separate page)](docs/GUIDE.md)
-- [About this project](#about-this-project)
-- [Authors](#authors)
-- [Quick start](#quick-start)
-- [The model](#the-model)
-- [The interface](#the-interface)
-- [Controls reference](#controls-reference)
-- [Reading the figures](#reading-the-figures)
-- [Worked examples](#worked-examples)
-- [Method notes](#method-notes)
-- [Running the simulator](#running-the-simulator)
-- [How to cite](#how-to-cite)
-- [Related work](#related-work)
+Inequality is usually described with a snapshot: how income is shared out in a given year. This simulator looks at how that picture moves over time. When a group's share of income goes up, does it stay up, or does it soon fall back?
 
-## About this project
+The simulator follows five imaginary people, Violette, Meryem, Bjørn, Alfred and George, over many periods (think of them as years). Each person has two kinds of income:
 
-The Inequality Persistence Simulator results from a research effort carried out within master's theses at the Faculty of Governance, Economics and Social Sciences (FGSES) of Mohammed VI Polytechnic University (UM6P), under the supervision of Professor Ramses Abul Naga. That research studies how income shares move over time along the income distribution, and the simulator makes its central mechanism visible: **the dynamics of an income share depend on the mix of income sources behind it.** Labor income tends to move slowly, while capital income tends to move fast and revert quickly. A group that lives mostly on wages therefore sees its share of income move slowly, and a group that lives mostly on capital sees its share jump and fall back.
+- **labor income**: wages and salaries, the income from work;
+- **capital income**: the income from what they own, such as rents, dividends and interest.
 
-### What the simulator shows
+Every year, both incomes are hit by random ups and downs. You decide how long those ups and downs last for each kind of income, how much each person starts with and how large the shocks are. The simulator then shows how each person's share of total income moves, and how inequality as a whole evolves.
 
-Each point below comes from a case the simulator runs at its default seed. The [user guide](docs/GUIDE.md) walks through every case step by step.
+The project grew out of research carried out within master's theses at the Faculty of Governance, Economics and Social Sciences (FGSES) of Mohammed VI Polytechnic University (UM6P), under the supervision of Professor Ramses Abul Naga.
 
-- **Persistence follows income composition.** With labor persistence at 0.90 and capital persistence at 0.50, the persistence profile is an inverted U. The labor-heavy middle has the most persistent share (0.83), and the capital-heavy bottom and top have the least persistent ones (0.59 and 0.69). *(Guide, experiment 6.1)*
-- **Composition matters because the sources differ.** Swapping the persistence of labor and capital flips the profile to a U shape; giving both sources the same persistence makes it flat. *(6.2 and 6.3)*
-- **The same level of inequality can hide very different dynamics.** Five allocations with Gini coefficients between 0.28 and 0.37 produce five different profiles: decreasing, increasing, flat, U-shaped and inverted U. The Lorenz curve and the Gini coefficient alone cannot tell how inequality moves. *(6.4)*
-- **Persistence, volatility and mobility are different things.** Tripling every shock leaves the persistence profile almost unchanged, but multiplies the number of periods with rank changes by eight. *(6.5)*
-- **Groups are not people.** When people change ranks often, the persistence of a fixed position in the distribution, such as a quantile group, blurs the differences between the people who pass through it. *(6.6)*
-- **Trends move the level of inequality; persistence shapes the swings around it.** Faster capital growth at the top raises the Gini coefficient from 0.32 to 0.40 over 110 periods, while the persistence profile stays an inverted U. *(6.7)*
-- **A redistribution lasts as long as the income it touches.** Equalizing capital income once halves the Gini coefficient, but the effect is gone within about ten periods. Equalizing labor income fades far more slowly. Only a change in the underlying income process is permanent. *(6.11)*
+## Three words to know
 
-The simulator is a stylized laboratory with five hypothetical individuals. It illustrates mechanisms; it does not estimate anything from data.
+- **Income share**: a person's income divided by the income of everyone. If George earns 150 and the five people earn 400 together, his share is 37.5%.
+- **Persistence**: how long a change lasts, measured by a number up to 1. Near 1, a change lasts a long time: a share that jumps up this year is still high next year. Near 0, a change disappears almost at once. At 0.9, half of a change is still there after about seven years; at 0.5, half of it is gone after one year.
+- **Gini coefficient**: the usual summary measure of inequality. It is 0 when everyone has the same income and rises as income becomes more concentrated.
+
+## What the simulator shows
+
+Each result below comes from an example you can rerun in the simulator. The number in brackets points to the experiment in the [user guide](docs/GUIDE.md) that gives the steps.
+
+1. **Where your income comes from decides how fast your share moves.** In the starting example, a change in wages lasts a long time (persistence 0.9) and a change in capital income fades fast (0.5). The people in the middle live mostly on wages, so their share moves slowly. The poorest and the richest rely more on capital income, so their shares jump and fall back quickly. Persistence is therefore highest in the middle (0.83) and lowest at the two ends (0.59 at the bottom, 0.69 at the top): a hill shape. *(6.1)*
+2. **This only happens because the two kinds of income behave differently.** If capital income becomes the slow one and wages the fast one, the pattern flips: the middle's share now moves fastest. If both kinds of income behave the same way, every share moves at the same pace. *(6.2 and 6.3)*
+3. **Two economies can be just as unequal and still behave very differently over time.** Five examples with similar inequality (a Gini coefficient between 0.28 and 0.37) give five different patterns: persistence that rises from bottom to top, falls, stays flat, dips in the middle or peaks in the middle. A snapshot of inequality cannot tell you how it will move. *(6.4)*
+4. **How long a change lasts, how big the swings are and how often people overtake each other are three different things.** Making every random shock three times bigger makes shares swing much more and makes people change places far more often (in 64 years instead of 8), yet each change lasts about as long as before. *(6.5)*
+5. **Following groups is not the same as following people.** Figures such as "the income share of the top 10%" follow a position in the distribution, not the same people. When people move up and down a lot, a position mixes people whose incomes behave differently, and the differences between them fade from view. *(6.6)*
+6. **A trend changes how unequal the economy becomes, not how fast shares bounce back.** If the capital income of the richest person grows steadily, inequality keeps rising (the Gini coefficient goes from 0.32 to 0.40 over 110 years), but the hill shape of persistence stays. *(6.7)*
+7. **A one-off redistribution lasts only as long as the income it touches.** Sharing capital income out equally, once, halves inequality, but within about ten years the economy is back where it started, because capital income quickly returns to its usual level. Doing the same with wages lasts much longer. Only a lasting change in each person's usual income, such as their skills or what they own, has a permanent effect. *(6.11)*
+
+The simulator is a teaching and research tool built on five imaginary people. It shows how mechanisms work; it does not measure anything in real data.
+
+## Quick start
+
+1. Open the simulator. It starts with the example of point 1 above.
+2. Look at **Figure 1**. Its title reads **Persistence peaks in the middle of the distribution**.
+3. In the **Persistence** box, move the labor slider ($`\phi_L`$). Figure 1 changes at once.
+4. Open the **Allocation** tab and pick a shape, for example **Increasing**. The simulator shares income out again to produce that pattern.
+5. Press the play button, or the Space bar, to watch the years go by.
+
+**Reset** puts everything back to the start.
+
+## The model in one minute
+
+Each person's labor income $`w`$ and capital income $`f`$ follow the same simple rule: this year's income equals a constant, plus a trend, plus a fraction $`\phi`$ of last year's income, plus a random shock. Total income $`y`$ is the sum of the two.
+
+```math
+w_{i,t} = \beta_{W,i} + \beta_{W,trend,i}\, t + \phi_{L}\, w_{i,t-1} + u_{i,t}
+```
+
+```math
+f_{i,t} = \beta_{F,i} + \beta_{F,trend,i}\, t + \phi_{K}\, f_{i,t-1} + v_{i,t}
+```
+
+```math
+y_{i,t} = w_{i,t} + f_{i,t}
+```
+
+The fraction $`\phi`$ is the persistence: $`\phi_L`$ for labor income and $`\phi_K`$ for capital income. The shocks $`u`$ and $`v`$ are random draws from a normal distribution. A person's income share is their total income $`y`$ divided by the total income of the five people.
+
+The [technical reference](docs/TECHNICAL.md) gives the full model, every control, how each figure is built and the method notes.
 
 ## Authors
 
@@ -50,235 +81,17 @@ The simulator is a stylized laboratory with five hypothetical individuals. It il
 - **Hajar Hazmiri**, Faculty of Governance, Economics and Social Sciences, Mohammed VI Polytechnic University
 - **Ramses Abul Naga**, supervisor, Faculty of Governance, Economics and Social Sciences, Mohammed VI Polytechnic University
 
-## Quick start
-
-1. Open `index.html` in a recent browser. The simulator starts with labor persistence 0.90, capital persistence 0.50 and an allocation that produces an inverted-U persistence profile.
-2. Read the **In figures** strip under the period bar, then Figure 1. Its title should read **Persistence peaks in the middle of the distribution**, and the strip names the profile **Inverted U**.
-3. In the **Persistence** card, move the slider for labor persistence. Figure 1 and the In figures strip update immediately, on the same random shocks.
-4. Open the **Allocation** tab and choose a profile preset, for example **Increasing**. The allocation and every person's parameters are reset to produce that shape.
-5. Press **Space**, or the play button, to run through the periods. The Lorenz curve, Figure 5 and the period markers move with time, and ranks change when incomes cross.
-
-**Reset** in the top bar returns every setting to its starting value.
-
-## The model
-
-Five individuals, Violette, Meryem, Bjørn, Alfred and George, each earn labor income $`w`$ and capital income $`f`$. Each source follows an AR(1) process augmented with a constant and a time trend, and total income $`y`$ is their sum.
-
-```math
-w_{i,t} = \beta_{W,i} + \beta_{W,trend,i}\, t + \phi_{L}\, w_{i,t-1} + u_{i,t}, \qquad u_{i,t} \sim N\!\left(0, \sigma_{L,i}^{2}\right) \qquad (1)
-```
-
-```math
-f_{i,t} = \beta_{F,i} + \beta_{F,trend,i}\, t + \phi_{K}\, f_{i,t-1} + v_{i,t}, \qquad v_{i,t} \sim N\!\left(0, \sigma_{K,i}^{2}\right) \qquad (2)
-```
-
-```math
-y_{i,t} = w_{i,t} + f_{i,t}, \qquad i = 1, \dots, 5, \qquad t = 1, \dots, T \qquad (3)
-```
-
-Recursive substitution gives the closed form, with the starting values $`w_{i,0}`$ and $`f_{i,0}`$ taken from the period-0 allocation.
-
-```math
-y_{i,t} = \phi_L^{t}\, w_{i,0} + \sum_{s=1}^{t} \phi_L^{t-s}\left(\beta_{W,i} + \beta_{W,trend,i}\, s + u_{i,s}\right) + \phi_K^{t}\, f_{i,0} + \sum_{s=1}^{t} \phi_K^{t-s}\left(\beta_{F,i} + \beta_{F,trend,i}\, s + v_{i,s}\right) \qquad (4)
-```
-
-The income share of each individual is their total income divided by the total of all five.
-
-```math
-S_{i,t} = \frac{y_{i,t}}{\sum_{j=1}^{5} y_{j,t}}
-```
-
-Without shocks and with a zero trend, each source settles at its long-run level $`\beta / (1-\phi)`$. With a trend, it settles on a line whose slope is the trend coefficient divided by $`1-\phi`$.
-
-| Symbol | Meaning | Set in |
-| --- | --- | --- |
-| $`w`$, $`f`$, $`y`$ | Labor, capital and total income of a person, in units | Simulated |
-| $`w_{0}`$, $`f_{0}`$ | Starting labor and capital income at period 0 | Allocation tab |
-| $`\phi_L`$, $`\phi_K`$ | Persistence of labor and of capital income, between −1 and 1 | Persistence card, or Parameters tab when set by person |
-| $`\beta_W`$, $`\beta_F`$ | Constant added to labor or capital income each period | Parameters tab |
-| $`\beta_{W,trend}`$, $`\beta_{F,trend}`$ | Coefficient on the time trend $`t`$ | Parameters tab |
-| $`\sigma_L`$, $`\sigma_K`$ | Standard deviation of the labor or capital shock | Parameters tab |
-| $`u`$, $`v`$ | Normal shocks, independent across people, sources and periods | Random seed in the top bar |
-| $`S`$ | Income share of a person in total income | Simulated |
-| $`T`$ | Number of simulated periods | Top bar |
-
-## The interface
-
-The screen is split into a parameter panel on the left and a figure board on the right. Each side scrolls on its own, so settings and results stay in view together. On a phone the two stack into a single column.
-
-![The simulator with its seven areas numbered](docs/images/interface-annotated.png)
-
-| # | Area | What it holds |
-| --- | --- | --- |
-| 1 | Run settings | Number of periods $`T`$, units (individuals or rank slots), the random seed with **New draw**, and **Reset** |
-| 2 | Persistence | **Shared** or **By person**, then a slider and a field for $`\phi_L`$ and $`\phi_K`$, with a stationarity tag for each source |
-| 3 | Panel tabs | Switches the lower left panel between **Parameters** and **Allocation** |
-| 4 | Parameters by person | For each person, a $`w`$ row (labor) and an $`f`$ row (capital) with start, $`\phi`$, $`\beta`$, trend, $`\sigma`$ and the long-run level |
-| 5 | Period bar | First, previous, play, next and last buttons, the period slider and the current period $`t`$. It stays pinned while you scroll |
-| 6 | In figures | Gini coefficient, labor share and total income at period $`t`$, the shape of the persistence profile, and the number of periods with a rank change |
-| 7 | Model | Equations (1) to (4) in four blocks (labor income, capital income, total income, closed form), and one card per person with their own numbers. Selecting a card opens that person's series in Figure 3 |
-
-Below the model sit Figures 1 to 5 and a notes panel on the method. Each figure follows the same grammar: a title that states the result at the current settings, a subtitle that ends with the unit, a source line, the chart with its key values written on it, and a **Reading** line that puts the result into words. Every chart also shows its values on hover, and clicking a time chart moves the period marker.
-
-## Controls reference
-
-Every change recomputes the simulation immediately and reuses the same random shocks, so differences between two settings come from the parameters alone.
-
-| Control | Where | Values | Effect |
-| --- | --- | --- | --- |
-| Periods | Top bar | 110, 500 or 2000 | Sample length $`T`$. 110 matches the 1914–2023 WID sample. 200, 60 or 20 samples are simulated respectively |
-| Units | Top bar | Individuals, Rank slots | Measures persistence for fixed people, or for rank positions re-sorted every period, as WID quantile bands are |
-| New draw | Top bar | New random seed | Draws a fresh set of shocks. The seed is shown beside the button |
-| Reset | Top bar | | Restores every setting to its starting value |
-| Shared / By person | Persistence card | | One $`\phi`$ per source for everyone, or one per person set in the Parameters tab |
-| $`\phi_L`$, $`\phi_K`$ | Persistence card | −1 to 1 | Persistence of each source. At $`\phi = 1`$ or $`-1`$ the source has a unit root |
-| $`\phi`$ per person | Parameters tab | −1 to 1 | Active only when persistence is set by person |
-| $`\beta`$ | Parameters tab | Any value, negative allowed | Constant added each period |
-| Trend | Parameters tab | Any value, negative allowed | Coefficient on $`t`$. Income drifts by trend divided by $`1-\phi`$ per period |
-| $`\sigma`$ | Parameters tab | Any value, the sign is ignored | Shock standard deviation. Flagged when larger than the long-run level |
-| Start, Long run | Parameters tab | Read only | Starting value from the allocation, and the level reached without shocks |
-| Labor cap, Capital cap | Allocation tab | 10 to 5000 units | Total units of each source. Changing a cap rescales the allocation |
-| Enter as | Allocation tab | Units, Percent | Enter holdings in units, or as a percentage of each cap and of total income |
-| Allocation cells | Allocation tab | Up to the cap | Starting holdings. An entry above what is left is clipped, and rows re-sort by total when you leave the table |
-| Profile presets | Allocation tab | Five shapes | Sets the allocation and resets parameters to $`\beta = (1-\phi) \times \text{start}`$, trend 0 and $`\sigma = \text{start}/10`$ |
-| Period bar | Top of the figure board | 0 to $`T`$ | Selects the period shown in the In figures strip, Figure 2 and Figure 5 |
-| View | Figure 3 | One person, Compare | One person's equations and incomes, or several people's series on one chart |
-| Name chips | Figures 3 and 4 | On or off | Shows or hides a person. Both figures share the same selection |
-
-Tips for entering values:
-
-- Type a value and press Enter, or leave the field.
-- Or select a field and turn the mouse wheel; hold Shift for steps ten times larger. Fields respond to the wheel only once selected, so scrolling the panel never changes a value by accident.
-- On the figure board, the left and right arrow keys step one period (Shift for ten), Home and End jump to the first and last period, and Space plays or pauses.
-
-## Reading the figures
-
-Blue always means labor and ochre always means capital. Red marks the main result of each chart: the simulated mean in Figure 1, the Lorenz curve and Gini coefficient at period $`t`$ in Figure 2, and total income in Figure 3. Grey marks a reference, such as period 0, the linearized theory or the path without shocks. Each person has a color and a marker shape, so they can be told apart without relying on color alone.
-
-| Person | Marker | Color |
-| --- | --- | --- |
-| Violette | Circle | Sky blue |
-| Meryem | Square | Violet |
-| Bjørn | Triangle | Gold |
-| Alfred | Diamond | Magenta |
-| George | Inverted triangle | Olive green |
-
-### In figures
-
-Five figures at the selected period $`t`$: the Gini coefficient and its change since period 0, the labor share of total income, total income, the shape of the persistence profile, and the number of periods in which at least one rank changed.
-
-![Figures 1 and 2 at the default settings](docs/images/figures-1-2.png)
-
-### Figure 1, persistence profile
-
-The first-order autocorrelation of each person's income share, our measure of persistence. The red line and dots are the mean across simulated samples, with each value written beside its dot, and the grey whiskers span the 5th to 95th percentiles. The grey dashed line with hollow diamonds is the linearized theory, shown for fixed individuals when every $`\lvert\phi\rvert`$ is below 1 and every trend is zero. The blue and ochre dashed lines mark $`\phi_L`$ and $`\phi_K`$ when persistence is shared.
-
-The figure title and the In figures strip name the shape of the profile:
-
-- **Flat** when the range of values is below 0.03.
-- **Increasing** or **Decreasing** when values are monotone within a tolerance of 8% of the range (at least 0.004).
-- **U-shaped** or **Inverted U** when there is an interior minimum or maximum with monotone arms.
-- **Mixed** otherwise.
-
-The table under the chart lists each person's share and capital ratio at period 0, the simulated mean, the percentile band and the theory value.
-
-### Figure 2, Lorenz curve and Gini coefficient
-
-The Lorenz curve at period $`t`$ in red, with people re-ranked by income in that period and the cumulative shares written at each point. The grey dashed curve is period 0, the grey band is the 5th to 95th percentile of each point over the whole path, and $`G`$ is the Gini coefficient at $`t`$. The small chart below traces the Gini coefficient over all periods, with a dashed line at its period-0 value.
-
-![Figure 3 in the Compare view](docs/images/figure-3-compare.png)
-
-### Figure 3, individual series
-
-**One person** shows the chosen person's own equations with their numbers, in four blocks: labor income and capital income (each with its shock law, starting value, long-run level and half-life of a shock), total income with the person's rank at period 0, and the closed form. The chart draws total income in red, labor in blue, capital in ochre, and the no-shock path as a grey dashed line, each named with its last value at the right end. The title gives the person's main source of income at $`t`$, and the Reading line gives income and its split at $`t`$, the rank, the number of rank changes and the lowest and highest income over the path.
-
-**Compare** draws several people on one chart. Choose who appears with the name chips, and which series to compare: total, labor, capital or income share. The table lists each person's $`\phi_L`$ and $`\phi_K`$, the value at $`t`$, the mean, standard deviation, lowest and highest values, the rank at $`t`$, the number of rank changes and the simulated persistence of their share.
-
-### Figure 4, income shares over time
-
-Each person's share of total income along the displayed sample path, labelled at the right end with its final value. The title follows the person who starts at the top. The name chips hide or show people and stay in sync with Figure 3. In rank-slot mode each line is a rank position rather than a person.
-
-### Figure 5, income by person at the selected period
-
-Stacked bars of labor and capital income at $`t`$, ordered from bottom to top by total income, so people swap places when their incomes cross. The black tick marks each person's total income at period 0.
-
-## Worked examples
-
-Each experiment starts from **Reset** (seed 20251008, $`T = 110`$, 200 samples). The values below were computed with the simulator itself; a new draw of shocks moves them slightly.
-
-| Experiment | Steps | Shape | Simulated $`\hat\rho(1)`$, lowest to highest | Periods with a rank change |
-| --- | --- | --- | --- | --- |
-| Default | None | Inverted U | 0.588 (Violette) to 0.831 (Bjørn) | 8 of 110 |
-| Longer sample | Periods set to 2000 | Inverted U | 0.636 to 0.877, each within 0.006 of the theory line | 198 of 2000 |
-| Decreasing preset | Allocation tab, Decreasing | Decreasing | 0.834 (Violette) to 0.719 (George) | 10 of 110 |
-| Increasing preset | Allocation tab, Increasing | Increasing | 0.615 (Violette) to 0.810 (George) | 6 of 110 |
-| Flat preset | Allocation tab, Flat | Flat | 0.745 to 0.766 | 4 of 110 |
-| U-shaped preset | Allocation tab, U-shaped | U-shaped | 0.643 (Bjørn) to 0.830 (Violette) | 0 of 110 |
-| Equal shocks | Parameters tab, every $`\sigma`$ set to 4 | Flat | 0.747 to 0.764, theory 0.819 for everyone | 2 of 110 |
-| Reversed persistence | $`\phi_L = 0.50`$, $`\phi_K = 0.90`$ | U-shaped | 0.540 (Bjørn) to 0.821 (Violette) | 20 of 110 |
-| Larger shocks | Parameters tab, every $`\sigma`$ multiplied by 3 | Inverted U | 0.581 to 0.820 | 64 of 110 |
-
-What the experiments suggest:
-
-- **Sample length.** At $`T = 110`$ the simulated values sit below the theory line, the usual downward small-sample bias of the autocorrelation. At $`T = 2000`$ the two nearly coincide.
-- **Composition.** The presets differ only in how labor and capital are split across people, yet each produces its own profile. Reversing which source is more persistent turns the default inverted U into a U shape. Choosing the Inverted U preset afterwards restores it, because presets give the pattern to whichever source is currently more persistent.
-- **Control case.** When every shock has the same size, a person's mix of sources no longer changes how their share moves, and the profile is flat.
-- **Ranks.** Tripling every shock leaves the profile almost unchanged, since persistence does not depend on the scale of proportional shocks, while rank changes rise from 8 to 64 periods.
-
-## Method notes
-
-**Persistence statistic.** For each simulated sample, the simulator takes each income share, removes its deterministic component (the share the model gives with every shock set to zero), and computes the first-order sample autocorrelation of what remains. Figure 1 reports the mean and the 5th and 95th percentiles across samples. Removing the deterministic component keeps a trend, or a slow move away from the starting allocation, from being counted as persistence.
-
-**Theory line.** A first-order linearization of each share around the long-run levels $`m = \beta/(1-\phi)`$. With $`\gamma = \sigma^2/(1-\phi^2)`$ the stationary variance of each source and $`M`$ the sum of all long-run levels:
-
-```math
-\rho_i(1) = \frac{\sum_{j} c_{ij}^{2}\left(\phi_{L,j}\,\gamma_{L,j} + \phi_{K,j}\,\gamma_{K,j}\right)}{\sum_{j} c_{ij}^{2}\left(\gamma_{L,j} + \gamma_{K,j}\right)}, \qquad c_{ij} = \frac{\mathbf{1}[i=j] - s_i}{M}, \qquad s_i = \frac{m_{L,i} + m_{K,i}}{M}
-```
-
-It is defined for fixed individuals when every $`\lvert\phi\rvert`$ is below 1, every trend is zero and total long-run income is positive. Otherwise only simulated values are shown.
-
-**Rank slots.** In rank-slot mode, people are re-sorted by total income every period, as WID quantile bands are, and the deterministic component is sorted the same way. A slot is then a position in the distribution rather than a person.
-
-**Random numbers.** Shocks come from a Mulberry32 generator with Box–Muller normals. Each combination of seed, sample, person and source has its own stream, so a parameter change reuses exactly the same shocks (common random numbers).
-
-**Timing.** Period 0 is the allocation, and the recursion runs for $`t = 1, \dots, T`$. The reference Octave script for the labor process, `r_Labor_Persist.m`, starts its index at 1, so its trend term is shifted by one period relative to the simulator.
-
-**Limits to keep in mind.**
-
-- The economy has five people, so the Lorenz curve has five segments and the Gini coefficient cannot exceed 0.8.
-- Shocks are independent across people and across sources. There is no common or aggregate shock, and no correlation between labor and capital shocks.
-- Each source is an AR(1) process; higher-order dynamics are not available.
-- Large shocks relative to the level of income can make incomes negative. Figure 1 then shows a note with the number of affected periods.
-
-## Running the simulator
-
-The simulator is one self-contained file, `index.html`.
-
-- **Locally.** Download `index.html` and open it in a recent version of Chrome, Firefox, Safari or Edge. It works offline; without a connection the page falls back to system fonts.
-- **GitHub Pages.** With `index.html` at the root of the repository, enable GitHub Pages for the main branch in the repository settings. The simulator is then served at the repository's Pages address.
-- **Performance.** $`T = 110`$ recomputes almost instantly. $`T = 2000`$ simulates 20 samples of 2000 periods and can take a moment on older machines.
-
-Repository layout:
-
-```
-.
-├── index.html          the simulator
-├── README.md           this guide
-└── docs/
-    └── images/         screenshots used in this guide
-```
-
 ## How to cite
 
 If you use the simulator in teaching or research, please cite it as:
 
-> El Hamrani, A., Hazmiri, H., & Abul Naga, R. (2026). *Inequality Persistence Simulator* (Version 1.0) [Computer software]. <https://github.com/abdelhamidelhamrani777/Inequality-Persistence-Simulator>
+> El Hamrani, A., Hazmiri, H., & Abul Naga, R. (2026). *Inequality Persistence Simulator* (Version 1.2) [Computer software]. <https://github.com/abdelhamidelhamrani777/Inequality-Persistence-Simulator>
 
 ```bibtex
 @software{inequality_persistence_simulator_2026,
   author  = {El Hamrani, Abdelhamid and Hazmiri, Hajar and Abul Naga, Ramses},
   title   = {Inequality Persistence Simulator},
-  version = {1.0},
+  version = {1.2},
   year    = {2026},
   url     = {https://github.com/abdelhamidelhamrani777/Inequality-Persistence-Simulator}
 }
@@ -287,3 +100,94 @@ If you use the simulator in teaching or research, please cite it as:
 ## Related work
 
 - Gomez, M. (2025). Macro perspectives on income inequality. *Journal of Economic Perspectives*, 39(2), 127–148.
+
+---
+
+<a id="francais"></a>
+
+# Simulateur de persistance des inégalités
+
+[English](#english) · **Français**
+
+**Un outil interactif et gratuit qui montre pourquoi la part de revenu de certaines personnes évolue lentement alors que celle d'autres monte et descend brusquement, et ce que cela change pour les inégalités.**
+
+**L'ouvrir :** utilisez la [version en ligne en français](https://abdelhamidelhamrani777.github.io/Inequality-Persistence-Simulator/?lang=fr), sans rien installer, ou téléchargez [`index.html`](index.html) et ouvrez-le dans votre navigateur. Le bouton **EN / FR** de la barre du haut change la langue.
+
+**Apprendre avec :** le [guide d'utilisation](docs/GUIDE.md), en anglais, explique chaque bouton et chaque graphique, puis déroule douze expériences pas à pas.
+
+## De quoi s'agit-il ?
+
+On décrit généralement les inégalités par une photographie : la façon dont le revenu est partagé une année donnée. Ce simulateur regarde comment cette photographie évolue dans le temps. Quand la part de revenu d'un groupe augmente, reste-t-elle élevée, ou retombe-t-elle rapidement ?
+
+Le simulateur suit cinq personnes imaginaires, Violette, Meryem, Bjørn, Alfred et George, sur de nombreuses périodes (pensez à des années). Chacune a deux sortes de revenu :
+
+- **le revenu du travail** : salaires et traitements ;
+- **le revenu du capital** : ce que rapporte ce que l'on possède, comme les loyers, les dividendes et les intérêts.
+
+Chaque année, ces deux revenus subissent des hausses et des baisses aléatoires. Vous choisissez combien de temps ces variations durent pour chaque sorte de revenu, ce que chaque personne possède au départ et l'ampleur des chocs. Le simulateur montre alors comment évolue la part de chacun dans le revenu total, et comment évoluent les inégalités dans leur ensemble.
+
+Le projet est issu d'un travail de recherche mené dans le cadre de mémoires de master à la Faculté de Gouvernance, Sciences Économiques et Sociales (FGSES) de l'Université Mohammed VI Polytechnique (UM6P), sous la direction du professeur Ramses Abul Naga.
+
+## Trois mots à connaître
+
+- **Part de revenu** : le revenu d'une personne divisé par le revenu de tous. Si George gagne 150 et que les cinq personnes gagnent 400 ensemble, sa part est de 37,5 %.
+- **Persistance** : la durée pendant laquelle un changement se maintient, mesurée par un nombre qui va jusqu'à 1. Près de 1, un changement dure longtemps : une part qui augmente cette année reste élevée l'année suivante. Près de 0, il disparaît presque aussitôt. À 0,9, la moitié d'un changement est encore là après environ sept ans ; à 0,5, la moitié a disparu au bout d'un an.
+- **Coefficient de Gini** : la mesure habituelle des inégalités. Il vaut 0 quand tout le monde a le même revenu et augmente à mesure que le revenu se concentre.
+
+## Ce que montre le simulateur
+
+Chaque résultat ci-dessous vient d'un exemple que vous pouvez refaire dans le simulateur. Le numéro entre parenthèses renvoie à l'expérience du [guide d'utilisation](docs/GUIDE.md) qui en donne les étapes.
+
+1. **L'origine de vos revenus détermine la vitesse à laquelle votre part évolue.** Dans l'exemple de départ, un changement de salaire dure longtemps (persistance 0,9) et un changement de revenu du capital s'efface vite (0,5). Les personnes du milieu vivent surtout de leur salaire, donc leur part évolue lentement. Les plus pauvres et les plus riches dépendent davantage du revenu du capital, donc leur part monte et retombe vite. La persistance est donc la plus forte au milieu (0,83) et la plus faible aux deux extrémités (0,59 en bas, 0,69 en haut) : une forme en cloche. *(6.1)*
+2. **Cela ne se produit que parce que les deux sortes de revenu se comportent différemment.** Si le revenu du capital devient le plus lent et le salaire le plus rapide, la forme s'inverse : c'est maintenant la part du milieu qui bouge le plus vite. Si les deux sortes de revenu se comportent de la même façon, toutes les parts évoluent au même rythme. *(6.2 et 6.3)*
+3. **Deux économies aussi inégales l'une que l'autre peuvent évoluer très différemment.** Cinq exemples aux inégalités proches (un coefficient de Gini entre 0,28 et 0,37) donnent cinq formes différentes : une persistance qui augmente du bas vers le haut, qui diminue, qui reste plate, qui se creuse au milieu ou qui culmine au milieu. Une photographie des inégalités ne dit pas comment elles vont évoluer. *(6.4)*
+4. **La durée d'un changement, l'ampleur des variations et la fréquence des dépassements sont trois choses différentes.** Rendre chaque choc aléatoire trois fois plus fort fait beaucoup plus varier les parts et fait changer les personnes de place bien plus souvent (en 64 années au lieu de 8), mais chaque changement dure à peu près aussi longtemps qu'avant. *(6.5)*
+5. **Suivre des groupes, ce n'est pas suivre des personnes.** Des chiffres comme « la part de revenu des 10 % les plus riches » suivent une position dans la distribution, pas les mêmes personnes. Quand les gens montent et descendent souvent, une position mélange des personnes dont les revenus se comportent différemment, et leurs différences s'effacent. *(6.6)*
+6. **Une tendance change le niveau des inégalités, pas la vitesse à laquelle les parts reviennent à la normale.** Si le revenu du capital de la personne la plus riche augmente régulièrement, les inégalités ne cessent de croître (le coefficient de Gini passe de 0,32 à 0,40 en 110 ans), mais la forme en cloche de la persistance demeure. *(6.7)*
+7. **Une redistribution ponctuelle ne dure que le temps du revenu qu'elle touche.** Partager une seule fois le revenu du capital à parts égales divise les inégalités par deux, mais en une dizaine d'années l'économie revient à son point de départ, car le revenu du capital retrouve vite son niveau habituel. Faire de même avec les salaires dure beaucoup plus longtemps. Seul un changement durable du revenu habituel de chacun, comme ses compétences ou ce qu'il possède, a un effet permanent. *(6.11)*
+
+Le simulateur est un outil d'enseignement et de recherche fondé sur cinq personnes imaginaires. Il montre comment fonctionnent des mécanismes ; il ne mesure rien sur des données réelles.
+
+## Prise en main
+
+1. Ouvrez le simulateur. Il démarre sur l'exemple du point 1 ci-dessus.
+2. Regardez la **figure 1**. Son titre est **La persistance culmine au milieu de la distribution**.
+3. Dans l'encadré **Persistance**, déplacez le curseur du travail ($`\phi_L`$). La figure 1 change aussitôt.
+4. Ouvrez l'onglet **Répartition** et choisissez une forme, par exemple **Croissant**. Le simulateur répartit à nouveau les revenus pour produire cette forme.
+5. Appuyez sur le bouton de lecture, ou sur la barre d'espace, pour voir défiler les années.
+
+**Réinitialiser** remet tout à l'état de départ.
+
+## Le modèle en une minute
+
+Le revenu du travail $`w`$ et le revenu du capital $`f`$ de chaque personne suivent la même règle simple : le revenu de cette année est égal à une constante, plus une tendance, plus une fraction $`\phi`$ du revenu de l'année précédente, plus un choc aléatoire. Le revenu total $`y`$ est la somme des deux.
+
+```math
+w_{i,t} = \beta_{W,i} + \beta_{W,trend,i}\, t + \phi_{L}\, w_{i,t-1} + u_{i,t}
+```
+
+```math
+f_{i,t} = \beta_{F,i} + \beta_{F,trend,i}\, t + \phi_{K}\, f_{i,t-1} + v_{i,t}
+```
+
+```math
+y_{i,t} = w_{i,t} + f_{i,t}
+```
+
+La fraction $`\phi`$ est la persistance : $`\phi_L`$ pour le revenu du travail et $`\phi_K`$ pour le revenu du capital. Les chocs $`u`$ et $`v`$ sont tirés au hasard dans une loi normale. La part de revenu d'une personne est son revenu total $`y`$ divisé par le revenu total des cinq personnes.
+
+La [référence technique](docs/TECHNICAL.md), en anglais, détaille le modèle complet, chaque réglage, la construction de chaque figure et les notes de méthode.
+
+## Auteurs
+
+- **Abdelhamid El Hamrani**, Faculté de Gouvernance, Sciences Économiques et Sociales, Université Mohammed VI Polytechnique
+- **Hajar Hazmiri**, Faculté de Gouvernance, Sciences Économiques et Sociales, Université Mohammed VI Polytechnique
+- **Ramses Abul Naga**, encadrant, Faculté de Gouvernance, Sciences Économiques et Sociales, Université Mohammed VI Polytechnique
+
+## Citer le simulateur
+
+Si vous utilisez le simulateur dans un cours ou une recherche, merci de le citer ainsi :
+
+> El Hamrani, A., Hazmiri, H., & Abul Naga, R. (2026). *Inequality Persistence Simulator* (version 1.2) [logiciel]. <https://github.com/abdelhamidelhamrani777/Inequality-Persistence-Simulator>
+
+La référence BibTeX figure dans la partie anglaise ci-dessus.
