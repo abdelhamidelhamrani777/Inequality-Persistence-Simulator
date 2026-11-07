@@ -4,7 +4,7 @@
 
 **English** · [Français](#francais)
 
-**An interactive simulator of the persistence of income shares in a two-source economy, and of its relation to the Lorenz curve and the Gini coefficient.**
+**An interactive simulator of the persistence of income shares in an economy where income is the sum of earnings and capital income. The simulator explores the relation between the persistence of the various income shares, the Lorenz curve and the Gini coefficient.**
 
 ![The Inequality Persistence Simulator at its default settings](docs/images/simulator.png)
 
@@ -85,7 +85,7 @@ Labor income $`w`$ and capital income $`f`$ follow AR(1) processes with persiste
 
 [English](#english) · **Français**
 
-**Un simulateur interactif de la persistance des parts de revenu dans une économie à deux sources de revenu, et de son lien avec la courbe de Lorenz et le coefficient de Gini.**
+**Un simulateur interactif de la persistance des parts de revenu dans une économie où le revenu est la somme des revenus du travail et des revenus du capital. Le simulateur explore la relation entre la persistance des différentes parts de revenu, la courbe de Lorenz et le coefficient de Gini.**
 
 ![Le simulateur de persistance des inégalités en français](docs/images/simulator-fr.png)
 
